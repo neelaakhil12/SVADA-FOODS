@@ -54,32 +54,21 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
           className="w-screen max-w-md bg-svada-card shadow-2xl border-l border-orange-100 flex flex-col justify-between h-full transform transition duration-500 ease-in-out"
           data-aos="slide-left"
         >
-          {/* Header & Tabs */}
+          {/* Header & Title */}
           <div>
             <div className="flex items-center justify-between p-6 border-b border-orange-100 bg-gradient-to-r from-orange-50 to-orange-100/30">
-              <div className="flex space-x-6 text-sm font-bold uppercase tracking-wider">
-                <button
-                  onClick={() => setActiveTab('cart')}
-                  className={`pb-1 relative transition duration-300 ${
-                    activeTab === 'cart' ? 'text-primary' : 'text-svada-light hover:text-primary'
-                  }`}
-                >
-                  Shopping Bag ({cart.length})
-                  {activeTab === 'cart' && (
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab('wishlist')}
-                  className={`pb-1 relative transition duration-300 ${
-                    activeTab === 'wishlist' ? 'text-primary' : 'text-svada-light hover:text-primary'
-                  }`}
-                >
-                  Wishlist ({wishlist.length})
-                  {activeTab === 'wishlist' && (
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />
-                  )}
-                </button>
+              <div className="flex items-center space-x-2 text-sm font-bold uppercase tracking-wider">
+                {activeTab === 'cart' ? (
+                  <div className="flex items-center space-x-2 text-primary">
+                    <ShoppingBag className="h-5 w-5" />
+                    <span>Shopping Bag ({cart.length})</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2 text-accent">
+                    <Heart className="h-5 w-5 fill-accent" />
+                    <span>Wishlist ({wishlist.length})</span>
+                  </div>
+                )}
               </div>
               <button
                 onClick={onClose}
