@@ -48,10 +48,10 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
         className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
       />
 
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
         {/* Sliding Panel */}
         <div 
-          className="w-screen max-w-md bg-svada-card shadow-2xl border-l border-orange-100 flex flex-col justify-between h-full transform transition duration-500 ease-in-out"
+          className="w-full max-w-md bg-svada-card shadow-2xl border-l border-orange-100 flex flex-col justify-between h-full transform transition duration-500 ease-in-out"
           data-aos="slide-left"
         >
           {/* Header & Title */}
