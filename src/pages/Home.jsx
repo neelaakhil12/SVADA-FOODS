@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import ProductCard from '../components/ProductCard';
-import { ArrowRight, ShieldCheck, Heart, Award, Leaf, Flame, Sparkles, MessageCircle, Star, Truck, ShieldAlert } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Heart, Award, Flame, Sparkles, MessageCircle, Star, Truck, ShieldAlert } from 'lucide-react';
 
 export default function Home() {
   const { products, setCurrentPage, setSelectedCategory } = useContext(ShopContext);
@@ -146,11 +146,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Floating Pickle tag */}
-                <div className="absolute top-3 right-3 sm:top-6 sm:right-6 bg-gradient-to-r from-accent to-accent/90 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl shadow-md text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center space-x-1 sm:space-x-1.5 animate-pulse z-10">
-                  <Leaf className="h-3 w-3 fill-white" />
-                  <span>100% Organic</span>
-                </div>
+
               </div>
             </div>
 
