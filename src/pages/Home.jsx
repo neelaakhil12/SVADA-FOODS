@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import ProductCard from '../components/ProductCard';
-import { ArrowRight, ShieldCheck, Heart, Award, Flame, Sparkles, MessageCircle, Star, Truck, ShieldAlert } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Heart, Award, Leaf, Flame, Sparkles, MessageCircle, Star, Truck, ShieldAlert } from 'lucide-react';
 
 export default function Home() {
   const { products, setCurrentPage, setSelectedCategory } = useContext(ShopContext);
