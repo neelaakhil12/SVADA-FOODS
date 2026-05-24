@@ -134,20 +134,20 @@ export default function Home() {
                 />
                 
                 {/* Floating Category overlay */}
-                <div className={`absolute bottom-6 left-6 glass p-4 rounded-2xl shadow-lg border border-white/40 flex items-center space-x-3 transition-all duration-300 max-w-[85%] ${
+                <div className={`absolute bottom-3 left-3 sm:bottom-6 sm:left-6 glass p-2.5 sm:p-4 rounded-2xl shadow-lg border border-white/40 flex items-center space-x-2 sm:space-x-3 transition-all duration-300 max-w-[85%] z-10 ${
                   isFading ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
                 }`}>
-                  <div className="bg-gradient-to-r from-primary to-secondary p-2 rounded-xl text-white font-bold text-sm flex-shrink-0">
+                  <div className="bg-gradient-to-r from-primary to-secondary p-1.5 sm:p-2 rounded-xl text-white font-bold text-xs sm:text-sm flex-shrink-0">
                     5.0 ★
                   </div>
                   <div className="min-w-0">
-                    <h5 className="font-bold text-xs text-svada-dark leading-tight truncate">{activeCategory?.name}</h5>
-                    <p className="text-[10px] text-svada-light truncate">{activeCategory?.desc}</p>
+                    <h5 className="font-bold text-[10px] sm:text-xs text-svada-dark leading-tight truncate">{activeCategory?.name}</h5>
+                    <p className="text-[8px] sm:text-[10px] text-svada-light truncate">{activeCategory?.desc}</p>
                   </div>
                 </div>
 
                 {/* Floating Pickle tag */}
-                <div className="absolute top-6 right-6 bg-gradient-to-r from-accent to-accent/90 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 animate-pulse">
+                <div className="absolute top-3 right-3 sm:top-6 sm:right-6 bg-gradient-to-r from-accent to-accent/90 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl shadow-md text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center space-x-1 sm:space-x-1.5 animate-pulse z-10">
                   <Leaf className="h-3 w-3 fill-white" />
                   <span>100% Organic</span>
                 </div>
