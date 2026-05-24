@@ -7,7 +7,6 @@ export default function QuickViewModal() {
   const [selectedWeight, setSelectedWeight] = useState('250g');
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Sync selectedWeight and quantity resets when modal target changes
   useEffect(() => {
@@ -19,7 +18,6 @@ export default function QuickViewModal() {
       );
       setQuantity(1);
       isAdded && setIsAdded(false);
-      setImageLoaded(false);
     }
   }, [activeQuickView]);
 
@@ -82,19 +80,11 @@ export default function QuickViewModal() {
         </button>
 
         {/* Product Image section */}
-        <div className="relative bg-white aspect-square md:aspect-auto md:h-full min-h-[300px] flex items-center justify-center overflow-hidden">
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-50 via-orange-100/30 to-orange-50 animate-pulse flex items-center justify-center">
-              <span className="w-6 h-6 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-            </div>
-          )}
+        <div className="relative bg-white aspect-square md:aspect-auto md:h-full min-h-[300px] flex items-center justify-center">
           <img
             src={product.image}
             alt={product.name}
-            className={`w-full h-full object-contain p-4 transition-all duration-500 ease-in-out ${
-              imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-            }`}
-            onLoad={() => setImageLoaded(true)}
+            className="w-full h-full object-contain p-4"
           />
         </div>
 

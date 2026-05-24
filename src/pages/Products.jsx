@@ -16,6 +16,30 @@ export default function Products() {
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
+  // Preload the first 6 product images so they appear instantly when the grid renders
+  useEffect(() => {
+    const preloadLinks = [];
+    const imagesToPreload = filteredProducts.slice(0, 6);
+    imagesToPreload.forEach((product) => {
+      if (!product.image) return;
+      const existing = document.querySelector(`link[rel="preload"][href="${product.image}"]`);
+      if (!existing) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = product.image;
+        link.fetchPriority = 'high';
+        document.head.appendChild(link);
+        preloadLinks.push(link);
+      }
+    });
+    return () => {
+      preloadLinks.forEach((link) => {
+        if (link.parentNode) link.parentNode.removeChild(link);
+      });
+    };
+  }, [filteredProducts]);
+
   // Re-scan all AOS elements when products update (handles dynamic filtering/search)
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -276,7 +300,7 @@ export default function Products() {
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
           />
 
-          <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+          <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
             <div className="w-screen max-w-xs bg-svada-card shadow-2xl flex flex-col justify-between h-full transform transition duration-500 ease-in-out border-l border-orange-100">
               <div>
                 <div className="flex items-center justify-between p-6 border-b border-orange-100 bg-orange-50">

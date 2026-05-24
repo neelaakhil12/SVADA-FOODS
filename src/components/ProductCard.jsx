@@ -34,7 +34,6 @@ export default function ProductCard({ product, index = 0 }) {
       : '250g'
   );
   const [isAdded, setIsAdded] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   const price = getProductPrice(product, selectedWeight);
   const isInWishlist = wishlist.includes(product.id);
@@ -81,19 +80,13 @@ export default function ProductCard({ product, index = 0 }) {
         className="relative aspect-[4/3] overflow-hidden bg-[#FAF7F2] cursor-pointer rounded-2xl border border-orange-100/40 mb-3" 
         onClick={() => setActiveQuickView(product)}
       >
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F2] via-orange-50 to-[#FAF7F2] animate-pulse flex items-center justify-center">
-            <span className="w-5 h-5 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-          </div>
-        )}
         <img
           src={product.image}
           alt={product.name}
-          className={`w-full h-full object-contain group-hover:scale-105 transition-all duration-500 ease-in-out p-1 ${
-            imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-          }`}
-          onLoad={() => setImageLoaded(true)}
-          loading="lazy"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-in-out p-1"
+          loading={index < 6 ? 'eager' : 'lazy'}
+          fetchPriority={index < 3 ? 'high' : 'auto'}
+          decoding={index < 6 ? 'sync' : 'async'}
         />
         {/* Overlay Hover details */}
         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
