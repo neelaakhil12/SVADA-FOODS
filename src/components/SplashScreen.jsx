@@ -6,25 +6,25 @@ export default function SplashScreen({ onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
-    // 1. Gently fade in and scale up the white logo
+    // 1. Gently fade in and scale up the white logo (almost instant)
     const mountTimer = setTimeout(() => {
       setIsMounted(true);
-    }, 100);
+    }, 10);
 
     // 2. Start the elegant left-to-right wipe animation to reveal the colorful logo
     const revealTimer = setTimeout(() => {
       setIsRevealed(true);
-    }, 900);
+    }, 200);
 
     // 3. Start fading out the entire splash screen
     const fadeTimer = setTimeout(() => {
       setIsFadingOut(true);
-    }, 2500);
+    }, 1000);
 
     // 4. Unmount the splash screen and notify parent
     const completeTimer = setTimeout(() => {
       onComplete();
-    }, 3100);
+    }, 1400);
 
     // Disable body scroll when splash screen is active
     document.body.style.overflow = 'hidden';
@@ -41,7 +41,7 @@ export default function SplashScreen({ onComplete }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-secondary transition-all duration-[600ms] ease-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-secondary transition-all duration-[400ms] ease-out ${
         isFadingOut ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
       style={{
@@ -49,7 +49,7 @@ export default function SplashScreen({ onComplete }) {
       }}
     >
       <div
-        className={`relative w-72 h-72 md:w-96 md:h-96 transition-all duration-1000 ease-out transform ${
+        className={`relative w-72 h-72 md:w-96 md:h-96 transition-all duration-500 ease-out transform ${
           isMounted ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
         }`}
       >
@@ -67,7 +67,7 @@ export default function SplashScreen({ onComplete }) {
           className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none filter brightness-0 invert drop-shadow-[0_8px_30px_rgba(255,255,255,0.4)]"
           style={{
             clipPath: isRevealed ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0%)',
-            transition: 'clip-path 1400ms cubic-bezier(0.76, 0, 0.24, 1)',
+            transition: 'clip-path 700ms cubic-bezier(0.76, 0, 0.24, 1)',
             willChange: 'clip-path',
           }}
         />
