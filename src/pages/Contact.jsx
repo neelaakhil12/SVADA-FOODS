@@ -43,6 +43,27 @@ export default function Contact() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (formState.name && formState.email && formState.message) {
+      // Compile structured WhatsApp inquiry message
+      let message = `*SVADA Homemade Foods - Contact Form Inquiry*\n`;
+      message += `=============================\n\n`;
+      message += `👤 *Name:* ${formState.name}\n`;
+      message += `📧 *Email:* ${formState.email}\n`;
+      if (formState.phone) {
+        message += `📞 *Phone:* ${formState.phone}\n`;
+      }
+      if (formState.subject) {
+        message += `📋 *Subject:* ${formState.subject}\n`;
+      }
+      message += `\n💬 *Message:*\n${formState.message}\n\n`;
+      message += `=============================`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=919000955239&text=${encodedMessage}`;
+      
+      // Redirect and open WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      // Trigger standard success banner
       setIsSubmitted(true);
       setTimeout(() => {
         setIsSubmitted(false);
