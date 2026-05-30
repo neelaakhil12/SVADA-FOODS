@@ -18,7 +18,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-[#2B1B15] to-[#1A0F0C] text-orange-100 font-poppins pt-16 pb-8 border-t-4 border-primary">
+    <footer className="bg-gradient-to-b from-[#2B1B15] to-[#1A0F0C] text-orange-100 font-poppins pt-16 pb-20 md:pb-8 border-t-4 border-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Highlight Section */}
