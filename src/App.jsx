@@ -16,6 +16,7 @@ import Privacy from './pages/Privacy';
 import ShippingPolicy from './pages/ShippingPolicy';
 import RefundPolicy from './pages/RefundPolicy';
 import Terms from './pages/Terms';
+import PromoPopup from './components/PromoPopup';
 
 // AOS Scroll Animations
 import AOS from 'aos';
@@ -24,7 +25,7 @@ import 'aos/dist/aos.css';
 // Lucide icon for support
 import { MessageCircle } from 'lucide-react';
 
-function AppContent() {
+function AppContent({ showSplash }) {
   const { currentPage } = useContext(ShopContext);
   
   // Sidebar drawers active states
@@ -127,6 +128,9 @@ function AppContent() {
         </span>
       </a>
 
+      {/* 4. Shipping Promo Popup (displayed once per session after splash screen ends) */}
+      <PromoPopup showTrigger={!showSplash} />
+
     </div>
   );
 }
@@ -137,7 +141,7 @@ export default function App() {
   return (
     <ShopProvider>
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-      <AppContent />
+      <AppContent showSplash={showSplash} />
     </ShopProvider>
   );
 }
