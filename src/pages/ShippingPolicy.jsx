@@ -41,7 +41,7 @@ export default function ShippingPolicy() {
         </h1>
         <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto" />
         <p className="text-sm text-svada-light font-light max-w-xl mx-auto leading-relaxed">
-          We ensure safe, secure, and clean packaging, bringing natural homemade delicacies directly from our village kitchens to your doorstep across India.
+          We ensure safe, secure, and clean packaging, bringing natural products directly from SVADA to your doorstep.
         </p>
       </div>
 
