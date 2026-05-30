@@ -90,7 +90,7 @@ export default function Home() {
   }));
 
   const heroSlides = [
-    { name: 'Pure Natural Traditional Foods', image: '/image copy 157.png', desc: '100% Homemade and Preservative-free Specialties' },
+    { name: 'Pure Natural Traditional Foods', image: '/image copy 158.png', desc: '100% Homemade and Preservative-free Specialties' },
     ...categoriesList
   ];
 
