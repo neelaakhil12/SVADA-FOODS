@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import {
   ShoppingBag, Heart, User, LogOut, Phone, MapPin,
-  Search, ChevronDown, Menu, X, Truck, Package
+  Search, ChevronDown, Menu, X, Truck, Package, Home as HomeIcon, ChevronRight
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -34,6 +34,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const browseDropdownRef = useRef(null);
 
   // Close dropdowns on outside click
@@ -212,9 +213,9 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
               </div>
             </div>
 
-            {/* Mobile search bar */}
+            {/* Mobile search bar & Quick Links */}
             <div className="md:hidden pb-3">
-              <form onSubmit={handleSearch} className="flex w-full border-2 border-orange-200 rounded-lg overflow-hidden focus-within:border-primary transition-colors duration-200">
+              <form onSubmit={handleSearch} className="flex w-full border-2 border-orange-200 rounded-lg overflow-hidden focus-within:border-primary transition-colors duration-200 mb-2">
                 <input
                   type="text"
                   value={searchQuery}
@@ -230,6 +231,35 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                   <Search className="h-4 w-4" />
                 </button>
               </form>
+
+              {/* Mobile horizontal quick links */}
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1.5 border-t border-orange-100/60">
+                {/* Category Filter Button */}
+                <button
+                  onClick={() => setIsMobileCategoriesOpen(true)}
+                  className="flex items-center justify-center p-2 bg-[#3B1E0A]/10 text-[#3B1E0A] rounded-lg cursor-pointer flex-shrink-0 hover:bg-[#3B1E0A]/20 transition"
+                  title="Browse Categories"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+                
+                {/* Links */}
+                <div className="flex items-center gap-4 pl-1">
+                  {navLinks.map((link) => (
+                    <button
+                      key={link.page}
+                      onClick={() => handleNavClick(link.page)}
+                      className={`text-xs font-bold whitespace-nowrap cursor-pointer py-1 transition duration-200 ${
+                        currentPage === link.page
+                          ? 'text-[#3B1E0A] border-b-2 border-[#3B1E0A]'
+                          : 'text-svada-dark hover:text-[#3B1E0A]'
+                      }`}
+                    >
+                      {link.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -408,8 +438,132 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
         />
       )}
 
+      {/* ============================================================
+          MOBILE CATEGORIES SLIDE-OUT DRAWER
+      ============================================================ */}
+      {isMobileCategoriesOpen && (
+        <div className="fixed inset-0 z-[70] md:hidden overflow-hidden">
+          <div 
+            onClick={() => setIsMobileCategoriesOpen(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+          />
+          <div className="absolute inset-y-0 left-0 max-w-full flex">
+            <div className="w-screen max-w-xs bg-white shadow-2xl flex flex-col justify-between h-full transform transition duration-500 ease-in-out border-r border-orange-100">
+              <div>
+                <div className="flex items-center justify-between p-6 border-b border-orange-100 bg-[#3B1E0A]/5">
+                  <h3 className="font-outfit font-black text-[#3B1E0A] text-base flex items-center">
+                    <Package className="h-4 w-4 mr-2" />
+                    <span>Browse Categories</span>
+                  </h3>
+                  <button
+                    onClick={() => setIsMobileCategoriesOpen(false)}
+                    className="p-1 rounded-lg hover:bg-orange-200 text-svada-dark transition cursor-pointer"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="p-4 space-y-1.5 overflow-y-auto max-h-[80vh] scrollbar-hide">
+                  {CATEGORIES.filter(c => c !== 'All Categories').map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        handleCategorySelect(cat);
+                        setIsMobileCategoriesOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold text-svada-dark hover:bg-[#3B1E0A]/5 hover:text-primary transition duration-300 flex items-center justify-between border-b border-orange-50/50 last:border-0 cursor-pointer"
+                    >
+                      <span>{cat}</span>
+                      <ChevronRight className="h-3 w-3 text-orange-200" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          STICKY BOTTOM MOBILE TAB BAR
+      ============================================================ */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-orange-100 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden py-2 px-3 flex justify-around items-center select-none font-poppins">
+        {/* Home */}
+        <button
+          onClick={() => handleNavClick('home')}
+          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer ${
+            currentPage === 'home' ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
+          }`}
+        >
+          <HomeIcon className="h-5 w-5" />
+          <span className="text-[10px] font-bold mt-1">Home</span>
+        </button>
+
+        {/* Categories */}
+        <button
+          onClick={() => setIsMobileCategoriesOpen(true)}
+          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer ${
+            isMobileCategoriesOpen ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
+          }`}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="text-[10px] font-bold mt-1">Categories</span>
+        </button>
+
+        {/* Shop */}
+        <button
+          onClick={() => handleNavClick('products')}
+          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer ${
+            currentPage === 'products' ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
+          }`}
+        >
+          <Package className="h-5 w-5" />
+          <span className="text-[10px] font-bold mt-1">Shop</span>
+        </button>
+
+        {/* Wishlist */}
+        <button
+          onClick={onOpenWishlist}
+          className="flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 relative cursor-pointer text-svada-dark hover:text-[#3B1E0A]"
+        >
+          <Heart className="h-5 w-5" />
+          {wishlist.length > 0 && (
+            <span className="absolute top-0.5 right-3.5 bg-accent text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white">
+              {wishlist.length}
+            </span>
+          )}
+          <span className="text-[10px] font-bold mt-1">Wishlist</span>
+        </button>
+
+        {/* Cart */}
+        <button
+          onClick={onOpenCart}
+          className="flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 relative cursor-pointer text-svada-dark hover:text-[#3B1E0A]"
+        >
+          <ShoppingBag className="h-5 w-5" />
+          {cartCount > 0 && (
+            <span className="absolute top-0.5 right-3.5 bg-[#3B1E0A] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white">
+              {cartCount}
+            </span>
+          )}
+          <span className="text-[10px] font-bold mt-1">Cart</span>
+        </button>
+
+        {/* Account */}
+        <button
+          onClick={() => handleNavClick('login')}
+          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer ${
+            currentPage === 'login' ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
+          }`}
+        >
+          <User className="h-5 w-5" />
+          <span className="text-[10px] font-bold mt-1">Account</span>
+        </button>
+      </div>
+
       {/* Unified page spacer to push down page content perfectly without manual overlaps! */}
-      <div className="h-[210px] md:h-[162px]" />
+      <div className="h-[245px] md:h-[162px]" />
     </>
   );
 }
