@@ -265,7 +265,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
         </div>
 
         {/* TIER 3 — NAVIGATION BAR (Browse Categories + Links + Offer) */}
-        <div className="w-full bg-svada-bg border-b border-orange-100">
+        <div className="hidden md:block w-full bg-svada-bg border-b border-orange-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center h-11 gap-0">
 
@@ -563,7 +563,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
       </div>
 
       {/* Unified page spacer to push down page content perfectly without manual overlaps! */}
-      <div className="h-[245px] md:h-[162px]" />
+      <div className="h-[205px] md:h-[162px]" />
     </>
   );
 }
