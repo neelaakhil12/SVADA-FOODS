@@ -203,13 +203,6 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                   )}
                 </button>
 
-                {/* Mobile hamburger */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden p-2 rounded-lg text-svada-dark hover:bg-[#3B1E0A]/10 hover:text-[#3B1E0A] transition"
-                >
-                  {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
               </div>
             </div>
 
