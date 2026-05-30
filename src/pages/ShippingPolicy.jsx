@@ -13,7 +13,6 @@ export default function ShippingPolicy() {
     "It is the customer's responsibility to provide accurate shipping information, including recipient name, address, phone number, and pincode.",
     "SVADA FOODS shall not be responsible for delays or delivery failures caused by incorrect or incomplete shipping details provided by the customer.",
     "Delivery will be attempted at the address provided during checkout. Additional delivery attempts may be subject to courier partner policies.",
-    "If a package is returned due to an incorrect address, customer unavailability, or refusal to accept delivery, additional shipping charges may apply for re-dispatch.",
     "All products are packed with care using appropriate packaging materials to ensure safe transportation.",
     "To be eligible for a replacement claim in cases of missing, incorrect, or incomplete products, customers must record a clear and continuous 360-degree unboxing video of the package from the moment it is opened until all contents are fully displayed.",
     "Shipping charges, if applicable, will be displayed during checkout before order confirmation.",
