@@ -241,7 +241,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-orange-950/40 text-center text-xs text-orange-200/40 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p>© {new Date().getFullYear()} SVADA Homemade Foods. All Rights Reserved. Crafted with love in India.</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            <a href="#" className="hover:text-primary transition">Privacy Policy</a>
+            <button onClick={() => handleNavClick('privacy')} className="hover:text-primary transition cursor-pointer">Privacy Policy</button>
             <a href="#" className="hover:text-primary transition">Terms of Service</a>
             <a href="#" className="hover:text-primary transition">Shipping Policy</a>
           </div>

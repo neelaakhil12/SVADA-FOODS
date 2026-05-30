@@ -12,6 +12,7 @@ import Products from './pages/Products';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
+import Privacy from './pages/Privacy';
 
 // AOS Scroll Animations
 import AOS from 'aos';
@@ -60,6 +61,8 @@ function AppContent() {
         return <Contact />;
       case 'login':
         return <Login />;
+      case 'privacy':
+        return <Privacy />;
       default:
         return <Home />;
     }
