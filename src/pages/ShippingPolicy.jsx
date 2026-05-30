@@ -15,7 +15,7 @@ export default function ShippingPolicy() {
     "Delivery will be attempted at the address provided during checkout. Additional delivery attempts may be subject to courier partner policies.",
     "If a package is returned due to an incorrect address, customer unavailability, or refusal to accept delivery, additional shipping charges may apply for re-dispatch.",
     "All products are packed with care using appropriate packaging materials to ensure safe transportation.",
-    "To be eligible for a replacement claim in cases of missing, damaged, incorrect, or incomplete products, customers must record a clear and continuous 360-degree unboxing video of the package from the moment it is opened until all contents are fully displayed.",
+    "To be eligible for a replacement claim in cases of missing, incorrect, or incomplete products, customers must record a clear and continuous 360-degree unboxing video of the package from the moment it is opened until all contents are fully displayed.",
     "Shipping charges, if applicable, will be displayed during checkout before order confirmation.",
     "Delivery timelines are estimates and should not be considered guaranteed delivery commitments.",
     "SVADA FOODS is not liable for delays caused by natural disasters, strikes, transportation disruptions, government regulations, or other circumstances beyond our control.",
