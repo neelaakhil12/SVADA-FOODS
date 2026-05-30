@@ -62,7 +62,7 @@ export default function ShippingPolicy() {
             <h4 className="font-outfit text-sm uppercase tracking-wider">Secure Packaging</h4>
           </div>
           <p className="text-xs text-svada-light leading-relaxed">
-            All natural products & foods are clean-packed using heavy-duty premium transit jars and secure padding to completely eliminate leaks and damage.
+            All natural products & foods are clean-packed using heavy-duty premium transit packaging and secure padding to completely eliminate leaks.
           </p>
         </div>
       </div>
