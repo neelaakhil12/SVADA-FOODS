@@ -141,36 +141,47 @@ export default function Home() {
           {/* Premium Dynamic Widescreen Banner Slideshow */}
           <div 
             onClick={handleShopNow}
-            className="relative w-full aspect-[1.8/1] sm:aspect-[2.3/1] md:aspect-[2.8/1] rounded-[32px] overflow-hidden shadow-2xl border-4 border-white transition-all duration-500 bg-gradient-to-br from-[#241206] via-[#3B1E0A] to-stone-900 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-between text-white select-none cursor-pointer group"
+            className="relative w-full rounded-2xl sm:rounded-[32px] shadow-2xl border-2 sm:border-4 border-white transition-all duration-500 bg-gradient-to-br from-[#241206] via-[#3B1E0A] to-stone-900 text-white select-none cursor-pointer group sm:aspect-[2.3/1] md:aspect-[2.8/1] overflow-hidden"
           >
+            {/* Inner wrapper — padding & flex layout */}
+            <div className="relative z-10 flex flex-col justify-between h-full p-5 sm:p-8 md:p-10 lg:p-12">
             
-            {/* Top Row: Brand tag & Farm Fresh Emblem */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/15">
-                <span className="text-[10px] font-black tracking-widest text-amber-400">SVADA PREMIUM</span>
+              {/* Top Row: Brand tag & Farm Fresh Emblem */}
+              <div className="flex items-center justify-between mb-4 sm:mb-0">
+                <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-xs px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-white/15">
+                  <span className="text-[9px] sm:text-[10px] font-black tracking-widest text-amber-400">SVADA PREMIUM</span>
+                </div>
+                
+                {/* Circular Fresh Emblem */}
+                <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 flex flex-col items-center justify-center text-[6px] sm:text-[8px] font-bold text-center leading-tight">
+                  <span>100%</span>
+                  <span className="text-amber-400 font-extrabold">PURE</span>
+                  <span>NATURAL</span>
+                </div>
               </div>
-              
-              {/* Circular Fresh Emblem */}
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/10 backdrop-blur-xs border border-white/20 flex flex-col items-center justify-center text-[7px] sm:text-[8px] font-bold text-center leading-tight">
-                <span>100%</span>
-                <span className="text-amber-400 font-extrabold">PURE</span>
-                <span>NATURAL</span>
-              </div>
-            </div>
 
-            {/* Middle Row: Widescreen 12-Column Grid */}
-            <div className="grid grid-cols-12 gap-4 items-center my-auto flex-1 w-full">
-              
-              {/* Left block: Text Typo & CTA (7 columns) */}
-              <div className="col-span-8 sm:col-span-7 space-y-2 md:space-y-4 pr-1 text-left">
-                <div className="space-y-1 md:space-y-2">
-                  <div className="inline-flex items-center space-x-1.5 bg-[#B3743B]/20 border border-[#B3743B]/30 px-3 py-0.5 md:py-1 rounded-full text-[8px] sm:text-[10px] font-bold text-amber-200 uppercase tracking-wider">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+              {/* ===== MOBILE LAYOUT (< 640px): Stacked vertically ===== */}
+              <div className="flex flex-col items-center gap-4 sm:hidden py-2">
+                {/* Image first on mobile */}
+                <div className="relative flex items-center justify-center w-full">
+                  <div className="absolute inset-0 bg-radial from-amber-400/20 to-transparent blur-2xl pointer-events-none" />
+                  <img
+                    src={activeSlide?.image}
+                    alt={activeSlide?.name}
+                    className={`h-[140px] w-auto object-contain transition-all duration-500 drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] ${
+                      isFading ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+                    }`}
+                  />
+                </div>
+
+                {/* Text content */}
+                <div className="text-center space-y-2 w-full">
+                  <div className="inline-flex items-center space-x-1.5 bg-[#B3743B]/20 border border-[#B3743B]/30 px-2.5 py-0.5 rounded-full text-[8px] font-bold text-amber-200 uppercase tracking-wider">
+                    <Sparkles className="h-3 w-3 text-amber-400 animate-pulse" />
                     <span>Traditional Homemade Goodness</span>
                   </div>
                   
-                  {/* Dynamic Title based on Active Slide */}
-                  <h3 className="font-outfit font-black text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-white leading-tight uppercase tracking-wide truncate">
+                  <h3 className="font-outfit font-black text-lg text-white leading-snug uppercase tracking-wide">
                     {activeSlide?.name?.split('&')[0]}<br />
                     <span className="text-amber-300">
                       {activeSlide?.name?.includes('&') 
@@ -179,58 +190,92 @@ export default function Home() {
                     </span>
                   </h3>
                   
-                  <p className="text-[9px] sm:text-xs md:text-sm text-white/80 font-light leading-relaxed max-w-xl line-clamp-1">
-                    {activeSlide?.desc} — Authentic recipes crafted cleanly with love.
+                  <p className="text-[10px] text-white/70 font-light leading-relaxed line-clamp-2 px-2">
+                    {activeSlide?.desc} — Authentic recipes crafted with love.
                   </p>
-                </div>
 
-                <div className="flex items-center gap-3 pt-1">
-                  <button
-                    onClick={handleShopNow}
-                    className="inline-flex items-center gap-2 bg-[#B3743B] hover:bg-[#9B5F2A] text-white text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 cursor-pointer"
-                  >
-                    <span>SHOP NOW</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="text-[9px] sm:text-[10px] text-white/60 font-semibold hidden md:inline">⚡ Shipped Directly Across India</span>
+                  <div className="flex justify-center pt-1">
+                    <button
+                      onClick={handleShopNow}
+                      className="inline-flex items-center gap-2 bg-[#B3743B] hover:bg-[#9B5F2A] text-white text-[11px] font-bold px-6 py-2.5 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <span>SHOP NOW</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Right block: Floating Image with nice soft shadow (5 columns) */}
-              <div className="col-span-4 sm:col-span-5 relative flex items-center justify-center h-full min-h-[160px] sm:min-h-[210px] md:min-h-[300px] lg:min-h-[350px]">
-                <div className="absolute inset-0 bg-radial from-amber-400/20 to-transparent blur-2xl pointer-events-none" />
-                
-                <img
-                  src={activeSlide?.image}
-                  alt={activeSlide?.name}
-                  className={`max-h-[150px] sm:max-h-[200px] md:max-h-[280px] lg:max-h-[350px] w-auto object-contain transition-all duration-500 drop-shadow-[0_15px_20px_rgba(0,0,0,0.5)] ${
-                    isFading ? 'opacity-0 scale-90 -translate-y-3' : 'opacity-100 scale-100 translate-y-0'
-                  }`}
-                />
+              {/* ===== DESKTOP LAYOUT (>= 640px): Side-by-side grid ===== */}
+              <div className="hidden sm:grid sm:grid-cols-12 gap-4 items-center my-auto flex-1 w-full">
+                {/* Left block: Text & CTA */}
+                <div className="col-span-7 space-y-2 md:space-y-4 text-left">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <div className="inline-flex items-center space-x-1.5 bg-[#B3743B]/20 border border-[#B3743B]/30 px-3 py-0.5 md:py-1 rounded-full text-[10px] font-bold text-amber-200 uppercase tracking-wider">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+                      <span>Traditional Homemade Goodness</span>
+                    </div>
+                    
+                    <h3 className="font-outfit font-black text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-white leading-tight uppercase tracking-wide">
+                      {activeSlide?.name?.split('&')[0]}<br />
+                      <span className="text-amber-300">
+                        {activeSlide?.name?.includes('&') 
+                          ? `& ${activeSlide?.name?.split('&')[1]}` 
+                          : 'Freshly Prepared'}
+                      </span>
+                    </h3>
+                    
+                    <p className="text-xs md:text-sm text-white/80 font-light leading-relaxed max-w-xl line-clamp-1">
+                      {activeSlide?.desc} — Authentic recipes crafted cleanly with love.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-1">
+                    <button
+                      onClick={handleShopNow}
+                      className="inline-flex items-center gap-2 bg-[#B3743B] hover:bg-[#9B5F2A] text-white text-xs font-bold px-6 py-3 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <span>SHOP NOW</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="text-[10px] text-white/60 font-semibold hidden md:inline">⚡ Shipped Directly Across India</span>
+                  </div>
+                </div>
+
+                {/* Right block: Floating Image */}
+                <div className="col-span-5 relative flex items-center justify-center min-h-[210px] md:min-h-[300px] lg:min-h-[350px]">
+                  <div className="absolute inset-0 bg-radial from-amber-400/20 to-transparent blur-2xl pointer-events-none" />
+                  <img
+                    src={activeSlide?.image}
+                    alt={activeSlide?.name}
+                    className={`max-h-[200px] md:max-h-[280px] lg:max-h-[350px] w-auto object-contain transition-all duration-500 drop-shadow-[0_15px_20px_rgba(0,0,0,0.5)] ${
+                      isFading ? 'opacity-0 scale-90 -translate-y-3' : 'opacity-100 scale-100 translate-y-0'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Row: Trust Badges */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-1 pt-3 mt-4 sm:mt-0 border-t border-white/10 text-center">
+                <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight sm:border-r border-white/10 px-0.5">
+                  <span className="block text-amber-400">100% PURE</span>
+                  <span>NATURAL &amp; FRESH</span>
+                </div>
+                <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight sm:border-r border-white/10 px-0.5">
+                  <span className="block text-amber-400">PREPAID SECURE</span>
+                  <span>NO COD SHIPPING</span>
+                </div>
+                <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight sm:border-r border-white/10 px-0.5">
+                  <span className="block text-amber-400">NO ADDED</span>
+                  <span>PRESERVATIVES</span>
+                </div>
+                <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight px-0.5">
+                  <span className="block text-amber-400">SOURCED DIRECT</span>
+                  <span>FROM NATURAL FARMS</span>
+                </div>
               </div>
 
             </div>
-
-            {/* Bottom Row: Trust Badges (clean thin lines) */}
-            <div className="grid grid-cols-4 gap-1 pt-3 border-t border-white/10 text-center">
-              <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight border-r border-white/10 px-0.5">
-                <span className="block text-amber-400">100% PURE</span>
-                <span>NATURAL &amp; FRESH</span>
-              </div>
-              <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight border-r border-white/10 px-0.5">
-                <span className="block text-amber-400">PREPAID SECURE</span>
-                <span>NO COD SHIPPING</span>
-              </div>
-              <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight border-r border-white/10 px-0.5">
-                <span className="block text-amber-400">NO ADDED</span>
-                <span>PRESERVATIVES</span>
-              </div>
-              <div className="text-[7px] sm:text-[8px] md:text-[9px] font-bold text-white/80 leading-tight px-0.5">
-                <span className="block text-amber-400">SOURCED DIRECT</span>
-                <span>FROM NATURAL FARMS</span>
-              </div>
-            </div>
-
           </div>
 
         </div>
@@ -597,8 +642,8 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Shoppable Reels Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Shoppable Reels — Horizontal scroll on mobile, Grid on desktop */}
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
             {watchBuyVideos.map((reel) => {
               const product = getProductForVideo(reel.keyword);
               return (
@@ -608,7 +653,7 @@ export default function Home() {
                     setActiveReel(reel);
                     setReelMuted(false);
                   }}
-                  className="relative aspect-[9/16] rounded-[28px] overflow-hidden bg-black shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 select-none group cursor-pointer border border-[#3B1E0A]/10"
+                  className="relative flex-shrink-0 w-[180px] sm:w-auto aspect-[9/14] sm:aspect-[9/16] rounded-2xl sm:rounded-[28px] overflow-hidden bg-black shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 select-none group cursor-pointer border border-[#3B1E0A]/10 snap-start"
                   data-aos="fade-up"
                 >
                   
@@ -628,22 +673,22 @@ export default function Home() {
                   />
 
                   {/* Top Overlay Badge */}
-                  <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-xs px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-white">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-[9px] font-black tracking-widest uppercase">RECIPES</span>
+                  <div className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-black/40 backdrop-blur-xs px-2.5 sm:px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 text-white">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-[8px] sm:text-[9px] font-black tracking-widest uppercase">RECIPES</span>
                   </div>
 
                   {/* Center Play Icon Indicator */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:scale-110 group-hover:opacity-0 transition duration-300">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-lg">
-                      <Play className="h-5 w-5 fill-white ml-0.5" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-lg">
+                      <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-white ml-0.5" />
                     </div>
                   </div>
 
                   {/* Bottom Text Overlay */}
-                  <div className="absolute bottom-4 left-3 right-3 bg-black/45 backdrop-blur-xs rounded-2xl p-3.5 text-left border border-white/10">
-                    <span className="text-[9px] font-extrabold text-amber-300 uppercase tracking-widest block">Video Reel</span>
-                    <h4 className="text-[11px] font-bold text-white truncate leading-snug mt-0.5">{reel.title}</h4>
+                  <div className="absolute bottom-3 sm:bottom-4 left-2.5 right-2.5 sm:left-3 sm:right-3 bg-black/45 backdrop-blur-xs rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 text-left border border-white/10">
+                    <span className="text-[8px] sm:text-[9px] font-extrabold text-amber-300 uppercase tracking-widest block">Video Reel</span>
+                    <h4 className="text-[10px] sm:text-[11px] font-bold text-white truncate leading-snug mt-0.5">{reel.title}</h4>
                   </div>
 
                 </div>

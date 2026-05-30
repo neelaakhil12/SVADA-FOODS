@@ -122,9 +122,8 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                   alt="SVADA Foods Logo"
                   className="h-12 md:h-14 w-auto object-contain rounded-xl hover:scale-105 transition duration-300"
                 />
-                <span className="hidden lg:block font-outfit font-black text-svada-dark text-lg leading-tight">
-                  SVADA<br />
-                  <span className="text-[#3B1E0A] text-sm font-bold">Foods</span>
+                <span className="block font-outfit font-black text-svada-dark text-sm sm:text-lg lg:text-xl leading-none tracking-wide whitespace-nowrap">
+                  SVADA <span className="text-[#3B1E0A]">FOODS</span>
                 </span>
               </div>
 
@@ -177,7 +176,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                 {/* Wishlist */}
                 <button
                   onClick={onOpenWishlist}
-                  className="relative flex items-center justify-center p-2.5 rounded-lg hover:bg-[#3B1E0A]/5 text-svada-dark hover:text-[#3B1E0A] transition cursor-pointer"
+                  className="relative hidden md:flex items-center justify-center p-2.5 rounded-lg hover:bg-[#3B1E0A]/5 text-svada-dark hover:text-[#3B1E0A] transition cursor-pointer"
                   title="Wishlist"
                 >
                   <Heart className="h-5 w-5" />
@@ -191,7 +190,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                 {/* Cart */}
                 <button
                   onClick={onOpenCart}
-                  className="relative flex items-center justify-center p-2.5 rounded-lg hover:bg-[#2B1507] text-white transition shadow-md cursor-pointer"
+                  className="relative hidden md:flex items-center justify-center p-2.5 rounded-lg hover:bg-[#2B1507] text-white transition shadow-md cursor-pointer"
                   style={{ background: '#3B1E0A' }}
                   title="Cart"
                 >
@@ -248,6 +247,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                   style={{ background: '#3B1E0A' }}
                 >
                   <Menu className="h-3.5 w-3.5" />
+                  <span className="sm:hidden whitespace-nowrap">Categories</span>
                   <span className="hidden sm:inline whitespace-nowrap">Browse All Categories</span>
                   <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isBrowseOpen ? 'rotate-180' : ''}`} />
                 </button>

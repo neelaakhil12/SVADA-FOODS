@@ -73,7 +73,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="font-poppins py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[85vh] overflow-x-hidden">
+    <div className="font-poppins py-6 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[85vh] overflow-x-hidden">
       
       {/* Page Header */}
       <div className="text-center space-y-3 mb-12" data-aos="fade-up">
@@ -155,17 +155,17 @@ export default function Contact() {
           </div>
 
           {/* Premium Vector Theme Map Container */}
-          <div className="bg-gradient-to-br from-[#2B1B15] to-[#1A0F0C] text-white p-6 rounded-3xl space-y-4 shadow-md text-left">
-            <h4 className="font-outfit font-bold text-base text-white">📍 Kitchen Location</h4>
-            <div className="bg-[#1F120E] aspect-video rounded-2xl border border-orange-950/60 p-4 flex flex-col justify-center items-center text-center relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[#2B1B15] to-[#1A0F0C] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-md text-left">
+            <h4 className="font-outfit font-bold text-sm sm:text-base text-white">📍 Kitchen Location</h4>
+            <div className="bg-[#1F120E] aspect-[4/3] sm:aspect-video rounded-xl sm:rounded-2xl border border-orange-950/60 p-3 sm:p-4 flex flex-col justify-center items-center text-center relative overflow-hidden">
               {/* Decorative grid */}
               <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px]" />
-              <div className="bg-primary/20 text-primary w-12 h-12 rounded-full flex items-center justify-center border border-primary/30 animate-pulse mb-3 z-10">
-                <MapPin className="h-6 w-6" />
+              <div className="bg-primary/20 text-primary w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border border-primary/30 animate-pulse mb-2 sm:mb-3 z-10">
+                <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <span className="font-outfit font-bold text-sm text-white relative z-10">SVADA Traditional Central Kitchen</span>
-              <span className="text-[10px] text-orange-200/50 mt-1 relative z-10">Kukatpally Food Park, Hyderabad, India</span>
-              <span className="text-[9px] text-accent font-bold uppercase tracking-widest mt-3 border border-accent/20 px-2 py-0.5 rounded-full relative z-10 bg-emerald-950/40">
+              <span className="font-outfit font-bold text-xs sm:text-sm text-white relative z-10">SVADA Traditional Central Kitchen</span>
+              <span className="text-[9px] sm:text-[10px] text-orange-200/50 mt-1 relative z-10">Kukatpally Food Park, Hyderabad, India</span>
+              <span className="text-[8px] sm:text-[9px] text-accent font-bold uppercase tracking-widest mt-2 sm:mt-3 border border-accent/20 px-2 py-0.5 rounded-full relative z-10 bg-emerald-950/40">
                 ✓ Fully Hygienic Certified
               </span>
             </div>
