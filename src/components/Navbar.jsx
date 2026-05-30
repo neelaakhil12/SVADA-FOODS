@@ -511,16 +511,6 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
           <span className="text-[10px] font-bold mt-1">Categories</span>
         </button>
 
-        {/* Shop */}
-        <button
-          onClick={() => handleNavClick('products')}
-          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer ${
-            currentPage === 'products' ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
-          }`}
-        >
-          <Package className="h-5 w-5" />
-          <span className="text-[10px] font-bold mt-1">Shop</span>
-        </button>
 
         {/* Wishlist */}
         <button
