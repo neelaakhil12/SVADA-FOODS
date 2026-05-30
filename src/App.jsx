@@ -13,6 +13,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Privacy from './pages/Privacy';
+import ShippingPolicy from './pages/ShippingPolicy';
+import RefundPolicy from './pages/RefundPolicy';
 
 // AOS Scroll Animations
 import AOS from 'aos';
@@ -63,6 +65,10 @@ function AppContent() {
         return <Login />;
       case 'privacy':
         return <Privacy />;
+      case 'shipping':
+        return <ShippingPolicy />;
+      case 'refund':
+        return <RefundPolicy />;
       default:
         return <Home />;
     }

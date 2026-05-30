@@ -243,7 +243,8 @@ export default function Footer() {
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <button onClick={() => handleNavClick('privacy')} className="hover:text-primary transition cursor-pointer">Privacy Policy</button>
             <a href="#" className="hover:text-primary transition">Terms of Service</a>
-            <a href="#" className="hover:text-primary transition">Shipping Policy</a>
+            <button onClick={() => handleNavClick('shipping')} className="hover:text-primary transition cursor-pointer">Shipping Policy</button>
+            <button onClick={() => handleNavClick('refund')} className="hover:text-primary transition cursor-pointer">Refund Policy</button>
           </div>
         </div>
 
