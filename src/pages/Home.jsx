@@ -384,9 +384,6 @@ export default function Home() {
                 />
                 
                 {/* Floating micro highlights */}
-                <div className="absolute top-6 left-6 bg-[#D94F04]/90 text-white text-xs font-semibold py-1.5 px-3 rounded-xl">
-                  🥣 Slow Cooked in Copper
-                </div>
                 <div className="absolute bottom-6 right-6 bg-[#3B1E0A]/95 text-amber-200 text-xs font-semibold py-1.5 px-3 rounded-xl border border-amber-500/20">
                   🍃 Pure Sesame / Groundnut Oils
                 </div>
