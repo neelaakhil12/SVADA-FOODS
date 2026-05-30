@@ -30,3 +30,5 @@ dist-ssr
 # Ignore large video assets
 *.mp4
 *.MP4
+!public/*.mp4
+!public/*.MP4
