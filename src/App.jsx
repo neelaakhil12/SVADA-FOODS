@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import Privacy from './pages/Privacy';
 import ShippingPolicy from './pages/ShippingPolicy';
 import RefundPolicy from './pages/RefundPolicy';
+import Terms from './pages/Terms';
 
 // AOS Scroll Animations
 import AOS from 'aos';
@@ -69,6 +70,8 @@ function AppContent() {
         return <ShippingPolicy />;
       case 'refund':
         return <RefundPolicy />;
+      case 'terms':
+        return <Terms />;
       default:
         return <Home />;
     }

@@ -242,7 +242,7 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} SVADA Homemade Foods. All Rights Reserved. Crafted with love in India.</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <button onClick={() => handleNavClick('privacy')} className="hover:text-primary transition cursor-pointer">Privacy Policy</button>
-            <a href="#" className="hover:text-primary transition">Terms of Service</a>
+            <button onClick={() => handleNavClick('terms')} className="hover:text-primary transition cursor-pointer">Terms of Service</button>
             <button onClick={() => handleNavClick('shipping')} className="hover:text-primary transition cursor-pointer">Shipping Policy</button>
             <button onClick={() => handleNavClick('refund')} className="hover:text-primary transition cursor-pointer">Refund Policy</button>
           </div>
