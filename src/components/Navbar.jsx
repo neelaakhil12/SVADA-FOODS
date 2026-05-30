@@ -136,7 +136,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for products..."
-                    className="flex-1 px-4 py-2 text-sm text-svada-dark placeholder-svada-light outline-none bg-white"
+                    className="flex-1 min-w-0 px-4 py-2 text-sm text-svada-dark placeholder-svada-light outline-none bg-white"
                   />
                   {/* Search button */}
                   <button
@@ -220,7 +220,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
-                  className="flex-1 px-3 py-2 text-sm text-svada-dark placeholder-svada-light outline-none bg-white"
+                  className="flex-1 min-w-0 px-3 py-2 text-sm text-svada-dark placeholder-svada-light outline-none bg-white"
                 />
                 <button
                   type="submit"
