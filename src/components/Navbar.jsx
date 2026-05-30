@@ -227,15 +227,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
 
               {/* Mobile horizontal quick links */}
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1.5 border-t border-orange-100/60">
-                {/* Category Filter Button */}
-                <button
-                  onClick={() => setIsMobileCategoriesOpen(true)}
-                  className="flex items-center justify-center p-2 bg-[#3B1E0A]/10 text-[#3B1E0A] rounded-lg cursor-pointer flex-shrink-0 hover:bg-[#3B1E0A]/20 transition"
-                  title="Browse Categories"
-                >
-                  <Menu className="h-4 w-4" />
-                </button>
-                
+
                 {/* Links */}
                 <div className="flex items-center gap-4 pl-1">
                   {navLinks.map((link) => (
