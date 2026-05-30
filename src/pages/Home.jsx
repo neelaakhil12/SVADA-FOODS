@@ -413,8 +413,8 @@ export default function Home() {
                 <div className="flex items-start space-x-2">
                   <Leaf className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
                   <div>
-                    <h5 className="font-semibold text-sm text-white">Cold-Pressed Oils</h5>
-                    <p className="text-xs text-orange-200/50">Groundnut and Gingelly</p>
+                    <h5 className="font-semibold text-sm text-white">Groundnut & Sunflower Oils</h5>
+                    <p className="text-xs text-orange-200/50">100% Pure & Cold-Pressed</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-2">
