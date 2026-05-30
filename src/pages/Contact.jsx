@@ -155,7 +155,12 @@ export default function Contact() {
           </div>
 
           {/* Premium Vector Theme Map Container */}
-          <div className="bg-gradient-to-br from-[#2B1B15] to-[#1A0F0C] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-md text-left">
+          <a 
+            href="https://www.google.com/maps/place/19%C2%B002'40.4%22N+78%C2%B038'35.3%22E/@19.0445538,78.6405754,823m/data=!3m2!1e3!4b1!4m4!3m3!8m2!3d19.0445538!4d78.6431503?hl=en&entry=ttu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-gradient-to-br from-[#2B1B15] to-[#1A0F0C] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-md text-left hover:shadow-xl transition-shadow duration-300"
+          >
             <h4 className="font-outfit font-bold text-sm sm:text-base text-white">📍 Kitchen Location</h4>
             <div className="bg-[#1F120E] aspect-[4/3] sm:aspect-video rounded-xl sm:rounded-2xl border border-orange-950/60 p-3 sm:p-4 flex flex-col justify-center items-center text-center relative overflow-hidden">
               {/* Decorative grid */}
@@ -168,8 +173,9 @@ export default function Contact() {
               <span className="text-[8px] sm:text-[9px] text-accent font-bold uppercase tracking-widest mt-2 sm:mt-3 border border-accent/20 px-2 py-0.5 rounded-full relative z-10 bg-emerald-950/40">
                 ✓ Fully Hygienic Certified
               </span>
+              <span className="text-[8px] text-amber-400/70 font-semibold mt-2 relative z-10">📌 Tap to open in Google Maps</span>
             </div>
-          </div>
+          </a>
 
         </div>
 
