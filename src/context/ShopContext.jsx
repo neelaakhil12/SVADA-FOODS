@@ -126,7 +126,7 @@ const PRODUCTS_DATA = [
     price1kg: 500,
     rating: 4.7,
     reviews: 79,
-    description: 'Organic raw chia seeds. A superfood loaded with Omega-3, fiber, and antioxidants. Perfect for smoothies, puddings, or oatmeal.',
+    description: 'natural raw chia seeds. A superfood loaded with Omega-3, fiber, and antioxidants. Perfect for smoothies, puddings, or oatmeal.',
     image: '/chia-seeds.png',
     ingredients: 'Raw Chia Seeds.',
     isBestseller: false
@@ -168,9 +168,9 @@ const PRODUCTS_DATA = [
     price1kg: 750,
     rating: 4.9,
     reviews: 125,
-    description: 'Traditional Indian sweet snack made with premium roasted cashews and pure organic jaggery. Crunchy, sweet, and healthy.',
+    description: 'Traditional Indian sweet snack made with premium roasted cashews and pure natural jaggery. Crunchy, sweet, and healthy.',
     image: '/roasted-cashew-chikki.png',
-    ingredients: 'Roasted Cashews, Organic Jaggery.',
+    ingredients: 'Roasted Cashews, natural Jaggery.',
     isBestseller: true
   },
   {
@@ -282,9 +282,9 @@ const PRODUCTS_DATA = [
     price1kg: 400,
     rating: 4.9,
     reviews: 110,
-    description: 'Organic shade-dried Moringa leaves. A nutritional powerhouse for teas, soups, and traditional recipes.',
+    description: 'natural shade-dried Moringa leaves. A nutritional powerhouse for teas, soups, and traditional recipes.',
     image: '/moringa-leaves.png',
-    ingredients: '100% Organic Moringa Leaves.',
+    ingredients: '100% natural Moringa Leaves.',
     isBestseller: false
   },
   {
@@ -380,9 +380,9 @@ const PRODUCTS_DATA = [
     price1kg: 450,
     rating: 4.9,
     reviews: 145,
-    description: 'Pure, organic dry turmeric roots (Pasupu Komulu). Unpolished and rich in natural curcumin.',
+    description: 'Pure, natural dry turmeric roots (Pasupu Komulu). Unpolished and rich in natural curcumin.',
     image: '/dry-pasupu-komulu.png',
-    ingredients: 'Organic Turmeric Roots.',
+    ingredients: 'natural Turmeric Roots.',
     isBestseller: true
   },
   {
@@ -422,9 +422,9 @@ const PRODUCTS_DATA = [
     price1kg: 480,
     rating: 4.9,
     reviews: 180,
-    description: 'Finely ground organic moringa leaf powder. A potent superfood supplement for smoothies and juices.',
+    description: 'Finely ground natural moringa leaf powder. A potent superfood supplement for smoothies and juices.',
     image: '/moringa-powder.png',
-    ingredients: 'Organic Moringa Leaf Powder.',
+    ingredients: 'natural Moringa Leaf Powder.',
     isBestseller: true
   },
   {
@@ -564,7 +564,7 @@ const PRODUCTS_DATA = [
     price1kg: 450,
     rating: 4.8,
     reviews: 210,
-    description: 'Pure, organic Henna (Mehendi) powder. Perfect for natural hair coloring and conditioning.',
+    description: 'Pure, natural Henna (Mehendi) powder. Perfect for natural hair coloring and conditioning.',
     image: '/henna-powder.png',
     ingredients: '100% Pure Henna Leaves.',
     isBestseller: true
@@ -989,7 +989,7 @@ const PRODUCTS_DATA = [
     price1kg: 50,
     rating: 4.8,
     reviews: 42,
-    description: 'High-quality dry whole yellow maize (Makkalu) kernels, loaded with rich dietary fibers and essential proteins. Sourced directly from local organic farms.',
+    description: 'High-quality dry whole yellow maize (Makkalu) kernels, loaded with rich dietary fibers and essential proteins. Sourced directly from local natural farms.',
     image: '/image copy 74.png',
     ingredients: '100% Whole Yellow Maize.',
     isBestseller: false
@@ -1106,7 +1106,7 @@ const PRODUCTS_DATA = [
     reviews: 121,
     description: 'Tangy and spicy ginger pickle (Allam Pachadi) prepared with fresh country ginger and rich jaggery. An absolute must-have side dish for traditional breakfast crepes.',
     image: '/image copy 82.png',
-    ingredients: 'Fresh Ginger, Organic Jaggery, Tamarind, Chili Powder, Sea Salt, Garlic, Cumin.',
+    ingredients: 'Fresh Ginger, natural Jaggery, Tamarind, Chili Powder, Sea Salt, Garlic, Cumin.',
     isBestseller: true
   },
   {
@@ -1132,9 +1132,9 @@ const PRODUCTS_DATA = [
     price1kg: 600,
     rating: 4.9,
     reviews: 156,
-    description: 'A delightful blend of sweet, sour, and spicy! Raw mango pieces infused with pure organic jaggery (bellam) and traditional pickles spices. A favorite among kids.',
+    description: 'A delightful blend of sweet, sour, and spicy! Raw mango pieces infused with pure natural jaggery (bellam) and traditional pickles spices. A favorite among kids.',
     image: '/image copy 84.png',
-    ingredients: 'Raw Mangoes, Organic Jaggery, Red Chili Powder, Mustard Seeds, Salt, Turmeric, Cold Pressed Oil.',
+    ingredients: 'Raw Mangoes, natural Jaggery, Red Chili Powder, Mustard Seeds, Salt, Turmeric, Cold Pressed Oil.',
     isBestseller: false
   },
   {
@@ -1162,7 +1162,7 @@ const PRODUCTS_DATA = [
     reviews: 110,
     description: 'Exquisite fusion pickle prepared by pounding raw green mango grates with fresh zesty ginger root and village jaggery. Perfect balanced sweet, spicy, and sour notes.',
     image: '/image copy 86.png',
-    ingredients: 'Grated Raw Mango, Country Ginger, Organic Jaggery, Mustard Seeds, Red Chili, Salt.',
+    ingredients: 'Grated Raw Mango, Country Ginger, natural Jaggery, Mustard Seeds, Red Chili, Salt.',
     isBestseller: false
   },
   {
@@ -1216,7 +1216,7 @@ const PRODUCTS_DATA = [
     price1kg: 600,
     rating: 4.9,
     reviews: 112,
-    description: 'Nutritious roasted curry leaf powder made with fresh organic curry leaves, lentils, and hand-selected spices. Highly recommended for hair health and digestion.',
+    description: 'Nutritious roasted curry leaf powder made with fresh natural curry leaves, lentils, and hand-selected spices. Highly recommended for hair health and digestion.',
     image: '/image copy 90.png',
     ingredients: 'Fresh Curry Leaves, Chana Dal, Urad Dal, Coriander Seeds, Cumin, Garlic, Dry Red Chilies, Salt.',
     isBestseller: true
@@ -1230,9 +1230,9 @@ const PRODUCTS_DATA = [
     price1kg: 600,
     rating: 4.9,
     reviews: 95,
-    description: 'Superfood moringa powder blend. Made from shade-dried organic drumstick leaves, slowly roasted with rich lentils and spices to deliver a high-nutrition condiment.',
+    description: 'Superfood moringa powder blend. Made from shade-dried natural drumstick leaves, slowly roasted with rich lentils and spices to deliver a high-nutrition condiment.',
     image: '/image copy 91.png',
-    ingredients: 'Organic Moringa Leaves, Black Gram (Urad Dal), Bengal Gram, Red Chili, Tamarind, Garlic, Salt.',
+    ingredients: 'natural Moringa Leaves, Black Gram (Urad Dal), Bengal Gram, Red Chili, Tamarind, Garlic, Salt.',
     isBestseller: false
   },
   {
@@ -1419,9 +1419,9 @@ const PRODUCTS_DATA = [
     price1kg: 300,
     rating: 4.9,
     reviews: 92,
-    description: 'Golden-yellow premium turmeric powder ground from organic dry turmeric roots (Pasupu Komulu). High curcumin content with wonderful medicinal value and purity.',
+    description: 'Golden-yellow premium turmeric powder ground from natural dry turmeric roots (Pasupu Komulu). High curcumin content with wonderful medicinal value and purity.',
     image: '/image copy 103.png',
-    ingredients: '100% Organic Turmeric Roots.',
+    ingredients: '100% natural Turmeric Roots.',
     isBestseller: false
   },
   {
@@ -1528,9 +1528,9 @@ const PRODUCTS_DATA = [
     price1kg: 850,
     rating: 5.0,
     reviews: 245,
-    description: 'The pride of Telugu homes. Roasted urad dal powder blended with organic dark jaggery and a generous splash of pure home-made cow ghee. Melt-in-mouth texture with high calcium and iron.',
+    description: 'The pride of Telugu homes. Roasted urad dal powder blended with natural dark jaggery and a generous splash of pure home-made cow ghee. Melt-in-mouth texture with high calcium and iron.',
     image: '/image copy 111.png',
-    ingredients: 'Urad Dal, Organic Jaggery, Pure Cow Ghee, Cardamom.',
+    ingredients: 'Urad Dal, natural Jaggery, Pure Cow Ghee, Cardamom.',
     isBestseller: true,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -1582,9 +1582,9 @@ const PRODUCTS_DATA = [
     price1kg: 1100,
     rating: 4.8,
     reviews: 95,
-    description: 'Traditional warming sweet made with premium edible gum (Gondh), whole wheat flour, roasted nuts, and organic jaggery.',
+    description: 'Traditional warming sweet made with premium edible gum (Gondh), whole wheat flour, roasted nuts, and natural jaggery.',
     image: '/image copy 114.png',
-    ingredients: 'Edible Gum (Gondh), Whole Wheat Flour, Almonds, Cashews, Organic Jaggery, Pure Ghee, Cardamom.',
+    ingredients: 'Edible Gum (Gondh), Whole Wheat Flour, Almonds, Cashews, natural Jaggery, Pure Ghee, Cardamom.',
     isBestseller: false,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -1602,7 +1602,7 @@ const PRODUCTS_DATA = [
     reviews: 74,
     description: 'Omega-3 rich healthy laddus prepared from slow-roasted golden flaxseeds, black sesame, and handpicked nuts, bound in clean jaggery syrup.',
     image: '/image copy 115.png',
-    ingredients: 'Flaxseeds, Sesame Seeds, Cashews, Almonds, Organic Jaggery, Cow Ghee.',
+    ingredients: 'Flaxseeds, Sesame Seeds, Cashews, Almonds, natural Jaggery, Cow Ghee.',
     isBestseller: false,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -1618,7 +1618,7 @@ const PRODUCTS_DATA = [
     price1kg: 600,
     rating: 4.9,
     reviews: 167,
-    description: 'Crispy, crunchy, and traditional peanut chikki balls made with slow-roasted premium peanuts and pure organic melted jaggery.',
+    description: 'Crispy, crunchy, and traditional peanut chikki balls made with slow-roasted premium peanuts and pure natural melted jaggery.',
     image: '/image copy 117.png',
     ingredients: 'Roasted Peanuts, Jaggery, Cardamom.',
     isBestseller: true,
@@ -1636,9 +1636,9 @@ const PRODUCTS_DATA = [
     price1kg: 600,
     rating: 4.8,
     reviews: 135,
-    description: 'Extremely calcium-rich and traditional sesame seed laddus made by cooking golden-roasted sesame seeds with organic dark jaggery syrup.',
+    description: 'Extremely calcium-rich and traditional sesame seed laddus made by cooking golden-roasted sesame seeds with natural dark jaggery syrup.',
     image: '/image copy 116.png',
-    ingredients: 'White and Black Sesame Seeds, Organic Jaggery, Cardamom.',
+    ingredients: 'White and Black Sesame Seeds, natural Jaggery, Cardamom.',
     isBestseller: false,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -1656,7 +1656,7 @@ const PRODUCTS_DATA = [
     reviews: 84,
     description: 'Super light, crispy, and sweet puffed rice balls bound together with warm jaggery syrup. A nostalgic children\'s favorite snack.',
     image: '/image copy 118.png',
-    ingredients: 'Puffed Rice (Maramaralu), Organic Jaggery, Ginger Powder.',
+    ingredients: 'Puffed Rice (Maramaralu), natural Jaggery, Ginger Powder.',
     isBestseller: false,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -1692,7 +1692,7 @@ const PRODUCTS_DATA = [
     reviews: 110,
     description: 'Pure, guilt-free premium energy bar made with roasted dry fruits and nuts compacted together. Highly nutritious and delicious.',
     image: '/image copy 120.png',
-    ingredients: 'Almonds, Cashews, Pistachios, Walnuts, Pumpkin Seeds, Organic Jaggery, Honey.',
+    ingredients: 'Almonds, Cashews, Pistachios, Walnuts, Pumpkin Seeds, natural Jaggery, Honey.',
     isBestseller: true,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -1708,7 +1708,7 @@ const PRODUCTS_DATA = [
     price1kg: 500,
     rating: 4.8,
     reviews: 82,
-    description: 'Traditional shell-shaped deep-fried dough curls rolled in sweet cardamom-flavored organic jaggery syrup. Crunchy and sweet.',
+    description: 'Traditional shell-shaped deep-fried dough curls rolled in sweet cardamom-flavored natural jaggery syrup. Crunchy and sweet.',
     image: '/image copy 121.png',
     ingredients: 'All-Purpose Flour, Semolina, Jaggery, Cardamom, Cold-Pressed Oil.',
     isBestseller: false,
@@ -1728,7 +1728,7 @@ const PRODUCTS_DATA = [
     reviews: 198,
     description: 'An authentic festive sweet prepared with freshly ground wet rice flour and dark jaggery syrup, deep-fried and topped with sesame seeds.',
     image: '/image copy 122.png',
-    ingredients: 'Wet Rice Flour, Organic Jaggery, Ghee, Sesame Seeds, Oil.',
+    ingredients: 'Wet Rice Flour, natural Jaggery, Ghee, Sesame Seeds, Oil.',
     isBestseller: true,
     weightLabels: [
       { value: '500g', label: '500g' },
@@ -2016,9 +2016,9 @@ const PRODUCTS_DATA = [
     price1kg: 450,
     rating: 4.9,
     reviews: 95,
-    description: 'Superfood moringa powder blend. Made from shade-dried organic drumstick leaves, slowly roasted to deliver a high-nutrition condiment, perfect for tea.',
+    description: 'Superfood moringa powder blend. Made from shade-dried natural drumstick leaves, slowly roasted to deliver a high-nutrition condiment, perfect for tea.',
     image: '/mungaku-powder.png',
-    ingredients: 'Organic Moringa Leaves.',
+    ingredients: 'natural Moringa Leaves.',
     isBestseller: false
   },
   {
@@ -2192,7 +2192,7 @@ export const ShopProvider = ({ children }) => {
     message += `Please confirm availability and sharing shipping cost. Thank you!`;
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappNumber = '919000000000'; // Representative WhatsApp number
+    const whatsappNumber = '919000955239'; // Representative WhatsApp number
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
     
     window.open(whatsappUrl, '_blank');
@@ -2232,3 +2232,4 @@ export const ShopProvider = ({ children }) => {
     </ShopContext.Provider>
   );
 };
+

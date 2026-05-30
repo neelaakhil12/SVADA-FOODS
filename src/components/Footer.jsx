@@ -38,7 +38,7 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="font-outfit font-bold text-white text-lg">Direct From Village</h4>
-              <p className="text-xs text-orange-200/70">Empowering local artisans and organic farmers.</p>
+              <p className="text-xs text-orange-200/70">Empowering local artisans and natural farmers.</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -46,7 +46,7 @@ export default function Footer() {
               <Sparkles className="h-6 w-6 text-secondary" />
             </div>
             <div>
-              <h4 className="font-outfit font-bold text-white text-lg">Pure Organic Ingredients</h4>
+              <h4 className="font-outfit font-bold text-white text-lg">Pure Natural Ingredients</h4>
               <p className="text-xs text-orange-200/70">Carefully handpicked raw materials for high purity.</p>
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function Footer() {
               />
             </div>
             <p className="text-sm text-orange-200/70 leading-relaxed font-light">
-              Crafting premium homemade pickles, fresh powders, traditional stone-ground flours, and organic eco-friendly utilities with pure Telugu tradition.
+              Crafting premium homemade pickles, fresh powders, traditional stone-ground flours, and natural eco-friendly utilities with pure Telugu tradition.
             </p>
             
             {/* Business Policy Badges */}
@@ -76,6 +76,64 @@ export default function Footer() {
               <p className="text-[11px] text-orange-200/50 italic">
                 *Shipping charges calculated additionally based on delivery location weight.
               </p>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="flex items-center space-x-3 pt-2">
+              <a
+                href="https://www.instagram.com/svada_traditional_foods?igsh=NjN3cWMyNWRhdjZp&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-[#B3743B] text-orange-100 hover:text-white p-2.5 rounded-xl border border-white/10 transition duration-300 flex items-center justify-center"
+                title="Instagram"
+              >
+                <svg
+                  className="h-5 w-5 fill-none stroke-current"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
+              <a
+                href="https://youtube.com/@soushilyas?si=TtZoQpsoQKkdJPT4"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-[#B3743B] text-orange-100 hover:text-white p-2.5 rounded-xl border border-white/10 transition duration-300 flex items-center justify-center"
+                title="YouTube"
+              >
+                <svg
+                  className="h-5 w-5 fill-none stroke-current"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.95 1.96C5.12 19.5 12 19.5 12 19.5s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z" />
+                  <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor" />
+                </svg>
+              </a>
+              <a
+                href="https://www.facebook.com/share/1HmtGFyvRr/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-[#B3743B] text-orange-100 hover:text-white p-2.5 rounded-xl border border-white/10 transition duration-300 flex items-center justify-center"
+                title="Facebook"
+              >
+                <svg
+                  className="h-5 w-5 fill-none stroke-current"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                </svg>
+              </a>
             </div>
           </div>
 
@@ -149,15 +207,15 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-orange-200/80 font-light">
               <li className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span>Plot 42, Traditional Kitchens Zone, Hyderabad, Telangana, India.</span>
+                <span>18-115/13, Vidhya nagar, Khanapur, Nirmal, Telangana, India - 504203</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-secondary flex-shrink-0" />
-                <span>+91 90000 00000</span>
+                <span>+91 90009 55239</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-accent flex-shrink-0" />
-                <span>support@svadafoods.com</span>
+                <span>svadatraditionalfoods@gmail.com</span>
               </li>
             </ul>
             

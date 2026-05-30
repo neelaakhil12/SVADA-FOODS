@@ -243,7 +243,7 @@ export default function Products() {
               </div>
               <h3 className="font-outfit font-bold text-svada-dark text-lg mb-2">Upcoming Products</h3>
               <p className="text-xs text-svada-light leading-relaxed font-light">
-                Organic seeds, gardening kits, and green plant supplies are currently in preparation. Coming soon to our catalog!
+                Natural seeds, gardening kits, and green plant supplies are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
           ) : selectedCategory === 'Sugars, Sweetners & syrups' ? (
@@ -254,7 +254,7 @@ export default function Products() {
               </div>
               <h3 className="font-outfit font-bold text-svada-dark text-lg mb-2">Upcoming Products</h3>
               <p className="text-xs text-svada-light leading-relaxed font-light">
-                Natural sugars, healthy sweeteners, and organic syrups are currently in preparation. Coming soon to our catalog!
+                Natural sugars, healthy sweeteners, and natural syrups are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
           ) : filteredProducts.length === 0 ? (

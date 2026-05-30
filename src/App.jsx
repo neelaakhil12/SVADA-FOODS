@@ -103,13 +103,13 @@ function AppContent() {
 
       {/* 3. Floating WhatsApp Support widget */}
       <a
-        href="https://api.whatsapp.com/send?phone=919000000000&text=Hi%20SVADA!%20I'm%20visiting%20your%20website%20and%20need%20some%20help."
+        href="https://api.whatsapp.com/send?phone=919000955239&text=Hi%20SVADA!%20I'm%20visiting%20your%20website%20and%20need%20some%20help."
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-30 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center border border-white/20 group cursor-pointer"
+        className="fixed bottom-6 right-6 z-30 bg-[#3B1E0A] hover:bg-[#2B1507] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center border border-white/20 group cursor-pointer"
         title="WhatsApp Support Desk"
       >
-        <MessageCircle className="h-6 w-6 fill-white text-emerald-500" />
+        <MessageCircle className="h-6 w-6 fill-white text-[#3B1E0A]" />
         <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-500 ease-in-out text-xs font-bold uppercase tracking-wider whitespace-nowrap">
           WhatsApp Support
         </span>

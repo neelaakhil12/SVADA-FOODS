@@ -5,7 +5,7 @@ export default function About() {
   const steps = [
     {
       title: 'Solar Curing & Natural Aging',
-      desc: 'Instead of chemical drying, our raw fruits like mangoes, tomatoes, and ginger are cured naturally in pure sunlight, preserving texture and aging pickles organically.',
+      desc: 'Instead of chemical drying, our raw fruits like mangoes, tomatoes, and ginger are cured naturally in pure sunlight, preserving texture and aging pickles naturally.',
       icon: '☀️'
     },
     {
@@ -48,7 +48,7 @@ export default function About() {
               </p>
               
               <p className="text-sm sm:text-base text-svada-light font-light leading-relaxed">
-                We believe that food is medicine when crafted right. By partnering directly with local organic farmers in Telugu villages, we source premium handpicked ingredients, preparing pickles, flours, podis, and healthy snacks exactly the way our ancestors did. Clean, pure, slow-cooked, and bursting with rich natural flavors.
+                We believe that food is medicine when crafted right. By partnering directly with local natural farmers in Telugu villages, we source premium handpicked ingredients, preparing pickles, flours, podis, and healthy snacks exactly the way our ancestors did. Clean, pure, slow-cooked, and bursting with rich natural flavors.
               </p>
             </div>
 
@@ -85,7 +85,7 @@ export default function About() {
                 Our Sacred Mission
               </h3>
               <p className="text-xs sm:text-sm text-svada-light leading-relaxed font-light">
-                To revive and promote pure, natural, and preservative-free eating across modern urban households. We are committed to handcrafting high-quality traditional food items, empowering local village artisans, keeping soil organic, and ensuring that future generations remain rooted in healthy dietary culture.
+                To revive and promote pure, natural, and preservative-free eating across modern urban households. We are committed to handcrafting high-quality traditional food items, empowering local village artisans, keeping soil natural, and ensuring that future generations remain rooted in healthy dietary culture.
               </p>
             </div>
 
@@ -154,12 +154,12 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Image of Founder or kitchen */}
+            {/* Image of Founder */}
             <div className="lg:col-span-4" data-aos="fade-right">
               <div className="aspect-square max-w-xs mx-auto rounded-3xl overflow-hidden border-4 border-orange-950/60 shadow-2xl relative bg-[#F5EDD6]">
                 <img
-                  src="/image copy 154.png"
-                  alt="SVADA Traditional Foods"
+                  src="/image copy 156.png"
+                  alt="Soushilya - Founder of Svada Farms"
                   className="w-full h-full object-contain transition-all duration-300 transform hover:scale-105"
                 />
               </div>
@@ -168,24 +168,30 @@ export default function About() {
             {/* Founder Message Content */}
             <div className="lg:col-span-8 text-left space-y-6" data-aos="fade-left">
               <span className="text-xs font-bold text-secondary tracking-widest uppercase block">
-                Message From Our Roots
+                Meet Our Founder
               </span>
               <h2 className="font-outfit font-black text-3xl text-white">
-                "Pure Health Begins inside the Kitchen"
+                Welcome to Svada Farms!
               </h2>
               <div className="h-1 bg-primary w-20 rounded-full" />
               
-              <p className="text-sm text-orange-100/80 leading-relaxed font-light italic">
-                "In my younger days in our village, food was not just a meal; it was a source of strength, community, and clean health. Pickle season was a festival. Mangoes were picked carefully, hand-washed, and sun-cured. Spices were stone-ground, and pure gingelly oil was drawn fresh from the local mill.
+              <p className="text-sm sm:text-base text-orange-100/80 leading-relaxed font-light italic">
+                "I’m Soushilya, passionate about healthy living and sustainable food practices. At Svada Farms, we are committed to offering pure natural products while creating a positive impact on people and the planet."
               </p>
               
-              <p className="text-sm text-orange-100/80 leading-relaxed font-light italic">
-                Today, when I see chemicals, industrial oils, and synthetic vinegar inside store-bought food, it deeply saddens me. SVADA is my effort to invite everyone back to the village kitchen. We use zero preservatives, zero artificial elements, and cook only in small batches with love, honesty, and deep-rooted respect. Thank you for choosing clean eating!"
+              <p className="text-sm sm:text-base text-orange-100/80 leading-relaxed font-light italic">
+                "Thank you for choosing us — I look forward to serving you soon!"
               </p>
 
-              <div>
-                <h5 className="font-outfit font-bold text-white text-base">Smt. Laxmi Devi</h5>
-                <p className="text-xs text-orange-200/50">Founder & Traditional Master Chef, SVADA Foods</p>
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h5 className="font-outfit font-bold text-white text-base">Soushilya</h5>
+                  <p className="text-xs text-orange-200/50">Founder, Svada Farms</p>
+                </div>
+                <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/15 text-xs text-amber-200 max-w-max">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="font-bold tracking-wider uppercase text-[10px]">FSSAI Lic. No. 23624036000890</span>
+                </div>
               </div>
             </div>
 
@@ -193,7 +199,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* 5. ORGANIC HEALTH VALUE HIGHLIGHTS */}
+      {/* 5. NATURAL HEALTH VALUE HIGHLIGHTS */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
           

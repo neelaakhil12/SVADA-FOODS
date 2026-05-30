@@ -108,7 +108,7 @@ export default function ProductCard({ product, index = 0 }) {
         <div>
           {/* Sub-category tag & Weight Tag Row */}
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[9px] font-bold text-accent bg-emerald-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-[9px] font-bold text-accent bg-[#3B1E0A]/5 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {getShortCategoryName(product.category)}
             </span>
             <span className="text-[10px] text-svada-light/80 font-bold uppercase tracking-wider">
@@ -131,7 +131,7 @@ export default function ProductCard({ product, index = 0 }) {
           {/* View Details Link */}
           <button
             onClick={() => setActiveQuickView(product)}
-            className="text-[9px] font-extrabold text-accent hover:text-emerald-700 uppercase tracking-widest hover:underline cursor-pointer flex items-center gap-1 mb-2.5"
+            className="text-[9px] font-extrabold text-accent hover:text-[#9B5F2A] uppercase tracking-widest hover:underline cursor-pointer flex items-center gap-1 mb-2.5"
           >
             VIEW DETAILS
           </button>
@@ -152,7 +152,7 @@ export default function ProductCard({ product, index = 0 }) {
               className={`flex items-center space-x-1 px-4 py-2 rounded-xl font-extrabold text-xs shadow-xs hover:shadow-md transition-all duration-300 ${
                 isAdded
                   ? 'bg-accent text-white scale-95'
-                  : 'bg-accent hover:bg-emerald-700 text-white active:scale-95'
+                  : 'bg-accent hover:bg-[#9B5F2A] text-white active:scale-95'
               }`}
             >
               <span>{isAdded ? 'Added ✓' : 'Add ＋'}</span>

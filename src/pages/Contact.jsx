@@ -20,7 +20,7 @@ export default function Contact() {
     },
     {
       q: 'Why is Cash on Delivery (COD) not available?',
-      a: 'We prepare all food items freshly upon receiving orders under organic, preservative-free rules. To avoid food waste during transit and ensure absolute authenticity, we operate solely on a prepaid basis.'
+      a: 'We prepare all food items freshly upon receiving orders under natural, preservative-free rules. To avoid food waste during transit and ensure absolute authenticity, we operate solely on a prepaid basis.'
     },
     {
       q: 'What are the shipping charges?',
@@ -32,7 +32,7 @@ export default function Contact() {
     },
     {
       q: 'Do you ship internationally?',
-      a: 'Currently, our standard WhatsApp checkout supports shipping across India. For bulk international orders, please email support@svadafoods.com directly to coordinate customs and courier.'
+      a: 'Currently, our standard WhatsApp checkout supports shipping across India. For bulk international orders, please email svadatraditionalfoods@gmail.com directly to coordinate customs and courier.'
     }
   ];
 
@@ -81,18 +81,18 @@ export default function Contact() {
 
             <div className="space-y-4">
               <a 
-                href="https://api.whatsapp.com/send?phone=919000000000&text=Hi%20SVADA%20Foods!%20I%20have%20a%20query%20about..."
+                href="https://api.whatsapp.com/send?phone=919000955239&text=Hi%20SVADA%20Foods!%20I%20have%20a%20query%20about..."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-4 p-4 bg-emerald-50 hover:bg-emerald-100/70 border border-emerald-100 rounded-2xl transition duration-300"
+                className="flex items-center space-x-4 p-4 bg-[#3B1E0A]/5 hover:bg-[#3B1E0A]/10 border border-[#3B1E0A]/10 rounded-2xl transition duration-300"
               >
-                <div className="bg-emerald-500 text-white p-3 rounded-xl">
-                  <MessageCircle className="h-5 w-5 fill-white text-emerald-500" />
+                <div className="bg-[#3B1E0A] text-white p-3 rounded-xl">
+                  <MessageCircle className="h-5 w-5 fill-white text-[#3B1E0A]" />
                 </div>
                 <div className="text-left">
-                  <span className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider block">Live Chat desk</span>
-                  <span className="font-bold text-sm text-emerald-950">Chat via WhatsApp Desk</span>
-                  <p className="text-[11px] text-emerald-700/80 font-light leading-normal">Fastest support for order bookings.</p>
+                  <span className="text-[10px] text-[#3B1E0A] font-bold uppercase tracking-wider block">Live Chat desk</span>
+                  <span className="font-bold text-sm text-[#2B1507]">Chat via WhatsApp Desk</span>
+                  <p className="text-[11px] text-[#3B1E0A]/70 font-light leading-normal">Fastest support for order bookings.</p>
                 </div>
               </a>
 
@@ -102,7 +102,7 @@ export default function Contact() {
                 </div>
                 <div className="text-left">
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">Phone support</span>
-                  <span className="font-bold text-sm text-svada-dark">+91 90000 00000</span>
+                  <span className="font-bold text-sm text-svada-dark">+91 90009 55239</span>
                   <p className="text-[11px] text-svada-light font-light leading-normal">Mon - Sat: 9:00 AM to 6:00 PM</p>
                 </div>
               </div>
@@ -113,7 +113,7 @@ export default function Contact() {
                 </div>
                 <div className="text-left min-w-0 overflow-hidden">
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">Email inbox</span>
-                  <span className="font-bold text-sm text-svada-dark break-all block">support@svadafoods.com</span>
+                  <span className="font-bold text-sm text-svada-dark break-all block">svadatraditionalfoods@gmail.com</span>
                   <p className="text-[11px] text-svada-light font-light leading-normal">Response within 12 business hours.</p>
                 </div>
               </div>
@@ -124,9 +124,9 @@ export default function Contact() {
                 </div>
                 <div className="text-left">
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">Kitchen headquarters</span>
-                  <span className="font-bold text-sm text-svada-dark">SVADA Foods, Hyderabad</span>
+                  <span className="font-bold text-sm text-svada-dark">SVADA Foods, Khanapur</span>
                   <p className="text-[11px] text-svada-light font-light leading-relaxed">
-                    Plot 42, Traditional Kitchens Zone, Hyderabad, Telangana, India.
+                    18-115/13, Vidhya nagar, Khanapur, Nirmal, Telangana, India - 504203
                   </p>
                 </div>
               </div>

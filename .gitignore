@@ -27,4 +27,6 @@ dist-ssr
 /image copy*.png
 /image*.png
 /ChatGPT*.png
-
+# Ignore large video assets
+*.mp4
+*.MP4

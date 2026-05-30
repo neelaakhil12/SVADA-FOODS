@@ -6,7 +6,7 @@
 
   --color-primary: #D94F04;
   --color-secondary: #F4A300;
-  --color-accent: #6A994E;
+  --color-accent: #B3743B;
   --color-svada-bg: #FFF8F0;
   --color-svada-card: #FFFFFF;
   --color-svada-dark: #2B2B2B;
@@ -30,7 +30,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom scrollbar matching organic theme */
+/* Custom scrollbar matching natural theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
