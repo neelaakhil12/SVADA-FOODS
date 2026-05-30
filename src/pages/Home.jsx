@@ -707,6 +707,9 @@ export default function Home() {
               <p className="text-xs text-red-700 font-light leading-relaxed">
                 As all food products are custom prepared upon order under clean, natural, and preservative-free guidelines, we operate on a <strong>prepaid basis only (No COD available)</strong>. Shipping costs are charged extra based on the dynamic carrier weight rates.
               </p>
+              <p className="text-xs text-red-700 font-light leading-relaxed mt-2 border-t border-red-200/50 pt-2">
+                📦 <strong>Dispatch & Delivery:</strong> Once confirmed, orders require <strong>2–5 working days to dispatch</strong> (freshly cooked on demand). For <strong>international orders</strong>, please contact our support desk directly via <strong>WhatsApp (+91 90009 55239)</strong> to coordinate booking, custom packaging, and logistics.
+              </p>
             </div>
             <button
               onClick={handleShopNow}
