@@ -533,7 +533,9 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
           }`}
         >
           <User className="h-5 w-5" />
-          <span className="text-[10px] font-bold mt-1">Account</span>
+          <span className="text-[10px] font-bold mt-1">
+            {isLoggedIn ? 'Account' : 'Login'}
+          </span>
         </button>
       </div>
 
