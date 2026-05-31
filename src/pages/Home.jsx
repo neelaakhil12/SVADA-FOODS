@@ -405,7 +405,7 @@ export default function Home() {
               </p>
               
               <p className="text-sm text-orange-100/80 leading-relaxed font-light">
-                We wash our ingredients cleanly, solar-cure raw vegetables under direct sunlight, dry-roast whole spices gently, and stone-grind condiments slow. No machinery shortcuts, no cheap oils, and zero compromises.
+                We wash our ingredients cleanly, solar-cure raw vegetables under direct sunlight, dry-roast whole spices gently, and grind condiments slow. No machinery shortcuts, no cheap oils, and zero compromises.
               </p>
 
               {/* Grid highlights */}
