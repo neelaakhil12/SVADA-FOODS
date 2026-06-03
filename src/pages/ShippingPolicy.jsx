@@ -3,7 +3,7 @@ import { Truck, ShieldCheck, Clock, MapPin, AlertCircle, FileText } from 'lucide
 
 export default function ShippingPolicy() {
   const clauses = [
-    "SVADA FOODS delivers products across India through trusted courier and logistics partners.",
+    "SVADA FARMS delivers products across India through trusted courier and logistics partners.",
     "Orders are processed and dispatched within 2–7 business days after successful payment confirmation.",
     "Delivery timelines may vary depending on the destination, courier partner availability, weather conditions, public holidays, and other unforeseen circumstances.",
     "Standard delivery for most locations is completed within 5–7 business days from the date of dispatch.",
@@ -11,16 +11,16 @@ export default function ShippingPolicy() {
     "Once an order has been confirmed and processed, it cannot be modified or cancelled.",
     "Customers will receive order confirmation and shipment tracking details via email, SMS, or WhatsApp (where applicable).",
     "It is the customer's responsibility to provide accurate shipping information, including recipient name, address, phone number, and pincode.",
-    "SVADA FOODS shall not be responsible for delays or delivery failures caused by incorrect or incomplete shipping details provided by the customer.",
+    "SVADA FARMS shall not be responsible for delays or delivery failures caused by incorrect or incomplete shipping details provided by the customer.",
     "Delivery will be attempted at the address provided during checkout. Additional delivery attempts may be subject to courier partner policies.",
     "All products are packed with care using appropriate packaging materials to ensure safe transportation.",
     "To be eligible for a replacement claim in cases of missing, incorrect, or incomplete products, customers must record a clear and continuous 360-degree unboxing video of the package from the moment it is opened until all contents are fully displayed.",
     "Shipping charges, if applicable, will be displayed during checkout before order confirmation.",
     "Delivery timelines are estimates and should not be considered guaranteed delivery commitments.",
-    "SVADA FOODS is not liable for delays caused by natural disasters, strikes, transportation disruptions, government regulations, or other circumstances beyond our control.",
+    "SVADA FARMS is not liable for delays caused by natural disasters, strikes, transportation disruptions, government regulations, or other circumstances beyond our control.",
     "Shipping services may be unavailable on certain national holidays, regional holidays, or non-working days observed by courier partners.",
     "Orders may be shipped in multiple packages depending on product availability and logistics requirements.",
-    "SVADA FOODS reserves the right to update or modify this Shipping Policy at any time without prior notice."
+    "SVADA FARMS reserves the right to update or modify this Shipping Policy at any time without prior notice."
   ];
 
   return (
@@ -35,7 +35,7 @@ export default function ShippingPolicy() {
           Logistics & Delivery
         </span>
         <h1 className="font-outfit font-black text-svada-dark text-3xl sm:text-4xl">
-          SVADA FOODS Shipping Policy
+          SVADA FARMS Shipping Policy
         </h1>
         <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto" />
         <p className="text-sm text-svada-light font-light max-w-xl mx-auto leading-relaxed">
@@ -86,3 +86,5 @@ export default function ShippingPolicy() {
     </div>
   );
 }
+
+

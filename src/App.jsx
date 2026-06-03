@@ -16,6 +16,8 @@ import Privacy from './pages/Privacy';
 import ShippingPolicy from './pages/ShippingPolicy';
 import RefundPolicy from './pages/RefundPolicy';
 import Terms from './pages/Terms';
+import AdminLogin from './pages/AdminLogin';
+import AdminPanel from './pages/AdminPanel';
 import PromoPopup from './components/PromoPopup';
 
 // AOS Scroll Animations
@@ -26,11 +28,50 @@ import 'aos/dist/aos.css';
 import { MessageCircle } from 'lucide-react';
 
 function AppContent({ showSplash }) {
-  const { currentPage } = useContext(ShopContext);
+  const { currentPage, setCurrentPage } = useContext(ShopContext);
   
   // Sidebar drawers active states
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartActiveTab, setCartActiveTab] = useState('cart'); // 'cart' | 'wishlist'
+
+  // URL-based routing
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/admin') {
+      setCurrentPage('admin');
+    } else if (path === '/admin-login') {
+      setCurrentPage('admin-login');
+    } else if (path === '/products') {
+      setCurrentPage('products');
+    } else if (path === '/about') {
+      setCurrentPage('about');
+    } else if (path === '/contact') {
+      setCurrentPage('contact');
+    } else if (path === '/login') {
+      setCurrentPage('login');
+    }
+  }, [setCurrentPage]);
+
+  // Update browser URL when page changes
+  useEffect(() => {
+    const urlMap = {
+      'home': '/',
+      'products': '/products',
+      'about': '/about',
+      'contact': '/contact',
+      'login': '/login',
+      'admin-login': '/admin-login',
+      'admin': '/admin',
+      'privacy': '/privacy',
+      'shipping': '/shipping',
+      'refund': '/refund',
+      'terms': '/terms'
+    };
+    
+    if (urlMap[currentPage] && window.location.pathname !== urlMap[currentPage]) {
+      window.history.pushState({}, '', urlMap[currentPage]);
+    }
+  }, [currentPage]);
 
   // Initialize AOS scroll trigger library
   useEffect(() => {
@@ -73,6 +114,10 @@ function AppContent({ showSplash }) {
         return <RefundPolicy />;
       case 'terms':
         return <Terms />;
+      case 'admin-login':
+        return <AdminLogin />;
+      case 'admin':
+        return <AdminPanel />;
       default:
         return <Home />;
     }
@@ -91,45 +136,51 @@ function AppContent({ showSplash }) {
   return (
     <div className="flex flex-col min-h-screen bg-svada-bg text-svada-dark antialiased">
       
-      {/* Sticky Responsive Header Menu */}
-      <Navbar onOpenCart={handleOpenCart} onOpenWishlist={handleOpenWishlist} />
+      {/* Sticky Responsive Header Menu - Hide on admin pages */}
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && (
+        <Navbar onOpenCart={handleOpenCart} onOpenWishlist={handleOpenWishlist} />
+      )}
 
       {/* Main Single Page Router Content */}
       <main className="flex-grow pb-16 md:pb-0">
         {renderActivePage()}
       </main>
 
-      {/* Multi-column Premium Footer */}
-      <Footer />
+      {/* Multi-column Premium Footer - Hide on admin pages */}
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && <Footer />}
 
-      {/* Pop-up Modals & Drawers */}
-      {/* 1. Dynamic Quick View Popup */}
-      <QuickViewModal />
+      {/* Pop-up Modals & Drawers - Hide on admin pages */}
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && (
+        <>
+          {/* 1. Dynamic Quick View Popup */}
+          <QuickViewModal />
 
-      {/* 2. Side-out Shopping Bag & Wishlist Drawer */}
-      <CartModal 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-        activeTab={cartActiveTab} 
-        setActiveTab={setCartActiveTab} 
-      />
+          {/* 2. Side-out Shopping Bag & Wishlist Drawer */}
+          <CartModal 
+            isOpen={isCartOpen} 
+            onClose={() => setIsCartOpen(false)} 
+            activeTab={cartActiveTab} 
+            setActiveTab={setCartActiveTab} 
+          />
 
-      {/* 3. Floating WhatsApp Support widget */}
-      <a
-        href="https://api.whatsapp.com/send?phone=919000955239&text=Hi%20SVADA!%20I'm%20visiting%20your%20website%20and%20need%20some%20help."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-28 md:bottom-6 right-6 z-30 bg-[#3B1E0A] hover:bg-[#2B1507] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center border border-white/20 group cursor-pointer"
-        title="WhatsApp Support Desk"
-      >
-        <MessageCircle className="h-6 w-6 fill-white text-[#3B1E0A]" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-500 ease-in-out text-xs font-bold uppercase tracking-wider whitespace-nowrap">
-          WhatsApp Support
-        </span>
-      </a>
+          {/* 3. Floating WhatsApp Support widget */}
+          <a
+            href="https://api.whatsapp.com/send?phone=919000955239&text=Hi%20SVADA!%20I'm%20visiting%20your%20website%20and%20need%20some%20help."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-28 md:bottom-6 right-6 z-30 bg-[#3B1E0A] hover:bg-[#2B1507] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center border border-white/20 group cursor-pointer"
+            title="WhatsApp Support Desk"
+          >
+            <MessageCircle className="h-6 w-6 fill-white text-[#3B1E0A]" />
+            <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-500 ease-in-out text-xs font-bold uppercase tracking-wider whitespace-nowrap">
+              WhatsApp Support
+            </span>
+          </a>
 
-      {/* 4. Shipping Promo Popup (displayed once per session after splash screen ends) */}
-      <PromoPopup showTrigger={!showSplash} />
+          {/* 4. Shipping Promo Popup (displayed once per session after splash screen ends) */}
+          <PromoPopup showTrigger={!showSplash} />
+        </>
+      )}
 
     </div>
   );
@@ -145,3 +196,5 @@ export default function App() {
     </ShopProvider>
   );
 }
+
+

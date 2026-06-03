@@ -61,7 +61,7 @@ export default function Footer() {
               <img
                 src="/logo.png"
                 alt="SVADA Logo"
-                className="h-24 md:h-28 w-auto object-contain rounded-2xl transform hover:scale-105 transition duration-300"
+                className="h-28 md:h-32 w-auto object-contain rounded-full transform hover:scale-105 transition duration-300"
               />
             </div>
             <p className="text-sm text-orange-200/70 leading-relaxed font-light">
@@ -215,7 +215,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-accent flex-shrink-0" />
-                <span>svadatraditionalfoods@gmail.com</span>
+                <span>svadafarms@gmail.com</span>
               </li>
             </ul>
             
@@ -239,7 +239,7 @@ export default function Footer() {
 
         {/* Footer Bottom copyright */}
         <div className="pt-8 border-t border-orange-950/40 text-center text-xs text-orange-200/40 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p>© {new Date().getFullYear()} SVADA Homemade Foods. All Rights Reserved. Crafted with love in India.</p>
+          <p>© {new Date().getFullYear()} SVADA Homemade Farms. All Rights Reserved. Crafted with love in India.</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <button onClick={() => handleNavClick('privacy')} className="hover:text-primary transition cursor-pointer">Privacy Policy</button>
             <button onClick={() => handleNavClick('terms')} className="hover:text-primary transition cursor-pointer">Terms of Service</button>
@@ -252,3 +252,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+

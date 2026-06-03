@@ -41,7 +41,7 @@ export default function Privacy() {
     },
     {
       title: 'No Sale of Personal Data',
-      content: 'SVADA FOODS does not sell, rent, or trade customer personal information to third parties.'
+      content: 'SVADA FARMS does not sell, rent, or trade customer personal information to third parties.'
     },
     {
       title: 'Legal Compliance',
@@ -61,7 +61,7 @@ export default function Privacy() {
     },
     {
       title: 'Policy Updates',
-      content: 'SVADA FOODS reserves the right to update this Privacy Policy at any time. Changes will be posted on this page with the revised effective date.'
+      content: 'SVADA FARMS reserves the right to update this Privacy Policy at any time. Changes will be posted on this page with the revised effective date.'
     }
   ];
 
@@ -77,11 +77,11 @@ export default function Privacy() {
           Legal & Trust
         </span>
         <h1 className="font-outfit font-black text-svada-dark text-3xl sm:text-4xl">
-          SVADA FOODS Privacy Policy
+          SVADA FARMS Privacy Policy
         </h1>
         <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto" />
         <p className="text-sm text-svada-light font-light max-w-xl mx-auto leading-relaxed">
-          At SVADA Foods, we value your trust and are fully committed to protecting your personal information. Please review how we collect, safeguard, and use your data.
+          At SVADA FARMS, we value your trust and are fully committed to protecting your personal information. Please review how we collect, safeguard, and use your data.
         </p>
       </div>
 
@@ -120,17 +120,17 @@ export default function Privacy() {
           <div className="space-y-2">
             <h3 className="font-outfit font-black text-lg sm:text-xl text-white">Contact Information</h3>
             <p className="text-xs text-orange-200/60 font-light leading-relaxed">
-              For any privacy-related questions or concerns, please contact SVADA FOODS through our official customer support channels. We are always ready to help you coordinate your details safely.
+              For any privacy-related questions or concerns, please contact SVADA FARMS through our official customer support channels. We are always ready to help you coordinate your details safely.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <a 
-              href="mailto:svadatraditionalfoods@gmail.com"
+              href="mailto:svadafarms@gmail.com"
               className="flex items-center space-x-3 bg-white/10 hover:bg-white/15 px-5 py-3 rounded-2xl border border-white/10 transition text-sm font-semibold"
             >
               <Mail className="h-4.5 w-4.5 text-secondary" />
-              <span>svadatraditionalfoods@gmail.com</span>
+              <span>svadafarms@gmail.com</span>
             </a>
             <a 
               href="tel:+919000955239"
@@ -146,3 +146,5 @@ export default function Privacy() {
     </div>
   );
 }
+
+

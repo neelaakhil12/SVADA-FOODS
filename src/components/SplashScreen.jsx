@@ -41,11 +41,11 @@ export default function SplashScreen({ onComplete }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-secondary transition-all duration-[400ms] ease-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center transition-all duration-[400ms] ease-out ${
         isFadingOut ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
       style={{
-        backgroundColor: '#F4A300', // Explicit fallback matching --color-secondary (logo yellow)
+        backgroundColor: '#3B1E0A', // Brand brown background
       }}
     >
       <div
@@ -56,15 +56,15 @@ export default function SplashScreen({ onComplete }) {
         {/* 1. Colorful Brand Logo (Bottom Layer) */}
         <img
           src="/logo.png"
-          alt="SVADA Foods Logo"
-          className="w-full h-full object-contain filter drop-shadow-[0_8px_30px_rgba(217,79,4,0.08)]"
+          alt="SVADA FARMS Logo"
+          className="w-full h-full object-contain rounded-full filter drop-shadow-[0_8px_30px_rgba(217,79,4,0.08)]"
         />
 
         {/* 2. Solid White Logo (Top Layer with wipe effect) */}
         <img
           src="/logo.png"
-          alt="SVADA Foods Logo Cover"
-          className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none filter brightness-0 invert drop-shadow-[0_8px_30px_rgba(255,255,255,0.4)]"
+          alt="SVADA FARMS Logo Cover"
+          className="absolute inset-0 w-full h-full object-contain rounded-full select-none pointer-events-none filter brightness-0 invert drop-shadow-[0_8px_30px_rgba(255,255,255,0.4)]"
           style={{
             clipPath: isRevealed ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0%)',
             transition: 'clip-path 700ms cubic-bezier(0.76, 0, 0.24, 1)',
@@ -75,3 +75,5 @@ export default function SplashScreen({ onComplete }) {
     </div>
   );
 }
+
+

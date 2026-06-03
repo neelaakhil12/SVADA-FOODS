@@ -11,7 +11,8 @@ export default function Products() {
     searchQuery, 
     setSearchQuery, 
     selectedCategory, 
-    setSelectedCategory 
+    setSelectedCategory,
+    categories: dynamicCategories
   } = useContext(ShopContext);
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -48,25 +49,7 @@ export default function Products() {
     return () => clearTimeout(timer);
   }, [filteredProducts]);
 
-  const categories = [
-    'All',
-    'Cold Pressed oils & Ghee & honey',
-    'Drinks & Tea',
-    'Dry fruits, Nuts & seeds',
-    'Herb Extract Foods',
-    'Herbs & Extracts',
-    'Household supplies',
-    'Millets & Flakes',
-    'Personal hair care',
-    'Pickles & Powders',
-    'Pooja supplies',
-    'Ready to eat & cook & fryums',
-    'Rices, Flours, Pulses & other',
-    'Seasonal Spices & Masala',
-    'seeds & Plants',
-    'Sugars, Sweetners & syrups',
-    'sweets & snacks'
-  ];
+  const categories = ['All', ...dynamicCategories];
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -358,3 +341,5 @@ export default function Products() {
     </div>
   );
 }
+
+

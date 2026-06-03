@@ -32,7 +32,7 @@ export default function Contact() {
     },
     {
       q: 'Do you ship internationally?',
-      a: 'Currently, our standard WhatsApp checkout supports shipping across India. For bulk international orders, please email svadatraditionalfoods@gmail.com directly to coordinate customs and courier.'
+      a: 'Currently, our standard WhatsApp checkout supports shipping across India. For bulk international orders, please email svadafarms@gmail.com directly to coordinate customs and courier.'
     }
   ];
 
@@ -44,7 +44,7 @@ export default function Contact() {
     e.preventDefault();
     if (formState.name && formState.email && formState.message) {
       // Compile structured WhatsApp inquiry message
-      let message = `*SVADA Homemade Foods - Contact Form Inquiry*\n`;
+      let message = `*SVADA Homemade Farms - Contact Form Inquiry*\n`;
       message += `=============================\n\n`;
       message += `👤 *Name:* ${formState.name}\n`;
       message += `📧 *Email:* ${formState.email}\n`;
@@ -102,7 +102,7 @@ export default function Contact() {
 
             <div className="space-y-4">
               <a 
-                href="https://api.whatsapp.com/send?phone=919000955239&text=Hi%20SVADA%20Foods!%20I%20have%20a%20query%20about..."
+                href="https://api.whatsapp.com/send?phone=919000955239&text=Hi%20SVADA%20Farms!%20I%20have%20a%20query%20about..."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-4 p-4 bg-[#3B1E0A]/5 hover:bg-[#3B1E0A]/10 border border-[#3B1E0A]/10 rounded-2xl transition duration-300"
@@ -134,7 +134,7 @@ export default function Contact() {
                 </div>
                 <div className="text-left min-w-0 overflow-hidden">
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">Email inbox</span>
-                  <span className="font-bold text-sm text-svada-dark break-all block">svadatraditionalfoods@gmail.com</span>
+                  <span className="font-bold text-sm text-svada-dark break-all block">svadafarms@gmail.com</span>
                   <p className="text-[11px] text-svada-light font-light leading-normal">Response within 12 business hours.</p>
                 </div>
               </div>
@@ -145,7 +145,7 @@ export default function Contact() {
                 </div>
                 <div className="text-left">
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">Kitchen headquarters</span>
-                  <span className="font-bold text-sm text-svada-dark">SVADA Foods, Khanapur</span>
+                  <span className="font-bold text-sm text-svada-dark">SVADA FARMS, Khanapur</span>
                   <p className="text-[11px] text-svada-light font-light leading-relaxed">
                     18-115/13, Vidhya nagar, Khanapur, Nirmal, Telangana, India - 504203
                   </p>
@@ -312,3 +312,5 @@ export default function Contact() {
     </div>
   );
 }
+
+

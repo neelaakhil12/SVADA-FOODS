@@ -2065,6 +2065,56 @@ const PRODUCTS_DATA = [
   }
 ];
 
+export const DEFAULT_CATEGORY_METADATA = {
+  'Cold Pressed oils & Ghee & honey': { image: '/image copy 138.png', desc: 'A2 Ghee, Honey & Oils' },
+  'Dry fruits, Nuts & seeds': { image: '/image copy 139.png', desc: 'Premium Nutrients' },
+  'Herb Extract Foods': { image: '/image copy 140.png', desc: 'Infused Wellness' },
+  'Drinks & Tea': { image: '/image copy 141.png', desc: 'Herbal Teas & Drinks' },
+  'Herbs & Extracts': { image: '/image copy 142.png', desc: 'Shade-Dried Herbs' },
+  'Household supplies': { image: '/image copy 143.png', desc: 'Bamboo Utilities' },
+  'Millets & Flakes': { image: '/image copy 144.png', desc: 'Healthy Millets' },
+  'Personal hair care': { image: '/image copy 145.png', desc: 'Hair Oils & Ubtan' },
+  'Pickles & Powders': { image: '/image copy 146.png', desc: 'Avakaya & Podi Karams' },
+  'Pooja supplies': { image: '/image copy 147.png', desc: 'Divine Purifiers' },
+  'Ready to eat & cook & fryums': { image: '/image copy 148.png', desc: 'Breakfast & Fryums' },
+  'Rices, Flours, Pulses & other': { image: '/image copy 149.png', desc: 'Stone-Ground Flours' },
+  'Seasonal Spices & Masala': { image: '/image copy 150.png', desc: 'Stone-Ground Spices' },
+  'Sugars, Sweetners & syrups': { image: '/image copy 151.png', desc: 'Palm Jaggery & Syrups' },
+  'sweets & snacks': { image: '/image copy 152.png', desc: 'Sunnundalu & Hots' },
+  'seeds & Plants': { image: '/image copy 153.png', desc: 'Garden Seed Kits' }
+};
+
+export const DEFAULT_VIDEOS = [
+  {
+    id: 'wb1',
+    videoUrl: '/IMG_8230.MP4',
+    title: 'Svada Traditional Farm Prep',
+    desc: 'Watch our authentic, natural delicacies being handcrafted directly in our traditional village kitchens.',
+    keyword: 'pickle'
+  },
+  {
+    id: 'wb2',
+    videoUrl: '/whatsapp_video_2.mp4',
+    title: 'Svada Traditional Stone Grinding',
+    desc: 'See our traditional spices and homemade podis being slow ground to lock in fresh aroma and nutrition.',
+    keyword: 'podi'
+  },
+  {
+    id: 'wb3',
+    videoUrl: '/whatsapp_video_3.mp4',
+    title: 'Svada Pure Homemade Goodness',
+    desc: 'Watch our fresh ingredients and traditional products prepared cleanly with pure care.',
+    keyword: 'sweet'
+  },
+  {
+    id: 'wb4',
+    videoUrl: '/whatsapp_video_4.mp4',
+    title: 'Svada Authentic Village Recipes',
+    desc: 'Watch our slow wood-fire dry roasting and clay pot recipes made exactly with home rules.',
+    keyword: 'ghee'
+  }
+];
+
 export const ShopProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState('home');
   const [cart, setCart] = useState(() => {
@@ -2078,8 +2128,136 @@ export const ShopProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeQuickView, setActiveQuickView] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('svada_isLoggedIn') === 'true';
+  });
+  const [currentUser, setCurrentUser] = useState(() => {
+    const local = localStorage.getItem('svada_currentUser');
+    return local ? JSON.parse(local) : null;
+  });
+  
+  // Admin State
+  const [isAdmin, setIsAdmin] = useState(() => {
+    const localAdmin = localStorage.getItem('svada_isAdmin');
+    return localAdmin === 'true';
+  });
+  const [orders, setOrders] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [categoryMetadata, setCategoryMetadata] = useState({});
+  const [heroSlides, setHeroSlides] = useState([
+    {
+      id: 'hs-default',
+      name: 'Pure Natural Traditional Farms',
+      image: '/image copy 158.png',
+      desc: '100% Homemade and Preservative-free Specialties'
+    }
+  ]);
+  const [watchBuyVideos, setWatchBuyVideos] = useState(DEFAULT_VIDEOS);
+
+  const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+
+  // Fetch initial data from database on mount
+  useEffect(() => {
+    // 1. Fetch Products
+    fetch(`${API_BASE}/products`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setProducts(data);
+        } else {
+          setProducts(PRODUCTS_DATA);
+        }
+      })
+      .catch(err => {
+        console.warn("Using fallback products data due to API error:", err);
+        setProducts(PRODUCTS_DATA);
+      });
+
+    // 2. Fetch Categories
+    fetch(`${API_BASE}/categories`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setCategories(data.map(c => c.name));
+          const meta = {};
+          data.forEach(c => {
+            meta[c.name] = { image: c.image, desc: c.description };
+          });
+          setCategoryMetadata(meta);
+        } else {
+          setCategories(Object.keys(DEFAULT_CATEGORY_METADATA));
+          setCategoryMetadata(DEFAULT_CATEGORY_METADATA);
+        }
+      })
+      .catch(err => {
+        console.warn("Using fallback categories due to API error:", err);
+        setCategories(Object.keys(DEFAULT_CATEGORY_METADATA));
+        setCategoryMetadata(DEFAULT_CATEGORY_METADATA);
+      });
+
+    // 3. Fetch Orders
+    fetch(`${API_BASE}/orders`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => setOrders(data))
+      .catch(err => console.error("Error fetching orders:", err));
+
+    // 4. Fetch Hero Slides
+    fetch(`${API_BASE}/hero-slides`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) setHeroSlides(data);
+      })
+      .catch(err => console.error("Error fetching hero slides:", err));
+
+    // 5. Fetch Videos
+    fetch(`${API_BASE}/videos`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setWatchBuyVideos(data);
+        } else {
+          setWatchBuyVideos(DEFAULT_VIDEOS);
+        }
+      })
+      .catch(err => {
+        console.warn("Using default videos due to API error:", err);
+        setWatchBuyVideos(DEFAULT_VIDEOS);
+      });
+  }, []);
+
+  // Save Admin State to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('svada_isAdmin', isAdmin);
+  }, [isAdmin]);
+
+  // Save User Authentication State to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('svada_isLoggedIn', isLoggedIn);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('svada_currentUser', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('svada_currentUser');
+    }
+  }, [currentUser]);
 
   // Save Cart to LocalStorage
   useEffect(() => {
@@ -2163,7 +2341,7 @@ export const ShopProvider = ({ children }) => {
   }, 0);
 
   // Filter products based on search and category
-  const filteredProducts = PRODUCTS_DATA.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -2171,12 +2349,20 @@ export const ShopProvider = ({ children }) => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleWhatsAppCheckout = () => {
+  const handleWhatsAppCheckout = (customerDetails = null) => {
     if (cart.length === 0) return;
 
-    let message = `*SVADA Homemade Foods - New Order Inquiry*\n`;
+    let message = `*SVADA Homemade Farms - New Order Inquiry*\n`;
     message += `=============================\n\n`;
     
+    if (customerDetails) {
+      message += `*Customer Details:*\n`;
+      message += `• Name: ${customerDetails.customerName}\n`;
+      message += `• Phone: ${customerDetails.customerPhone}\n`;
+      message += `• Delivery Address: ${customerDetails.customerAddress}\n\n`;
+    }
+
+    message += `*Ordered Items:*\n`;
     cart.forEach((item, idx) => {
       const price = getProductPrice(item.product, item.weight);
       const label = item.product.isEcoPiece 
@@ -2189,7 +2375,7 @@ export const ShopProvider = ({ children }) => {
     message += `*Total Order Value:* ₹${cartTotal}\n`;
     message += `*Shipping Policy:* Extra charges apply at actuals\n`;
     message += `*Payment Mode:* Prepaid Only (No COD available)\n\n`;
-    message += `Please confirm availability and sharing shipping cost. Thank you!`;
+    message += `Please confirm availability and share shipping cost. Thank you!`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappNumber = '919000955239'; // Representative WhatsApp number
@@ -2198,10 +2384,312 @@ export const ShopProvider = ({ children }) => {
     window.open(whatsappUrl, '_blank');
   };
 
+  // --- Video CRUD Actions ---
+  const addWatchBuyVideo = (videoData) => {
+    const newVideo = { ...videoData, id: `wb-${Date.now()}` };
+    setWatchBuyVideos(prev => [newVideo, ...prev]);
+
+    fetch(`${API_BASE}/videos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newVideo)
+    })
+    .then(res => res.json())
+    .then(data => {
+      fetch(`${API_BASE}/videos`)
+        .then(r => r.json())
+        .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
+    })
+    .catch(err => console.error("Error creating video:", err));
+  };
+
+  const updateWatchBuyVideo = (id, videoData) => {
+    setWatchBuyVideos(prev => prev.map(v => v.id === id ? { ...v, ...videoData } : v));
+
+    fetch(`${API_BASE}/videos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(videoData)
+    })
+    .then(res => res.json())
+    .then(() => {
+      fetch(`${API_BASE}/videos`)
+        .then(r => r.json())
+        .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
+    })
+    .catch(err => console.error("Error updating video:", err));
+  };
+
+  const deleteWatchBuyVideo = (id) => {
+    setWatchBuyVideos(prev => prev.filter(v => v.id !== id));
+
+    fetch(`${API_BASE}/videos/${id}`, {
+      method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(() => {
+      fetch(`${API_BASE}/videos`)
+        .then(r => r.json())
+        .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
+    })
+    .catch(err => console.error("Error deleting video:", err));
+  };
+
+  // Admin Functions
+  // Admin Functions
+  const addOrder = (orderData) => {
+    const orderItems = cart.map(item => ({
+      product: {
+        id: item.product.id,
+        name: item.product.name,
+        image: item.product.image,
+        category: item.product.category
+      },
+      weight: item.weight,
+      quantity: item.quantity,
+      price: getProductPrice(item.product, item.weight)
+    }));
+
+    const newOrder = {
+      customerName: orderData.customerName,
+      customerPhone: orderData.customerPhone,
+      customerAddress: orderData.customerAddress,
+      total: cartTotal,
+      items: orderItems
+    };
+
+    fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newOrder)
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/orders`))
+      .then(res => res.json())
+      .then(data => setOrders(data))
+      .catch(err => console.error("Error creating order:", err));
+
+    clearCart();
+  };
+
+  const updateOrderStatus = (orderId, status) => {
+    fetch(`${API_BASE}/orders/${orderId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/orders`))
+      .then(res => res.json())
+      .then(data => setOrders(data))
+      .catch(err => console.error("Error updating order status:", err));
+  };
+
+  const deleteOrder = (orderId) => {
+    fetch(`${API_BASE}/orders/${orderId}`, {
+      method: 'DELETE'
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/orders`))
+      .then(res => res.json())
+      .then(data => setOrders(data))
+      .catch(err => console.error("Error deleting order:", err));
+  };
+
+  const addCategory = (categoryName, image = '', desc = '') => {
+    if (!categoryName) return;
+    
+    fetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: categoryName, image, description: desc })
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/categories`))
+      .then(res => res.json())
+      .then(data => {
+        setCategories(data.map(c => c.name));
+        const meta = {};
+        data.forEach(c => {
+          meta[c.name] = { image: c.image, desc: c.description };
+        });
+        setCategoryMetadata(meta);
+      })
+      .catch(err => console.error("Error adding category:", err));
+  };
+
+  const deleteCategory = (categoryName) => {
+    fetch(`${API_BASE}/categories/${categoryName}`, {
+      method: 'DELETE'
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/categories`))
+      .then(res => res.json())
+      .then(data => {
+        setCategories(data.map(c => c.name));
+        const meta = {};
+        data.forEach(c => {
+          meta[c.name] = { image: c.image, desc: c.description };
+        });
+        setCategoryMetadata(meta);
+      })
+      .catch(err => console.error("Error deleting category:", err));
+  };
+
+  const updateCategoryMetadata = (categoryName, data) => {
+    const currentMeta = categoryMetadata[categoryName] || {};
+    const finalImage = data.image !== undefined ? data.image : (currentMeta.image || '');
+    const finalDesc = data.desc !== undefined ? data.desc : (currentMeta.desc || '');
+    
+    fetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: categoryName, image: finalImage, description: finalDesc })
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/categories`))
+      .then(res => res.json())
+      .then(data => {
+        const meta = {};
+        data.forEach(c => {
+          meta[c.name] = { image: c.image, desc: c.description };
+        });
+        setCategoryMetadata(meta);
+      })
+      .catch(err => console.error("Error updating category metadata:", err));
+  };
+
+  const renameCategory = (oldName, newName, image = null, desc = null) => {
+    if (!oldName || !newName) return;
+
+    const currentMeta = categoryMetadata[oldName] || {};
+    const finalImage = image !== null ? image : (currentMeta.image || '');
+    const finalDesc = desc !== null ? desc : (currentMeta.desc || '');
+
+    fetch(`${API_BASE}/categories/${oldName}/rename`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newName, image: finalImage, description: finalDesc })
+    })
+      .then(() => {
+        return Promise.all([
+          fetch(`${API_BASE}/products`).then(res => res.json()),
+          fetch(`${API_BASE}/categories`).then(res => res.json())
+        ]);
+      })
+      .then(([prods, cats]) => {
+        setProducts(prods);
+        setCategories(cats.map(c => c.name));
+        const meta = {};
+        cats.forEach(c => {
+          meta[c.name] = { image: c.image, desc: c.description };
+        });
+        setCategoryMetadata(meta);
+      })
+      .catch(err => console.error("Error renaming category:", err));
+  };
+
+  const getTodayEarnings = () => {
+    const today = new Date().toDateString();
+    return orders
+      .filter(order => new Date(order.createdAt).toDateString() === today && order.status === 'completed')
+      .reduce((sum, order) => sum + order.total, 0);
+  };
+
+  const getTotalEarnings = () => {
+    return orders
+      .filter(order => order.status === 'completed')
+      .reduce((sum, order) => sum + order.total, 0);
+  };
+
+  const getPendingOrders = () => {
+    return orders.filter(order => order.status === 'pending');
+  };
+
+  const getCompletedOrders = () => {
+    return orders.filter(order => order.status === 'completed');
+  };
+
+  // Product Management Functions
+  const addProduct = (productData) => {
+    fetch(`${API_BASE}/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(productData)
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/products`))
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error("Error adding product:", err));
+  };
+
+  const updateProduct = (productId, productData) => {
+    fetch(`${API_BASE}/products/${productId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(productData)
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/products`))
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error("Error updating product:", err));
+  };
+
+  const deleteProduct = (productId) => {
+    fetch(`${API_BASE}/products/${productId}`, {
+      method: 'DELETE'
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/products`))
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error("Error deleting product:", err));
+  };
+
+  // Hero Slide Management Functions
+  const addHeroSlide = (slideData) => {
+    fetch(`${API_BASE}/hero-slides`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(slideData)
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/hero-slides`))
+      .then(res => res.json())
+      .then(data => setHeroSlides(data))
+      .catch(err => console.error("Error adding hero slide:", err));
+  };
+
+  const updateHeroSlide = (slideId, slideData) => {
+    fetch(`${API_BASE}/hero-slides/${slideId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(slideData)
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/hero-slides`))
+      .then(res => res.json())
+      .then(data => setHeroSlides(data))
+      .catch(err => console.error("Error updating hero slide:", err));
+  };
+
+  const deleteHeroSlide = (slideId) => {
+    fetch(`${API_BASE}/hero-slides/${slideId}`, {
+      method: 'DELETE'
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/hero-slides`))
+      .then(res => res.json())
+      .then(data => setHeroSlides(data))
+      .catch(err => console.error("Error deleting hero slide:", err));
+  };
+
   return (
     <ShopContext.Provider
       value={{
-        products: PRODUCTS_DATA,
+        products: products,
         filteredProducts,
         cart,
         wishlist,
@@ -2213,23 +2701,52 @@ export const ShopProvider = ({ children }) => {
         currentUser,
         cartCount,
         cartTotal,
+        isAdmin,
+        orders,
+        categories,
+        categoryMetadata,
+        heroSlides,
         setCurrentPage,
         setSearchQuery,
         setSelectedCategory,
         setActiveQuickView,
         setIsLoggedIn,
         setCurrentUser,
+        setIsAdmin,
         addToCart,
         removeFromCart,
         updateCartQuantity,
         toggleWishlist,
         clearCart,
         getProductPrice,
-        handleWhatsAppCheckout
+        handleWhatsAppCheckout,
+        addOrder,
+        updateOrderStatus,
+        deleteOrder,
+        addCategory,
+        deleteCategory,
+        updateCategoryMetadata,
+        renameCategory,
+        getTodayEarnings,
+        getTotalEarnings,
+        getPendingOrders,
+        getCompletedOrders,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        addHeroSlide,
+        updateHeroSlide,
+        deleteHeroSlide,
+        watchBuyVideos,
+        addWatchBuyVideo,
+        updateWatchBuyVideo,
+        deleteWatchBuyVideo
       }}
     >
       {children}
     </ShopContext.Provider>
   );
 };
+
+
 

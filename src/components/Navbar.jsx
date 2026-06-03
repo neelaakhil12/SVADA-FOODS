@@ -2,33 +2,14 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import {
   ShoppingBag, Heart, User, LogOut, Phone, MapPin,
-  Search, ChevronDown, Menu, X, Truck, Package, Home as HomeIcon, ChevronRight
+  Search, ChevronDown, Menu, X, Truck, Package, Home as HomeIcon, ChevronRight, Settings
 } from 'lucide-react';
-
-const CATEGORIES = [
-  'All Categories',
-  'Cold Pressed oils & Ghee & honey',
-  'Dry fruits, Nuts & seeds',
-  'Herb Extract Foods',
-  'Drinks & Tea',
-  'Herbs & Extracts',
-  'Household supplies',
-  'Millets & Flakes',
-  'Personal hair care',
-  'Pickles & Powders',
-  'Pooja supplies',
-  'Ready to eat & cook & fryums',
-  'Rices, Flours, Pulses & other',
-  'Seasonal Spices & Masala',
-  'Sugars, Sweetners & syrups',
-  'sweets & snacks',
-  'seeds & Plants',
-];
 
 export default function Navbar({ onOpenCart, onOpenWishlist }) {
   const {
     currentPage, setCurrentPage, cartCount, wishlist,
-    isLoggedIn, currentUser, setIsLoggedIn, setSelectedCategory,
+    isLoggedIn, currentUser, setIsLoggedIn, setSelectedCategory, isAdmin,
+    categories: dynamicCategories,
   } = useContext(ShopContext);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -95,7 +76,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
           <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
             {/* Left: Welcome message (static, like reference) */}
             <div className="text-[11px] text-orange-200 font-semibold select-none flex-1 text-left">
-              Welcome to SVADA Foods online store.
+              Welcome to SVADA FARMS online store.
             </div>
             {/* Right: Phone number */}
             <a
@@ -120,11 +101,11 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
               >
                 <img
                   src="/logo.png"
-                  alt="SVADA Foods Logo"
-                  className="h-12 md:h-14 w-auto object-contain rounded-xl hover:scale-105 transition duration-300"
+                  alt="SVADA FARMS Logo"
+                  className="h-14 md:h-18 w-auto object-contain rounded-full hover:scale-105 transition duration-300"
                 />
                 <span className="block font-outfit font-black text-svada-dark text-sm sm:text-lg lg:text-xl leading-none tracking-wide whitespace-nowrap">
-                  SVADA <span className="text-[#3B1E0A]">FOODS</span>
+                  SVADA <span className="text-[#3B1E0A]">FARMS</span>
                 </span>
               </div>
 
@@ -243,6 +224,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                       {link.label}
                     </button>
                   ))}
+
                 </div>
               </div>
             </div>
@@ -269,7 +251,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                 {/* Browse dropdown */}
                 {isBrowseOpen && (
                   <div className="absolute top-full left-0 mt-0 w-64 bg-white border border-orange-100 rounded-b-xl shadow-xl z-50 max-h-80 overflow-y-auto">
-                    {CATEGORIES.filter(c => c !== 'All Categories').map((cat) => (
+                    {dynamicCategories.map((cat) => (
                       <button
                         key={cat}
                         type="button"
@@ -299,6 +281,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                     {link.label}
                   </button>
                 ))}
+
               </div>
 
               {/* Spacer */}
@@ -449,7 +432,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                 </div>
 
                 <div className="p-4 space-y-1.5 overflow-y-auto max-h-[80vh] scrollbar-hide">
-                  {CATEGORIES.filter(c => c !== 'All Categories').map((cat) => (
+                  {dynamicCategories.map((cat) => (
                     <button
                       key={cat}
                       type="button"
@@ -544,3 +527,5 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
     </>
   );
 }
+
+

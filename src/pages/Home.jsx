@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
+import { DEFAULT_CATEGORY_METADATA } from '../context/ShopContext';
 import ProductCard from '../components/ProductCard';
 import { 
   ArrowRight, ShieldCheck, Heart, Award, Leaf, Flame, 
@@ -8,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
-  const { products, setCurrentPage, setSelectedCategory, addToCart } = useContext(ShopContext);
+  const { products, setCurrentPage, setSelectedCategory, addToCart, categories, categoryMetadata, heroSlides } = useContext(ShopContext);
 
   // Shoppable Video Reels State
   const [activeReel, setActiveReel] = useState(null);
@@ -66,33 +67,19 @@ export default function Home() {
   // Filter out bestsellers
   const bestsellers = products.filter(p => p.isBestseller).slice(0, 4);
 
-  // Available categories for featured categories section
-  const categoriesList = [
-    { name: 'Cold Pressed oils & Ghee & honey', image: '/image copy 138.png', desc: 'A2 Ghee, Honey & Oils' },
-    { name: 'Dry fruits, Nuts & seeds', image: '/image copy 139.png', desc: 'Premium Nutrients' },
-    { name: 'Herb Extract Foods', image: '/image copy 140.png', desc: 'Infused Wellness' },
-    { name: 'Drinks & Tea', image: '/image copy 141.png', desc: 'Herbal Teas & Drinks' },
-    { name: 'Herbs & Extracts', image: '/image copy 142.png', desc: 'Shade-Dried Herbs' },
-    { name: 'Household supplies', image: '/image copy 143.png', desc: 'Bamboo Utilities' },
-    { name: 'Millets & Flakes', image: '/image copy 144.png', desc: 'Healthy Millets' },
-    { name: 'Personal hair care', image: '/image copy 145.png', desc: 'Hair Oils & Ubtan' },
-    { name: 'Pickles & Powders', image: '/image copy 146.png', desc: 'Avakaya & Podi Karams' },
-    { name: 'Pooja supplies', image: '/image copy 147.png', desc: 'Divine Purifiers' },
-    { name: 'Ready to eat & cook & fryums', image: '/image copy 148.png', desc: 'Breakfast & Fryums' },
-    { name: 'Rices, Flours, Pulses & other', image: '/image copy 149.png', desc: 'Stone-Ground Flours' },
-    { name: 'Seasonal Spices & Masala', image: '/image copy 150.png', desc: 'Stone-Ground Spices' },
-    { name: 'Sugars, Sweetners & syrups', image: '/image copy 151.png', desc: 'Palm Jaggery & Syrups' },
-    { name: 'sweets & snacks', image: '/image copy 152.png', desc: 'Sunnundalu & Hots' },
-    { name: 'seeds & Plants', image: '/image copy 153.png', desc: 'Garden Seed Kits' }
-  ].map(cat => ({
-    ...cat,
-    count: products.filter(p => p.category === cat.name).length
-  }));
+  // Build categories list dynamically from context, using uploaded or default metadata
+  const categoriesList = categories.map(name => {
+    const uploaded = categoryMetadata[name] || {};
+    const defaults = DEFAULT_CATEGORY_METADATA[name] || {};
+    return {
+      name,
+      image: uploaded.image || defaults.image || '',
+      desc: uploaded.desc || defaults.desc || '',
+      count: products.filter(p => p.category === name).length
+    };
+  });
 
-  const heroSlides = [
-    { name: 'Pure Natural Traditional Foods', image: '/image copy 158.png', desc: '100% Homemade and Preservative-free Specialties' },
-    ...categoriesList
-  ];
+  // heroSlides is now managed via Admin Panel → Hero Slides
 
   const [activeSlideIdx, setActiveSlideIdx] = useState(0);
   const [isFading, setIsFading] = useState(false);
@@ -379,7 +366,7 @@ export default function Home() {
               <div className="aspect-video sm:aspect-square max-w-md mx-auto rounded-3xl overflow-hidden border-4 border-orange-950/60 shadow-2xl relative bg-[#F5EDD6]">
                 <img
                   src="/image copy 155.png"
-                  alt="SVADA Traditional Foods"
+                  alt="SVADA Traditional Farms"
                   className="w-full h-full object-contain"
                 />
                 
@@ -796,3 +783,5 @@ export default function Home() {
     </div>
   );
 }
+
+

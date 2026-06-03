@@ -80,6 +80,13 @@ export default function ProductCard({ product, index = 0 }) {
         className="relative aspect-[4/3] overflow-hidden bg-[#FAF7F2] cursor-pointer rounded-2xl border border-orange-100/40 mb-3" 
         onClick={() => setActiveQuickView(product)}
       >
+        {product.inStock === false && (
+          <div className="absolute inset-0 bg-white/75 backdrop-blur-[1px] flex items-center justify-center z-10">
+            <span className="bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md">
+              Out of Stock
+            </span>
+          </div>
+        )}
         <img
           src={product.image}
           alt={product.name}
@@ -148,14 +155,17 @@ export default function ProductCard({ product, index = 0 }) {
               </div>
             </div>
             <button
-              onClick={handleAddToCart}
+              onClick={product.inStock !== false ? handleAddToCart : undefined}
+              disabled={product.inStock === false}
               className={`flex items-center space-x-1 px-4 py-2 rounded-xl font-extrabold text-xs shadow-xs hover:shadow-md transition-all duration-300 ${
-                isAdded
+                product.inStock === false
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300/40'
+                  : isAdded
                   ? 'bg-accent text-white scale-95'
                   : 'bg-accent hover:bg-[#9B5F2A] text-white active:scale-95'
               }`}
             >
-              <span>{isAdded ? 'Added ✓' : 'Add ＋'}</span>
+              <span>{product.inStock === false ? 'No Stock' : isAdded ? 'Added ✓' : 'Add ＋'}</span>
             </button>
           </div>
         </div>
@@ -163,3 +173,5 @@ export default function ProductCard({ product, index = 0 }) {
     </div>
   );
 }
+
+

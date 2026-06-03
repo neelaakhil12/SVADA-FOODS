@@ -18,7 +18,7 @@ export default function RefundPolicy() {
         </h1>
         <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto" />
         <p className="text-sm text-svada-light font-light max-w-xl mx-auto leading-relaxed">
-          At SVADA FOODS, customer satisfaction is our priority. We take utmost care in packaging and delivering our products. However, if any item is missing from your order, we will gladly arrange a replacement or redelivery.
+          At SVADA FARMS, customer satisfaction is our priority. We take utmost care in packaging and delivering our products. However, if any item is missing from your order, we will gladly arrange a replacement or redelivery.
         </p>
       </div>
 
@@ -32,7 +32,7 @@ export default function RefundPolicy() {
             <h4 className="font-outfit text-base uppercase tracking-wider">1. No Monetary Refunds</h4>
           </div>
           <p className="text-xs sm:text-sm text-svada-light leading-relaxed font-light pl-8">
-            SVADA FOODS does not offer refunds of money for any products purchased through our website.
+            SVADA FARMS does not offer refunds of money for any products purchased through our website.
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export default function RefundPolicy() {
           </p>
           <ul className="list-disc pl-16 text-xs sm:text-sm text-emerald-900 space-y-1.5 font-light">
             <li>Products missing from the delivered order.</li>
-            <li>Incorrect products delivered by SVADA FOODS.</li>
+            <li>Incorrect products delivered by SVADA FARMS.</li>
           </ul>
         </div>
 
@@ -92,7 +92,7 @@ export default function RefundPolicy() {
               To request a replacement or report a missing item, please contact our customer support team with your order details and supporting evidence.
             </p>
             <p className="text-xs text-orange-200/50 font-bold pl-8 uppercase tracking-widest">
-              * SVADA FOODS reserves the right to verify all claims before approving a replacement or redelivery request.
+              * SVADA FARMS reserves the right to verify all claims before approving a replacement or redelivery request.
             </p>
           </div>
         </div>
@@ -102,3 +102,5 @@ export default function RefundPolicy() {
     </div>
   );
 }
+
+

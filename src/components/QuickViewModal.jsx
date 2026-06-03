@@ -91,9 +91,16 @@ export default function QuickViewModal() {
         {/* Product Info section */}
         <div className="p-6 md:p-8 flex flex-col justify-between">
           <div>
-            <span className="text-xs font-bold text-accent tracking-widest uppercase block mb-1.5">
-              {product.category}
-            </span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs font-bold text-accent tracking-widest uppercase">
+                {product.category}
+              </span>
+              {product.inStock === false && (
+                <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Out of Stock
+                </span>
+              )}
+            </div>
             <h2 className="font-outfit font-black text-svada-dark text-2xl md:text-3xl leading-tight mb-2">
               {product.name}
             </h2>
@@ -155,9 +162,12 @@ export default function QuickViewModal() {
                   {weightLabels.map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => setSelectedWeight(opt.value)}
+                      onClick={() => product.inStock !== false && setSelectedWeight(opt.value)}
+                      disabled={product.inStock === false}
                       className={`flex-1 text-center py-2 px-3 rounded-xl text-xs font-bold transition duration-300 border ${
-                        selectedWeight === opt.value
+                        product.inStock === false
+                          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                          : selectedWeight === opt.value
                           ? 'bg-primary text-white border-primary shadow-xs'
                           : 'bg-orange-50/50 text-svada-dark border-orange-100 hover:bg-orange-100'
                       }`}
@@ -172,19 +182,21 @@ export default function QuickViewModal() {
                 <label className="text-[11px] text-svada-light font-bold uppercase tracking-wider block mb-1.5">
                   Select Quantity
                 </label>
-                <div className="flex items-center bg-orange-50 border border-orange-100 rounded-xl px-2 py-1.5 w-max">
+                <div className={`flex items-center bg-orange-50 border border-orange-100 rounded-xl px-2 py-1.5 w-max ${product.inStock === false ? 'opacity-50' : ''}`}>
                   <button
-                    onClick={() => quantity > 1 && setQuantity(quantity - 1)}
-                    className="p-1 rounded-lg hover:bg-orange-200 text-svada-dark transition"
+                    onClick={() => product.inStock !== false && quantity > 1 && setQuantity(quantity - 1)}
+                    disabled={product.inStock === false}
+                    className="p-1 rounded-lg hover:bg-orange-200 text-svada-dark transition disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
                   <span className="px-4 text-sm font-bold text-svada-dark min-w-[30px] text-center">
-                    {quantity}
+                    {product.inStock === false ? 0 : quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-1 rounded-lg hover:bg-orange-200 text-svada-dark transition"
+                    onClick={() => product.inStock !== false && setQuantity(quantity + 1)}
+                    disabled={product.inStock === false}
+                    className="p-1 rounded-lg hover:bg-orange-200 text-svada-dark transition disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>
@@ -200,13 +212,13 @@ export default function QuickViewModal() {
                 </span>
                 <div className="flex items-baseline space-x-2">
                   <span className="text-2xl md:text-3xl font-outfit font-black text-accent">
-                    ₹{price * quantity}
+                    ₹{product.inStock === false ? 0 : price * quantity}
                   </span>
                   <span className="text-sm text-svada-light/60 line-through font-semibold">
-                    ₹{mrp * quantity}
+                    ₹{product.inStock === false ? 0 : mrp * quantity}
                   </span>
                   <span className="bg-red-50 text-red-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
-                    Save ₹{savings * quantity}
+                    Save ₹{product.inStock === false ? 0 : savings * quantity}
                   </span>
                 </div>
               </div>
@@ -225,15 +237,18 @@ export default function QuickViewModal() {
                 </button>
                 
                 <button
-                  onClick={handleAddToCart}
+                  onClick={product.inStock !== false ? handleAddToCart : undefined}
+                  disabled={product.inStock === false}
                   className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all duration-300 ${
-                    isAdded
+                    product.inStock === false
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300/40'
+                      : isAdded
                       ? 'bg-accent text-white scale-95'
                       : 'bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg hover:scale-105 active:scale-95'
                   }`}
                 >
                   <ShoppingBag className="h-5 w-5" />
-                  <span>{isAdded ? 'Added to Bag ✓' : 'Add to Bag'}</span>
+                  <span>{product.inStock === false ? 'Out of Stock' : isAdded ? 'Added to Bag ✓' : 'Add to Bag'}</span>
                 </button>
               </div>
             </div>
@@ -245,3 +260,5 @@ export default function QuickViewModal() {
     </div>
   );
 }
+
+

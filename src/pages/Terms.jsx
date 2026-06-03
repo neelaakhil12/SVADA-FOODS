@@ -3,20 +3,20 @@ import { Scale, FileText, Info, ShieldCheck, HelpCircle } from 'lucide-react';
 
 export default function Terms() {
   const clauses = [
-    "By accessing and using the SVADA FOODS website, you agree to be bound by these Terms & Conditions.",
+    "By accessing and using the SVADA FARMS website, you agree to be bound by these Terms & Conditions.",
     "All products displayed on the website are subject to availability and may be discontinued or modified without prior notice.",
     "We strive to ensure that product descriptions, images, pricing, and other information are accurate; however, errors may occasionally occur.",
     "All prices listed on the website are in Indian Rupees (INR) and are subject to change without prior notice.",
-    "An order is considered confirmed only after successful payment and receipt of an order confirmation from SVADA FOODS.",
-    "SVADA FOODS reserves the right to refuse, cancel, or limit any order at its sole discretion.",
+    "An order is considered confirmed only after successful payment and receipt of an order confirmation from SVADA FARMS.",
+    "SVADA FARMS reserves the right to refuse, cancel, or limit any order at its sole discretion.",
     "Once an order is confirmed and processed, it cannot be cancelled or modified.",
     "Customers are responsible for providing accurate billing, shipping, and contact information while placing an order.",
-    "SVADA FOODS is not responsible for delivery delays or failures resulting from incorrect address details, incorrect contact information, or circumstances beyond our control.",
+    "SVADA FARMS is not responsible for delivery delays or failures resulting from incorrect address details, incorrect contact information, or circumstances beyond our control.",
     "No monetary refunds will be provided. In cases of damaged, missing, or incorrectly delivered products, eligible customers will receive a replacement or redelivery after verification.",
-    "All content on the website, including logos, images, text, graphics, and product information, is the intellectual property of SVADA FOODS and may not be copied or reproduced without permission.",
+    "All content on the website, including logos, images, text, graphics, and product information, is the intellectual property of SVADA FARMS and may not be copied or reproduced without permission.",
     "Users must not misuse the website, attempt unauthorized access, distribute malicious software, or engage in any unlawful activity.",
-    "SVADA FOODS shall not be liable for any indirect, incidental, or consequential damages arising from the use of its products, services, or website.",
-    "SVADA FOODS reserves the right to update, modify, or revise these Terms & Conditions at any time without prior notice.",
+    "SVADA FARMS shall not be liable for any indirect, incidental, or consequential damages arising from the use of its products, services, or website.",
+    "SVADA FARMS reserves the right to update, modify, or revise these Terms & Conditions at any time without prior notice.",
     "These Terms & Conditions shall be governed by the laws of India, and any disputes shall be subject to the jurisdiction of the competent courts in India."
   ];
 
@@ -32,7 +32,7 @@ export default function Terms() {
           Legal Agreement
         </span>
         <h1 className="font-outfit font-black text-svada-dark text-3xl sm:text-4xl">
-          SVADA FOODS Terms & Conditions
+          SVADA FARMS Terms & Conditions
         </h1>
         <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto" />
         <p className="text-sm text-svada-light font-light max-w-xl mx-auto leading-relaxed">
@@ -83,3 +83,5 @@ export default function Terms() {
     </div>
   );
 }
+
+

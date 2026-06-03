@@ -1,0 +1,67 @@
+CREATE TABLE IF NOT EXISTS categories (
+  name VARCHAR(100) PRIMARY KEY,
+  image VARCHAR(255),
+  description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  category VARCHAR(100),
+  price250g INT DEFAULT 0,
+  price500g INT DEFAULT 0,
+  price1kg INT DEFAULT 0,
+  rating DECIMAL(3,2) DEFAULT 0.00,
+  reviews INT DEFAULT 0,
+  description TEXT,
+  image VARCHAR(255),
+  ingredients TEXT,
+  isBestseller TINYINT(1) DEFAULT 0,
+  inStock TINYINT(1) DEFAULT 1,
+  isEcoPiece TINYINT(1) DEFAULT 0,
+  weightLabels JSON
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id VARCHAR(50) PRIMARY KEY,
+  customerName VARCHAR(255) NOT NULL,
+  customerPhone VARCHAR(50) NOT NULL,
+  customerAddress TEXT NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  createdAt DATETIME NOT NULL,
+  total INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  orderId VARCHAR(50),
+  productId VARCHAR(50),
+  name VARCHAR(255) NOT NULL,
+  weight VARCHAR(20),
+  quantity INT DEFAULT 1,
+  price INT DEFAULT 0,
+  FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS hero_slides (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255),
+  image VARCHAR(255) NOT NULL,
+  `desc` TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_otps (
+  email VARCHAR(255) PRIMARY KEY,
+  otp VARCHAR(10) NOT NULL,
+  expiresAt DATETIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS watch_buy_videos (
+  id VARCHAR(255) PRIMARY KEY,
+  videoUrl VARCHAR(512) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  `desc` TEXT,
+  keyword VARCHAR(100) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

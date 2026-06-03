@@ -57,7 +57,7 @@ export default function About() {
               <div className="aspect-square max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white hover:rotate-0 transition duration-500 bg-[#F5EDD6]">
                 <img
                   src="/image copy 155.png"
-                  alt="SVADA Traditional Foods"
+                  alt="SVADA Traditional Farms"
                   className="w-full h-full object-contain"
                 />
                 
@@ -257,3 +257,5 @@ export default function About() {
     </div>
   );
 }
+
+

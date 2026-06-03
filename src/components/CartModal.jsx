@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { X, Trash2, ShoppingBag, Heart, Plus, Minus, ArrowRight, Phone } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Heart, Plus, Minus, ArrowRight, Phone, ArrowLeft } from 'lucide-react';
 
 export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActiveTab }) {
   const { 
@@ -14,8 +14,84 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
     cartTotal,
     handleWhatsAppCheckout,
     addToCart,
-    setCurrentPage
+    setCurrentPage,
+    addOrder
   } = useContext(ShopContext);
+
+  const [isCheckoutMode, setIsCheckoutMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: ''
+  });
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsCheckoutMode(false);
+      setFormData({
+        name: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        pincode: ''
+      });
+      setErrors({});
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    setIsCheckoutMode(false);
+  }, [activeTab]);
+
+  const onSubmitCheckout = (e) => {
+    if (e) e.preventDefault();
+    
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^[0-9]{10,12}$/.test(formData.phone.trim().replace(/\D/g, ''))) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    
+    if (!formData.address.trim()) newErrors.address = 'Street address is required';
+    if (!formData.city.trim()) newErrors.city = 'City is required';
+    if (!formData.state.trim()) newErrors.state = 'State is required';
+    
+    if (!formData.pincode.trim()) {
+      newErrors.pincode = 'Pincode is required';
+    } else if (!/^[0-9]{6}$/.test(formData.pincode.trim())) {
+      newErrors.pincode = 'Please enter a valid 6-digit pincode';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const customerAddress = `${formData.address.trim()}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.pincode.trim()}`;
+    const customerDetails = {
+      customerName: formData.name.trim(),
+      customerPhone: formData.phone.trim(),
+      customerAddress: customerAddress
+    };
+
+    // Open WhatsApp URL
+    handleWhatsAppCheckout(customerDetails);
+    
+    // Add Order to context (which records it and clears the cart)
+    addOrder(customerDetails);
+
+    // Reset and close
+    setIsCheckoutMode(false);
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -85,7 +161,92 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
             {/* CART TAB */}
             {activeTab === 'cart' && (
               <>
-                {cart.length === 0 ? (
+                {isCheckoutMode ? (
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => setIsCheckoutMode(false)}
+                      className="flex items-center space-x-1 text-xs font-bold text-svada-light hover:text-primary transition mb-2"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      <span>Back to Cart</span>
+                    </button>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Full Name *</label>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          className={`w-full bg-white border ${errors.name ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                          placeholder="e.g. Rama Rao"
+                        />
+                        {errors.name && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.name}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Phone Number *</label>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className={`w-full bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                          placeholder="10-digit mobile number"
+                        />
+                        {errors.phone && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.phone}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Street Address *</label>
+                        <textarea
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                          rows={2}
+                          className={`w-full bg-white border ${errors.address ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:ring-2 transition-all resize-none`}
+                          placeholder="House/Flat No, Street, Landmark"
+                        />
+                        {errors.address && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.address}</p>}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">City *</label>
+                          <input
+                            type="text"
+                            value={formData.city}
+                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                            className={`w-full bg-white border ${errors.city ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                            placeholder="City"
+                          />
+                          {errors.city && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.city}</p>}
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">State *</label>
+                          <input
+                            type="text"
+                            value={formData.state}
+                            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                            className={`w-full bg-white border ${errors.state ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                            placeholder="State"
+                          />
+                          {errors.state && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.state}</p>}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Pincode *</label>
+                        <input
+                          type="text"
+                          value={formData.pincode}
+                          onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                          className={`w-full bg-white border ${errors.pincode ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                          placeholder="6-digit Pincode"
+                        />
+                        {errors.pincode && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.pincode}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ) : cart.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center py-12">
                     <div className="bg-orange-50 p-6 rounded-full border border-orange-100 mb-4">
                       <ShoppingBag className="h-12 w-12 text-primary" />
@@ -207,6 +368,11 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                             <span className="text-[10px] text-accent font-bold uppercase tracking-wider block">
                               {item.category}
                             </span>
+                            {item.inStock === false && (
+                              <span className="text-[9px] bg-red-100 text-red-800 font-bold px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase tracking-wider">
+                                Out of Stock
+                              </span>
+                            )}
                             <span className="text-xs font-black text-primary block mt-1">
                               Starts from ₹{item.price250g}
                             </span>
@@ -216,10 +382,15 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                         {/* Actions */}
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleWishlistToCart(item)}
-                            className="bg-primary text-white p-2 rounded-lg hover:bg-secondary transition shadow-sm text-[10px] font-semibold flex items-center space-x-1"
+                            onClick={() => item.inStock !== false && handleWishlistToCart(item)}
+                            disabled={item.inStock === false}
+                            className={`p-2 rounded-lg transition shadow-sm text-[10px] font-semibold flex items-center space-x-1 ${
+                              item.inStock === false
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300/40'
+                                : 'bg-primary text-white hover:bg-secondary'
+                            }`}
                           >
-                            <span>Add Bag</span>
+                            <span>{item.inStock === false ? 'No Stock' : 'Add Bag'}</span>
                           </button>
                           <button
                             onClick={() => toggleWishlist(item.id)}
@@ -264,18 +435,29 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                 </div>
               </div>
 
-              {/* Checkout Button via WhatsApp */}
-              <button
-                onClick={handleWhatsAppCheckout}
-                className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-95 transition-all duration-300 font-bold text-sm flex items-center justify-center space-x-2"
-              >
-                <Phone className="h-4 w-4 fill-white text-primary" />
-                <span>Checkout & Order via WhatsApp</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
+              {isCheckoutMode ? (
+                <button
+                  onClick={onSubmitCheckout}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-green-500 text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-95 transition-all duration-300 font-bold text-sm flex items-center justify-center space-x-2"
+                >
+                  <Phone className="h-4 w-4 fill-white text-emerald-600" />
+                  <span>Confirm & Order via WhatsApp</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsCheckoutMode(true)}
+                  className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 px-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-95 transition-all duration-300 font-bold text-sm flex items-center justify-center space-x-2"
+                >
+                  <span>Proceed to Delivery Info</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
               
               <p className="text-[10px] text-svada-light text-center mt-3 leading-normal font-light">
-                *Clicking checkout opens WhatsApp to finalize payment & address details directly with our team.
+                {isCheckoutMode 
+                  ? "*Submitting will register your order inquiry and open WhatsApp to chat with our executive."
+                  : "*Clicking checkout opens WhatsApp to finalize payment & address details directly with our team."}
               </p>
 
             </div>
@@ -286,3 +468,5 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
     </div>
   );
 }
+
+
