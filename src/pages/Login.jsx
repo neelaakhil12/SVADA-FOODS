@@ -600,6 +600,24 @@ export default function Login() {
                             ))}
                           </div>
 
+                          {/* Tracking Link display */}
+                          {order.trackingLink && (
+                            <div className="bg-blue-50/60 border border-blue-100 p-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs mt-1">
+                              <div className="text-blue-800">
+                                <span className="font-bold">🚚 Delivery Courier Tracking:</span>
+                                <p className="text-[10px] text-blue-700/80 mt-0.5">Handed to courier partner (DTDC / delivery service).</p>
+                              </div>
+                              <a
+                                href={order.trackingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-[11px] font-bold px-4.5 py-2 rounded-xl text-center transition flex-shrink-0"
+                              >
+                                Track Package
+                              </a>
+                            </div>
+                          )}
+
                           {/* Order Footer */}
                           <div className="flex justify-between items-center pt-3 border-t border-orange-100/50 mt-1">
                             <span className="text-[10px] text-svada-light font-bold uppercase tracking-wider">Total Value Paid:</span>

@@ -387,16 +387,7 @@ const AdminProducts = () => {
                     />
                     <span className="text-sm text-gray-700">Bestseller</span>
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      name="isEcoPiece"
-                      checked={formData.isEcoPiece}
-                      onChange={handleInputChange}
-                      className="rounded focus:ring-[#3B1E0A]"
-                    />
-                    <span className="text-sm text-gray-700">Eco Piece</span>
-                  </label>
+
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"

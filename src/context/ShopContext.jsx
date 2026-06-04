@@ -2141,18 +2141,44 @@ export const ShopProvider = ({ children }) => {
     const localAdmin = localStorage.getItem('svada_isAdmin');
     return localAdmin === 'true';
   });
-  const [orders, setOrders] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [categoryMetadata, setCategoryMetadata] = useState({});
-  const [heroSlides, setHeroSlides] = useState([
-    {
-      id: 'hs-default',
-      name: 'Pure Natural Traditional Farms',
-      image: '/image copy 158.png',
-      desc: '100% Homemade and Preservative-free Specialties'
+  const [orders, setOrders] = useState(() => {
+    const local = localStorage.getItem('svada_orders');
+    return local ? JSON.parse(local) : [];
+  });
+  const [categories, setCategories] = useState(() => {
+    const local = localStorage.getItem('svada_categories');
+    return local ? JSON.parse(local) : Object.keys(DEFAULT_CATEGORY_METADATA);
+  });
+  const [products, setProducts] = useState(() => {
+    const local = localStorage.getItem('svada_custom_products');
+    return local ? JSON.parse(local) : PRODUCTS_DATA;
+  });
+  const [categoryMetadata, setCategoryMetadata] = useState(() => {
+    const local = localStorage.getItem('svada_category_metadata');
+    return local ? JSON.parse(local) : DEFAULT_CATEGORY_METADATA;
+  });
+  const [heroSlides, setHeroSlides] = useState(() => {
+    const local = localStorage.getItem('svada_hero_slides');
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (parsed.length > 1) return parsed;
     }
-  ]);
+    const catSlides = Object.entries(DEFAULT_CATEGORY_METADATA).map(([name, meta], index) => ({
+      id: `hs-cat-${index + 1}`,
+      name: name,
+      image: meta.image || '',
+      desc: meta.desc || ''
+    }));
+    return [
+      {
+        id: 'hs-default',
+        name: 'Free Shipping & Fast Delivery',
+        image: '/image copy 158.png',
+        desc: 'Free delivery across India on orders above ₹3,500'
+      },
+      ...catSlides
+    ];
+  });
   const [watchBuyVideos, setWatchBuyVideos] = useState(DEFAULT_VIDEOS);
 
   const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
@@ -2168,13 +2194,15 @@ export const ShopProvider = ({ children }) => {
       .then(data => {
         if (data && data.length > 0) {
           setProducts(data);
+          localStorage.setItem('svada_custom_products', JSON.stringify(data));
         } else {
           setProducts(PRODUCTS_DATA);
         }
       })
       .catch(err => {
         console.warn("Using fallback products data due to API error:", err);
-        setProducts(PRODUCTS_DATA);
+        const local = localStorage.getItem('svada_custom_products');
+        setProducts(local ? JSON.parse(local) : PRODUCTS_DATA);
       });
 
     // 2. Fetch Categories
@@ -2191,6 +2219,8 @@ export const ShopProvider = ({ children }) => {
             meta[c.name] = { image: c.image, desc: c.description };
           });
           setCategoryMetadata(meta);
+          localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
+          localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
         } else {
           setCategories(Object.keys(DEFAULT_CATEGORY_METADATA));
           setCategoryMetadata(DEFAULT_CATEGORY_METADATA);
@@ -2198,8 +2228,10 @@ export const ShopProvider = ({ children }) => {
       })
       .catch(err => {
         console.warn("Using fallback categories due to API error:", err);
-        setCategories(Object.keys(DEFAULT_CATEGORY_METADATA));
-        setCategoryMetadata(DEFAULT_CATEGORY_METADATA);
+        const localCats = localStorage.getItem('svada_categories');
+        const localMeta = localStorage.getItem('svada_category_metadata');
+        setCategories(localCats ? JSON.parse(localCats) : Object.keys(DEFAULT_CATEGORY_METADATA));
+        setCategoryMetadata(localMeta ? JSON.parse(localMeta) : DEFAULT_CATEGORY_METADATA);
       });
 
     // 3. Fetch Orders
@@ -2208,8 +2240,15 @@ export const ShopProvider = ({ children }) => {
         if (!res.ok) throw new Error("API error");
         return res.json();
       })
-      .then(data => setOrders(data))
-      .catch(err => console.error("Error fetching orders:", err));
+      .then(data => {
+        setOrders(data);
+        localStorage.setItem('svada_orders', JSON.stringify(data));
+      })
+      .catch(err => {
+        console.error("Error fetching orders:", err);
+        const local = localStorage.getItem('svada_orders');
+        if (local) setOrders(JSON.parse(local));
+      });
 
     // 4. Fetch Hero Slides
     fetch(`${API_BASE}/hero-slides`)
@@ -2218,9 +2257,16 @@ export const ShopProvider = ({ children }) => {
         return res.json();
       })
       .then(data => {
-        if (data && data.length > 0) setHeroSlides(data);
+        if (data && data.length > 0) {
+          setHeroSlides(data);
+          localStorage.setItem('svada_hero_slides', JSON.stringify(data));
+        }
       })
-      .catch(err => console.error("Error fetching hero slides:", err));
+      .catch(err => {
+        console.error("Error fetching hero slides:", err);
+        const local = localStorage.getItem('svada_hero_slides');
+        if (local) setHeroSlides(JSON.parse(local));
+      });
 
     // 5. Fetch Videos
     fetch(`${API_BASE}/videos`)
@@ -2485,6 +2531,19 @@ export const ShopProvider = ({ children }) => {
       .catch(err => console.error("Error updating order status:", err));
   };
 
+  const updateOrderTracking = (orderId, trackingLink) => {
+    fetch(`${API_BASE}/orders/${orderId}/tracking`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackingLink })
+    })
+      .then(res => res.json())
+      .then(() => fetch(`${API_BASE}/orders`))
+      .then(res => res.json())
+      .then(data => setOrders(data))
+      .catch(err => console.error("Error updating order tracking link:", err));
+  };
+
   const deleteOrder = (orderId) => {
     fetch(`${API_BASE}/orders/${orderId}`, {
       method: 'DELETE'
@@ -2499,12 +2558,28 @@ export const ShopProvider = ({ children }) => {
   const addCategory = (categoryName, image = '', desc = '') => {
     if (!categoryName) return;
     
+    // Optimistically update local state & localStorage
+    setCategories(prev => {
+      if (prev.includes(categoryName)) return prev;
+      const updated = [...prev, categoryName];
+      localStorage.setItem('svada_categories', JSON.stringify(updated));
+      return updated;
+    });
+    setCategoryMetadata(prev => {
+      const updated = { ...prev, [categoryName]: { image, desc } };
+      localStorage.setItem('svada_category_metadata', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: categoryName, image, description: desc })
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to add category on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/categories`))
       .then(res => res.json())
       .then(data => {
@@ -2514,15 +2589,33 @@ export const ShopProvider = ({ children }) => {
           meta[c.name] = { image: c.image, desc: c.description };
         });
         setCategoryMetadata(meta);
+        localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
+        localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error adding category:", err));
+      .catch(err => console.error("Error adding category to backend, kept local version:", err));
   };
 
   const deleteCategory = (categoryName) => {
+    // Optimistically update local state & localStorage
+    setCategories(prev => {
+      const updated = prev.filter(c => c !== categoryName);
+      localStorage.setItem('svada_categories', JSON.stringify(updated));
+      return updated;
+    });
+    setCategoryMetadata(prev => {
+      const updated = { ...prev };
+      delete updated[categoryName];
+      localStorage.setItem('svada_category_metadata', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/categories/${categoryName}`, {
       method: 'DELETE'
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to delete category on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/categories`))
       .then(res => res.json())
       .then(data => {
@@ -2532,8 +2625,10 @@ export const ShopProvider = ({ children }) => {
           meta[c.name] = { image: c.image, desc: c.description };
         });
         setCategoryMetadata(meta);
+        localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
+        localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error deleting category:", err));
+      .catch(err => console.error("Error deleting category on backend, kept local version:", err));
   };
 
   const updateCategoryMetadata = (categoryName, data) => {
@@ -2541,12 +2636,22 @@ export const ShopProvider = ({ children }) => {
     const finalImage = data.image !== undefined ? data.image : (currentMeta.image || '');
     const finalDesc = data.desc !== undefined ? data.desc : (currentMeta.desc || '');
     
+    // Optimistically update local state & localStorage
+    setCategoryMetadata(prev => {
+      const updated = { ...prev, [categoryName]: { image: finalImage, desc: finalDesc } };
+      localStorage.setItem('svada_category_metadata', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: categoryName, image: finalImage, description: finalDesc })
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to update category metadata on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/categories`))
       .then(res => res.json())
       .then(data => {
@@ -2555,8 +2660,9 @@ export const ShopProvider = ({ children }) => {
           meta[c.name] = { image: c.image, desc: c.description };
         });
         setCategoryMetadata(meta);
+        localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error updating category metadata:", err));
+      .catch(err => console.error("Error updating category metadata on backend, kept local version:", err));
   };
 
   const renameCategory = (oldName, newName, image = null, desc = null) => {
@@ -2566,15 +2672,35 @@ export const ShopProvider = ({ children }) => {
     const finalImage = image !== null ? image : (currentMeta.image || '');
     const finalDesc = desc !== null ? desc : (currentMeta.desc || '');
 
+    // Optimistically update local state & localStorage for categories, metadata, and products in that category
+    setCategories(prev => {
+      const updated = prev.map(c => c === oldName ? newName : c);
+      localStorage.setItem('svada_categories', JSON.stringify(updated));
+      return updated;
+    });
+    setCategoryMetadata(prev => {
+      const updated = { ...prev };
+      delete updated[oldName];
+      updated[newName] = { image: finalImage, desc: finalDesc };
+      localStorage.setItem('svada_category_metadata', JSON.stringify(updated));
+      return updated;
+    });
+    setProducts(prev => {
+      const updated = prev.map(p => p.category === oldName ? { ...p, category: newName } : p);
+      localStorage.setItem('svada_custom_products', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/categories/${oldName}/rename`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newName, image: finalImage, description: finalDesc })
     })
-      .then(() => {
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to rename category on server");
         return Promise.all([
-          fetch(`${API_BASE}/products`).then(res => res.json()),
-          fetch(`${API_BASE}/categories`).then(res => res.json())
+          fetch(`${API_BASE}/products`).then(r => r.json()),
+          fetch(`${API_BASE}/categories`).then(r => r.json())
         ]);
       })
       .then(([prods, cats]) => {
@@ -2585,8 +2711,11 @@ export const ShopProvider = ({ children }) => {
           meta[c.name] = { image: c.image, desc: c.description };
         });
         setCategoryMetadata(meta);
+        localStorage.setItem('svada_custom_products', JSON.stringify(prods));
+        localStorage.setItem('svada_categories', JSON.stringify(cats.map(c => c.name)));
+        localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error renaming category:", err));
+      .catch(err => console.error("Error renaming category on backend, kept local version:", err));
   };
 
   const getTodayEarnings = () => {
@@ -2612,40 +2741,94 @@ export const ShopProvider = ({ children }) => {
 
   // Product Management Functions
   const addProduct = (productData) => {
+    const tempId = `prod-${Date.now()}`;
+    const newProduct = {
+      ...productData,
+      id: tempId,
+      rating: 4.5,
+      reviews: 0,
+      inStock: productData.inStock !== false
+    };
+
+    // Optimistically update local state & localStorage
+    setProducts(prev => {
+      const updated = [newProduct, ...prev];
+      localStorage.setItem('svada_custom_products', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(productData)
+      body: JSON.stringify(newProduct)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to add product on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/products`))
       .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Error adding product:", err));
+      .then(data => {
+        setProducts(data);
+        localStorage.setItem('svada_custom_products', JSON.stringify(data));
+      })
+      .catch(err => {
+        console.error("Error adding product to backend, kept local version:", err);
+      });
   };
 
   const updateProduct = (productId, productData) => {
+    // Optimistically update local state & localStorage
+    setProducts(prev => {
+      const updated = prev.map(prod => prod.id === productId ? { ...prod, ...productData } : prod);
+      localStorage.setItem('svada_custom_products', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/products/${productId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(productData)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to update product on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/products`))
       .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Error updating product:", err));
+      .then(data => {
+        setProducts(data);
+        localStorage.setItem('svada_custom_products', JSON.stringify(data));
+      })
+      .catch(err => {
+        console.error("Error updating product on backend, kept local version:", err);
+      });
   };
 
   const deleteProduct = (productId) => {
+    // Optimistically update local state & localStorage
+    setProducts(prev => {
+      const updated = prev.filter(prod => prod.id !== productId);
+      localStorage.setItem('svada_custom_products', JSON.stringify(updated));
+      return updated;
+    });
+
     fetch(`${API_BASE}/products/${productId}`, {
       method: 'DELETE'
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to delete product on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/products`))
       .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Error deleting product:", err));
+      .then(data => {
+        setProducts(data);
+        localStorage.setItem('svada_custom_products', JSON.stringify(data));
+      })
+      .catch(err => {
+        console.error("Error deleting product on backend, kept local version:", err);
+      });
   };
 
   // Hero Slide Management Functions
@@ -2722,6 +2905,7 @@ export const ShopProvider = ({ children }) => {
         handleWhatsAppCheckout,
         addOrder,
         updateOrderStatus,
+        updateOrderTracking,
         deleteOrder,
         addCategory,
         deleteCategory,

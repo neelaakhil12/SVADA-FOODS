@@ -1,0 +1,104 @@
+[
+  {
+    "id": "hs-default",
+    "name": "Free Shipping & Fast Delivery",
+    "image": "/image copy 158.png",
+    "desc": "Free delivery across India on orders above ₹3,500"
+  },
+  {
+    "id": "hs-cat-1",
+    "name": "Cold Pressed oils & Ghee & honey",
+    "image": "/image copy 138.png",
+    "desc": "A2 Ghee, Honey & Oils"
+  },
+  {
+    "id": "hs-cat-2",
+    "name": "Dry fruits, Nuts & seeds",
+    "image": "/image copy 139.png",
+    "desc": "Premium Nutrients"
+  },
+  {
+    "id": "hs-cat-3",
+    "name": "Herb Extract Foods",
+    "image": "/image copy 140.png",
+    "desc": "Infused Wellness"
+  },
+  {
+    "id": "hs-cat-4",
+    "name": "Drinks & Tea",
+    "image": "/image copy 141.png",
+    "desc": "Herbal Teas & Drinks"
+  },
+  {
+    "id": "hs-cat-5",
+    "name": "Herbs & Extracts",
+    "image": "/image copy 142.png",
+    "desc": "Shade-Dried Herbs"
+  },
+  {
+    "id": "hs-cat-6",
+    "name": "Household supplies",
+    "image": "/image copy 143.png",
+    "desc": "Bamboo Utilities"
+  },
+  {
+    "id": "hs-cat-7",
+    "name": "Millets & Flakes",
+    "image": "/image copy 144.png",
+    "desc": "Healthy Millets"
+  },
+  {
+    "id": "hs-cat-8",
+    "name": "Personal hair care",
+    "image": "/image copy 145.png",
+    "desc": "Hair Oils & Ubtan"
+  },
+  {
+    "id": "hs-cat-9",
+    "name": "Pickles & Powders",
+    "image": "/image copy 146.png",
+    "desc": "Avakaya & Podi Karams"
+  },
+  {
+    "id": "hs-cat-10",
+    "name": "Pooja supplies",
+    "image": "/image copy 147.png",
+    "desc": "Divine Purifiers"
+  },
+  {
+    "id": "hs-cat-11",
+    "name": "Ready to eat & cook & fryums",
+    "image": "/image copy 148.png",
+    "desc": "Breakfast & Fryums"
+  },
+  {
+    "id": "hs-cat-12",
+    "name": "Rices, Flours, Pulses & other",
+    "image": "/image copy 149.png",
+    "desc": "Stone-Ground Flours"
+  },
+  {
+    "id": "hs-cat-13",
+    "name": "Seasonal Spices & Masala",
+    "image": "/image copy 150.png",
+    "desc": "Stone-Ground Spices"
+  },
+  {
+    "id": "hs-cat-14",
+    "name": "Sugars, Sweetners & syrups",
+    "image": "/image copy 151.png",
+    "desc": "Palm Jaggery & Syrups"
+  },
+  {
+    "id": "hs-cat-15",
+    "name": "sweets & snacks",
+    "image": "/image copy 152.png",
+    "desc": "Sunnundalu & Hots"
+  },
+  {
+    "id": "hs-cat-16",
+    "name": "seeds & Plants",
+    "image": "/image copy 153.png",
+    "desc": "Garden Seed Kits"
+  }
+]

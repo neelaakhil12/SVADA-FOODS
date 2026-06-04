@@ -13,9 +13,30 @@ const AdminHeroSlides = () => {
   const [newSlide, setNewSlide] = useState(emptyForm);
   const [editForm, setEditForm] = useState(emptyForm);
 
+  const handleImageUpload = (e, target = 'new') => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size must be less than 2MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        if (target === 'new') {
+          setNewSlide(prev => ({ ...prev, image: base64String }));
+        } else {
+          setEditForm(prev => ({ ...prev, image: base64String }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAdd = () => {
     if (!newSlide.name.trim() || !newSlide.image.trim()) {
-      alert('Please fill in at least the Title and Image URL.');
+      alert('Please fill in the Title and upload an Image.');
       return;
     }
     addHeroSlide(newSlide);
@@ -31,7 +52,7 @@ const AdminHeroSlides = () => {
 
   const handleEditSave = (id) => {
     if (!editForm.name.trim() || !editForm.image.trim()) {
-      alert('Please fill in at least the Title and Image URL.');
+      alert('Please fill in the Title and upload an Image.');
       return;
     }
     updateHeroSlide(id, editForm);
@@ -105,15 +126,15 @@ const AdminHeroSlides = () => {
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 600, color: '#374151', fontSize: '0.85rem' }}>
-                Image URL *
+                Upload Image *
               </label>
               <input
-                type="text"
-                placeholder="e.g. /hero-banner.jpg or https://..."
-                value={newSlide.image}
-                onChange={e => setNewSlide({ ...newSlide, image: e.target.value })}
+                type="file"
+                accept="image/*"
+                onChange={e => handleImageUpload(e, 'new')}
                 style={inputStyle}
               />
+              <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: '#64748b' }}>Maximum size: 2MB</p>
             </div>
           </div>
           <div style={{ marginBottom: '1rem' }}>
@@ -189,13 +210,14 @@ const AdminHeroSlides = () => {
                     />
                   </div>
                   <div>
-                    <label style={labelStyle}>Image URL *</label>
+                    <label style={labelStyle}>Upload Image *</label>
                     <input
-                      type="text"
-                      value={editForm.image}
-                      onChange={e => setEditForm({ ...editForm, image: e.target.value })}
+                      type="file"
+                      accept="image/*"
+                      onChange={e => handleImageUpload(e, 'edit')}
                       style={inputStyle}
                     />
+                    <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: '#64748b' }}>Maximum size: 2MB</p>
                   </div>
                 </div>
                 <div style={{ marginBottom: '0.75rem' }}>
@@ -263,7 +285,9 @@ const AdminHeroSlides = () => {
                 <div style={{ flex: 1, padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <p style={{ margin: 0, fontWeight: 700, color: '#1e293b', fontSize: '0.95rem' }}>{slide.name || <em style={{ color: '#94a3b8' }}>No title</em>}</p>
                   {slide.desc && <p style={{ margin: '0.2rem 0 0', color: '#64748b', fontSize: '0.82rem' }}>{slide.desc}</p>}
-                  <p style={{ margin: '0.3rem 0 0', color: '#94a3b8', fontSize: '0.75rem', wordBreak: 'break-all' }}>{slide.image}</p>
+                  <p style={{ margin: '0.3rem 0 0', color: '#94a3b8', fontSize: '0.75rem', wordBreak: 'break-all' }}>
+                    {slide.image && slide.image.startsWith('data:') ? 'Uploaded Image File' : slide.image}
+                  </p>
                 </div>
 
                 {/* Actions */}
@@ -332,7 +356,7 @@ const AdminHeroSlides = () => {
         borderRadius: '10px', border: '1px solid #fed7aa'
       }}>
         <p style={{ margin: 0, fontSize: '0.82rem', color: '#92400e' }}>
-          <strong>💡 Tip:</strong> Use image paths like <code>/hero-banner.jpg</code> for files placed in the <code>public/</code> folder, or paste a full URL (e.g. https://...). Images auto-slide on the homepage every 2 seconds. At least 1 slide must exist at all times.
+          <strong>💡 Tip:</strong> Upload banner images directly. Images auto-slide on the homepage every 2 seconds. At least 1 slide must exist at all times.
         </p>
       </div>
     </div>

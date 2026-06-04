@@ -3,8 +3,8 @@ import { ShopContext } from '../context/ShopContext';
 import { Mail, Lock, ShieldCheck, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const ADMIN_CREDENTIALS = {
-  email: 'admin@svadafarms.com',
-  password: 'admin123'
+  email: import.meta.env.VITE_ADMIN_EMAIL || 'admin@svadafarms.com',
+  password: import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
 };
 
 export default function AdminLogin() {
@@ -28,7 +28,8 @@ export default function AdminLogin() {
 
     // Simulate API call delay
     setTimeout(() => {
-      if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+      const isValidEmail = email === ADMIN_CREDENTIALS.email || email === 'admin@svadafarms.com' || email === 'admin@svadafoods.com';
+      if (isValidEmail && password === ADMIN_CREDENTIALS.password) {
         setIsAdmin(true);
         setCurrentPage('admin');
       } else {
@@ -139,8 +140,8 @@ export default function AdminLogin() {
           {/* Demo Credentials Notice */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-xs text-blue-800 font-semibold mb-1">Demo Credentials:</p>
-            <p className="text-xs text-blue-700">Email: admin@svadafarms.com</p>
-            <p className="text-xs text-blue-700">Password: admin123</p>
+            <p className="text-xs text-blue-700">Email: {ADMIN_CREDENTIALS.email}</p>
+            <p className="text-xs text-blue-700">Password: {ADMIN_CREDENTIALS.password}</p>
           </div>
         </div>
       </div>

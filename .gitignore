@@ -32,3 +32,8 @@ dist-ssr
 *.MP4
 !public/*.mp4
 !public/*.MP4
+
+# Environment variables (secrets - never commit these)
+.env
+.env.local
+.env.production

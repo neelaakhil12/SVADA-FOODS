@@ -9,46 +9,12 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
-  const { products, setCurrentPage, setSelectedCategory, addToCart, categories, categoryMetadata, heroSlides } = useContext(ShopContext);
+  const { products, setCurrentPage, setSelectedCategory, addToCart, categories, categoryMetadata, heroSlides, watchBuyVideos } = useContext(ShopContext);
 
   // Shoppable Video Reels State
   const [activeReel, setActiveReel] = useState(null);
   const [reelMuted, setReelMuted] = useState(true);
   const [cartSuccessId, setCartSuccessId] = useState(null);
-
-  // ------------------------------------------------------------
-  // WATCH & BUY SHOPPABLE REELS DATA
-  // ------------------------------------------------------------
-  const watchBuyVideos = [
-    {
-      id: 'wb1',
-      videoUrl: '/IMG_8230.MP4',
-      title: 'Svada Traditional Farm Prep',
-      desc: 'Watch our authentic, natural delicacies being handcrafted directly in our traditional village kitchens.',
-      keyword: 'pickle',
-    },
-    {
-      id: 'wb2',
-      videoUrl: '/whatsapp_video_2.mp4',
-      title: 'Svada Traditional Stone Grinding',
-      desc: 'See our traditional spices and homemade podis being slow ground to lock in fresh aroma and nutrition.',
-      keyword: 'podi',
-    },
-    {
-      id: 'wb3',
-      videoUrl: '/whatsapp_video_3.mp4',
-      title: 'Svada Pure Homemade Goodness',
-      desc: 'Watch our fresh ingredients and traditional products prepared cleanly with pure care.',
-      keyword: 'sweet',
-    },
-    {
-      id: 'wb4',
-      videoUrl: '/whatsapp_video_4.mp4',
-      title: 'Svada Authentic Village Recipes',
-      desc: 'Watch our slow wood-fire dry roasting and clay pot recipes made exactly with home rules.',
-      keyword: 'ghee',
-    }
-  ];
 
   const getProductForVideo = (keyword) => {
     if (!products || products.length === 0) return null;
@@ -765,7 +731,44 @@ export default function Home() {
                   </p>
                 </div>
 
-
+                {/* Product Detail Card */}
+                {product && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-16 h-16 rounded-xl object-cover bg-white flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-sm text-white truncate">{product.name}</h4>
+                      <p className="text-xs text-orange-200/60 line-clamp-1 mt-0.5">{product.category}</p>
+                      <div className="flex items-center justify-between mt-2.5">
+                        <span className="text-sm text-amber-300 font-extrabold">₹{product.price250g || product.price500g || product.price1kg}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product, '250g', 1);
+                            setCartSuccessId(product.id);
+                            setTimeout(() => setCartSuccessId(null), 2000);
+                          }}
+                          className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-[#1A0F0C] text-[10px] font-black uppercase tracking-wider px-3.5 py-2 rounded-xl transition duration-300"
+                        >
+                          {cartSuccessId === product.id ? (
+                            <>
+                              <Check className="h-3 w-3" />
+                              <span>Added!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="h-3.5 w-3.5" />
+                              <span>Add to Bag</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Bottom support text */}
                 <div className="text-[10px] text-orange-200/40 text-center leading-normal pt-4 border-t border-white/5">

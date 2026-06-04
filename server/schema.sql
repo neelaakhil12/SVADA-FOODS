@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS categories (
   name VARCHAR(100) PRIMARY KEY,
-  image VARCHAR(255),
+  image LONGTEXT,
   description TEXT
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS products (
   rating DECIMAL(3,2) DEFAULT 0.00,
   reviews INT DEFAULT 0,
   description TEXT,
-  image VARCHAR(255),
+  image LONGTEXT,
   ingredients TEXT,
   isBestseller TINYINT(1) DEFAULT 0,
   inStock TINYINT(1) DEFAULT 1,
@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS orders (
   customerAddress TEXT NOT NULL,
   status VARCHAR(20) DEFAULT 'pending',
   createdAt DATETIME NOT NULL,
-  total INT DEFAULT 0
+  total INT DEFAULT 0,
+  trackingLink VARCHAR(512) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS order_items (
 CREATE TABLE IF NOT EXISTS hero_slides (
   id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255),
-  image VARCHAR(255) NOT NULL,
+  image LONGTEXT NOT NULL,
   `desc` TEXT
 );
 

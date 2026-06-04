@@ -28,6 +28,14 @@ const memoryOrders = [];
 let fallbackProducts = [];
 let fallbackCategories = [];
 let fallbackVideos = [];
+let fallbackHeroSlides = [
+  {
+    id: 'hs-default',
+    name: 'Free Shipping & Fast Delivery',
+    image: '/image copy 158.png',
+    desc: 'Free delivery across India on orders above ₹3,500'
+  }
+];
 
 const videosFallbackPath = path.join(__dirname, 'videos-fallback.json');
 try {
@@ -45,36 +53,97 @@ try {
   console.warn("Failed to load fallback videos data:", err.message);
 }
 
+const productsFallbackPath = path.join(__dirname, 'products-fallback.json');
+const categoriesFallbackPath = path.join(__dirname, 'categories-fallback.json');
+const ordersFallbackPath = path.join(__dirname, 'orders-fallback.json');
+const heroSlidesFallbackPath = path.join(__dirname, 'hero-slides-fallback.json');
+
+// Load fallback products
 try {
-  const initialDataPath = path.join(__dirname, 'initial-data.json');
-  if (fs.existsSync(initialDataPath)) {
-    const { PRODUCTS_DATA, DEFAULT_CATEGORY_METADATA } = JSON.parse(fs.readFileSync(initialDataPath, 'utf8'));
-    fallbackProducts = PRODUCTS_DATA.map(p => ({
-      ...p,
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      price250g: p.price250g || 0,
-      price500g: p.price500g || 0,
-      price1kg: p.price1kg || 0,
-      rating: p.rating || 0,
-      reviews: p.reviews || 0,
-      description: p.description || '',
-      image: p.image || '',
-      ingredients: p.ingredients || '',
-      isBestseller: !!p.isBestseller,
-      inStock: p.inStock !== false,
-      isEcoPiece: !!p.isEcoPiece,
-      weightLabels: p.weightLabels || null
-    }));
-    fallbackCategories = Object.entries(DEFAULT_CATEGORY_METADATA).map(([name, meta]) => ({
-      name,
-      image: meta.image || '',
-      description: meta.desc || ''
-    }));
+  if (fs.existsSync(productsFallbackPath)) {
+    fallbackProducts = JSON.parse(fs.readFileSync(productsFallbackPath, 'utf8'));
+  } else {
+    const initialDataPath = path.join(__dirname, 'initial-data.json');
+    if (fs.existsSync(initialDataPath)) {
+      const { PRODUCTS_DATA } = JSON.parse(fs.readFileSync(initialDataPath, 'utf8'));
+      fallbackProducts = PRODUCTS_DATA.map(p => ({
+        ...p,
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        price250g: p.price250g || 0,
+        price500g: p.price500g || 0,
+        price1kg: p.price1kg || 0,
+        rating: p.rating || 0,
+        reviews: p.reviews || 0,
+        description: p.description || '',
+        image: p.image || '',
+        ingredients: p.ingredients || '',
+        isBestseller: !!p.isBestseller,
+        inStock: p.inStock !== false,
+        isEcoPiece: !!p.isEcoPiece,
+        weightLabels: p.weightLabels || null
+      }));
+      fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8');
+    }
   }
 } catch (err) {
-  console.warn("Failed to load initial fallback data:", err.message);
+  console.warn("Failed to load fallback products data:", err.message);
+}
+
+// Load fallback categories
+try {
+  if (fs.existsSync(categoriesFallbackPath)) {
+    fallbackCategories = JSON.parse(fs.readFileSync(categoriesFallbackPath, 'utf8'));
+  } else {
+    const initialDataPath = path.join(__dirname, 'initial-data.json');
+    if (fs.existsSync(initialDataPath)) {
+      const { DEFAULT_CATEGORY_METADATA } = JSON.parse(fs.readFileSync(initialDataPath, 'utf8'));
+      fallbackCategories = Object.entries(DEFAULT_CATEGORY_METADATA).map(([name, meta]) => ({
+        name,
+        image: meta.image || '',
+        description: meta.desc || ''
+      }));
+      fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8');
+    }
+  }
+} catch (err) {
+  console.warn("Failed to load fallback categories data:", err.message);
+}
+
+// Load fallback orders
+try {
+  if (fs.existsSync(ordersFallbackPath)) {
+    const loaded = JSON.parse(fs.readFileSync(ordersFallbackPath, 'utf8'));
+    memoryOrders.push(...loaded);
+  }
+} catch (err) {
+  console.warn("Failed to load fallback orders data:", err.message);
+}
+
+// Load fallback hero slides
+try {
+  if (fs.existsSync(heroSlidesFallbackPath)) {
+    fallbackHeroSlides = JSON.parse(fs.readFileSync(heroSlidesFallbackPath, 'utf8'));
+  }
+  if (fallbackHeroSlides.length <= 1) {
+    const initialDataPath = path.join(__dirname, 'initial-data.json');
+    if (fs.existsSync(initialDataPath)) {
+      const { DEFAULT_CATEGORY_METADATA } = JSON.parse(fs.readFileSync(initialDataPath, 'utf8'));
+      const catSlides = Object.entries(DEFAULT_CATEGORY_METADATA).map(([name, meta], index) => ({
+        id: `hs-cat-${index + 1}`,
+        name: name,
+        image: meta.image || '',
+        desc: meta.desc || ''
+      }));
+      const existingIds = new Set(fallbackHeroSlides.map(s => s.id));
+      const newSlides = catSlides.filter(s => !existingIds.has(s.id));
+      fallbackHeroSlides = [...fallbackHeroSlides, ...newSlides];
+      fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8');
+    }
+  }
+} catch (err) {
+  console.warn("Failed to load fallback hero slides data:", err.message);
 }
 
 // Mail Transporter Configuration
@@ -206,6 +275,83 @@ async function checkAndInitDatabase() {
         console.log("Watch & Buy videos already exist. Skipping seed.");
       }
     }
+
+    // Auto-migrate: Add trackingLink column to orders table if it doesn't exist
+    try {
+      await db.query("ALTER TABLE orders ADD COLUMN trackingLink VARCHAR(512) DEFAULT NULL");
+      console.log("Migration: Added trackingLink column to orders table.");
+    } catch (err) {
+      // Ignore if the column already exists (Error Code 1060 or ER_DUP_FIELDNAME)
+      if (err.errno !== 1060 && err.code !== 'ER_DUP_FIELDNAME') {
+        console.warn("Failed to automatically add trackingLink column:", err.message);
+      }
+    }
+
+    // Auto-migrate: Change image columns to LONGTEXT to support base64 uploads
+    try {
+      await db.query("ALTER TABLE products MODIFY COLUMN image LONGTEXT");
+      console.log("Migration: Modified products.image to LONGTEXT");
+    } catch (err) {
+      console.warn("Failed to migrate products.image to LONGTEXT:", err.message);
+    }
+    try {
+      await db.query("ALTER TABLE categories MODIFY COLUMN image LONGTEXT");
+      console.log("Migration: Modified categories.image to LONGTEXT");
+    } catch (err) {
+      console.warn("Failed to migrate categories.image to LONGTEXT:", err.message);
+    }
+    try {
+      await db.query("ALTER TABLE hero_slides MODIFY COLUMN image LONGTEXT");
+      console.log("Migration: Modified hero_slides.image to LONGTEXT");
+    } catch (err) {
+      console.warn("Failed to migrate hero_slides.image to LONGTEXT:", err.message);
+    }
+
+    // Check and Seed Hero Slides if empty
+    try {
+      const [heroRows] = await db.query("SELECT COUNT(*) as count FROM hero_slides");
+      if (heroRows[0].count <= 1) {
+        console.log("Seeding hero_slides table...");
+        const [existingSlides] = await db.query("SELECT * FROM hero_slides");
+        const existingIds = new Set(existingSlides.map(s => s.id));
+
+        const dataPath = path.join(__dirname, 'initial-data.json');
+        if (fs.existsSync(dataPath)) {
+          const { DEFAULT_CATEGORY_METADATA } = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          
+          // Default slide
+          if (!existingIds.has('hs-default')) {
+            await db.query(
+              "INSERT INTO hero_slides (id, name, image, `desc`) VALUES (?, ?, ?, ?)",
+              ['hs-default', 'Free Shipping & Fast Delivery', '/image copy 158.png', 'Free delivery across India on orders above ₹3,500']
+            );
+          } else {
+            await db.query(
+              "UPDATE hero_slides SET name = ?, `desc` = ? WHERE id = ?",
+              ['Free Shipping & Fast Delivery', 'Free delivery across India on orders above ₹3,500', 'hs-default']
+            );
+          }
+
+          // Category slides
+          let index = 1;
+          for (const [name, meta] of Object.entries(DEFAULT_CATEGORY_METADATA)) {
+            const slideId = `hs-cat-${index}`;
+            index++;
+            if (!existingIds.has(slideId)) {
+              await db.query(
+                "INSERT INTO hero_slides (id, name, image, `desc`) VALUES (?, ?, ?, ?)",
+                [slideId, name, meta.image || '', meta.desc || '']
+              );
+            }
+          }
+          console.log("Hero slides seeded successfully in database.");
+        }
+      } else {
+        console.log("Hero slides already exist in database. Skipping seed.");
+      }
+    } catch (heroErr) {
+      console.warn("Failed to check or seed hero slides table in database:", heroErr.message);
+    }
   } catch (error) {
     console.error("Failed to auto-initialize database on startup:", error);
   }
@@ -234,11 +380,29 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/products', async (req, res) => {
+  const p = req.body;
+  const id = p.id || Date.now().toString();
+  const weightLabels = p.weightLabels ? JSON.stringify(p.weightLabels) : null;
+  
+  const newProduct = {
+    id,
+    name: p.name,
+    category: p.category,
+    price250g: Number(p.price250g) || 0,
+    price500g: Number(p.price500g) || 0,
+    price1kg: Number(p.price1kg) || 0,
+    rating: Number(p.rating) || 0.00,
+    reviews: Number(p.reviews) || 0,
+    description: p.description || '',
+    image: p.image || '',
+    ingredients: p.ingredients || '',
+    isBestseller: !!p.isBestseller,
+    inStock: p.inStock !== false,
+    isEcoPiece: !!p.isEcoPiece,
+    weightLabels: p.weightLabels || null
+  };
+
   try {
-    const p = req.body;
-    const id = p.id || Date.now().toString();
-    const weightLabels = p.weightLabels ? JSON.stringify(p.weightLabels) : null;
-    
     await db.query(
       `INSERT INTO products (id, name, category, price250g, price500g, price1kg, rating, reviews, description, image, ingredients, isBestseller, inStock, isEcoPiece, weightLabels)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -248,18 +412,28 @@ app.post('/api/products', async (req, res) => {
         p.isBestseller ? 1 : 0, p.inStock !== false ? 1 : 0, p.isEcoPiece ? 1 : 0, weightLabels
       ]
     );
+    // Keep fallback in sync
+    fallbackProducts.unshift(newProduct);
+    try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
     res.status(201).json({ message: "Product created", id });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Storing product in fallback JSON.");
+    fallbackProducts.unshift(newProduct);
+    try {
+      fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8');
+      res.status(201).json({ message: "Product created (Fallback JSON)", id });
+    } catch (fsErr) {
+      res.status(500).json({ error: "Failed to persist fallback product: " + fsErr.message });
+    }
   }
 });
 
 app.put('/api/products/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const p = req.body;
-    const weightLabels = p.weightLabels ? JSON.stringify(p.weightLabels) : null;
+  const { id } = req.params;
+  const p = req.body;
+  const weightLabels = p.weightLabels ? JSON.stringify(p.weightLabels) : null;
 
+  try {
     await db.query(
       `UPDATE products SET name = ?, category = ?, price250g = ?, price500g = ?, price1kg = ?, 
        description = ?, image = ?, ingredients = ?, isBestseller = ?, inStock = ?, isEcoPiece = ?, weightLabels = ?
@@ -271,19 +445,76 @@ app.put('/api/products/:id', async (req, res) => {
         id
       ]
     );
+    // Keep fallback in sync
+    fallbackProducts = fallbackProducts.map(prod => prod.id === id ? {
+      ...prod,
+      name: p.name,
+      category: p.category,
+      price250g: Number(p.price250g) || 0,
+      price500g: Number(p.price500g) || 0,
+      price1kg: Number(p.price1kg) || 0,
+      description: p.description || '',
+      image: p.image || '',
+      ingredients: p.ingredients || '',
+      isBestseller: !!p.isBestseller,
+      inStock: p.inStock !== false,
+      isEcoPiece: !!p.isEcoPiece,
+      weightLabels: p.weightLabels || null
+    } : prod);
+    try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Product updated" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Updating product in fallback JSON.");
+    const idx = fallbackProducts.findIndex(prod => prod.id === id);
+    if (idx !== -1) {
+      fallbackProducts[idx] = {
+        ...fallbackProducts[idx],
+        name: p.name,
+        category: p.category,
+        price250g: Number(p.price250g) || 0,
+        price500g: Number(p.price500g) || 0,
+        price1kg: Number(p.price1kg) || 0,
+        description: p.description || '',
+        image: p.image || '',
+        ingredients: p.ingredients || '',
+        isBestseller: !!p.isBestseller,
+        inStock: p.inStock !== false,
+        isEcoPiece: !!p.isEcoPiece,
+        weightLabels: p.weightLabels || null
+      };
+      try {
+        fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8');
+        res.json({ message: "Product updated (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback product update: " + fsErr.message });
+      }
+    } else {
+      res.status(404).json({ error: "Product not found" });
+    }
   }
 });
 
 app.delete('/api/products/:id', async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
     await db.query("DELETE FROM products WHERE id = ?", [id]);
+    fallbackProducts = fallbackProducts.filter(prod => prod.id !== id);
+    try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Product deleted" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Deleting product from fallback JSON.");
+    const idx = fallbackProducts.findIndex(prod => prod.id === id);
+    if (idx !== -1) {
+      fallbackProducts.splice(idx, 1);
+      try {
+        fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8');
+        res.json({ message: "Product deleted (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback product delete: " + fsErr.message });
+      }
+    } else {
+      res.status(404).json({ error: "Product not found" });
+    }
   }
 });
 
@@ -299,52 +530,99 @@ app.get('/api/categories', async (req, res) => {
 });
 
 app.post('/api/categories', async (req, res) => {
+  const { name, image, description } = req.body;
   try {
-    const { name, image, description } = req.body;
     await db.query(
       "INSERT INTO categories (name, image, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE image = ?, description = ?",
       [name, image || '', description || '', image || '', description || '']
     );
+    // Keep fallback in sync
+    const catIdx = fallbackCategories.findIndex(c => c.name === name);
+    if (catIdx !== -1) {
+      fallbackCategories[catIdx] = { name, image: image || '', description: description || '' };
+    } else {
+      fallbackCategories.push({ name, image: image || '', description: description || '' });
+    }
+    try { fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8'); } catch (fsErr) {}
     res.status(201).json({ message: "Category created" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Storing category in fallback JSON.");
+    const catIdx = fallbackCategories.findIndex(c => c.name === name);
+    if (catIdx !== -1) {
+      fallbackCategories[catIdx] = { name, image: image || '', description: description || '' };
+    } else {
+      fallbackCategories.push({ name, image: image || '', description: description || '' });
+    }
+    try {
+      fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8');
+      res.status(201).json({ message: "Category created (Fallback JSON)" });
+    } catch (fsErr) {
+      res.status(500).json({ error: "Failed to persist fallback category: " + fsErr.message });
+    }
   }
 });
 
 app.delete('/api/categories/:name', async (req, res) => {
+  const { name } = req.params;
   try {
-    const { name } = req.params;
     await db.query("DELETE FROM categories WHERE name = ?", [name]);
+    fallbackCategories = fallbackCategories.filter(c => c.name !== name);
+    try { fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Category deleted" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Deleting category from fallback JSON.");
+    fallbackCategories = fallbackCategories.filter(c => c.name !== name);
+    try {
+      fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8');
+      res.json({ message: "Category deleted (Fallback JSON)" });
+    } catch (fsErr) {
+      res.status(500).json({ error: "Failed to persist fallback category delete: " + fsErr.message });
+    }
   }
 });
 
 app.put('/api/categories/:oldName/rename', async (req, res) => {
-  const connection = await db.getConnection();
+  const { oldName } = req.params;
+  const { newName, image, description } = req.body;
+  let connection;
   try {
+    connection = await db.getConnection();
     await connection.beginTransaction();
-    const { oldName } = req.params;
-    const { newName, image, description } = req.body;
     
-    // 1. Insert new category
     await connection.query(
       "INSERT INTO categories (name, image, description) VALUES (?, ?, ?)",
       [newName, image || '', description || '']
     );
-    // 2. Update products category
     await connection.query("UPDATE products SET category = ? WHERE category = ?", [newName, oldName]);
-    // 3. Delete old category
     await connection.query("DELETE FROM categories WHERE name = ?", [oldName]);
     
     await connection.commit();
+    
+    // Update fallback files in sync
+    fallbackCategories = fallbackCategories.map(c => c.name === oldName ? { name: newName, image: image || '', description: description || '' } : c);
+    try { fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8'); } catch (fsErr) {}
+
+    fallbackProducts = fallbackProducts.map(p => p.category === oldName ? { ...p, category: newName } : p);
+    try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
+
     res.json({ message: "Category renamed successfully" });
   } catch (error) {
-    await connection.rollback();
-    res.status(500).json({ error: error.message });
+    if (connection) {
+      await connection.rollback();
+    }
+    console.warn("Database offline. Renaming category in fallback JSON files.");
+    
+    fallbackCategories = fallbackCategories.map(c => c.name === oldName ? { name: newName, image: image || '', description: description || '' } : c);
+    try { fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8'); } catch (fsErr) {}
+
+    fallbackProducts = fallbackProducts.map(p => p.category === oldName ? { ...p, category: newName } : p);
+    try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
+
+    res.json({ message: "Category renamed successfully (Fallback JSON)" });
   } finally {
-    connection.release();
+    if (connection) {
+      connection.release();
+    }
   }
 });
 
@@ -391,6 +669,26 @@ app.post('/api/orders', async (req, res) => {
   const orderId = id || Date.now().toString();
   const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' '); // format to YYYY-MM-DD HH:MM:SS
 
+  const newOrder = {
+    id: orderId,
+    customerName,
+    customerPhone,
+    customerAddress,
+    status: 'pending',
+    createdAt,
+    total,
+    items: items.map(item => ({
+      product: {
+        id: item.product.id,
+        name: item.product.name,
+        image: item.product.image || ''
+      },
+      weight: item.weight,
+      quantity: item.quantity,
+      price: item.price
+    }))
+  };
+
   let connection;
   try {
     connection = await db.getConnection();
@@ -417,26 +715,9 @@ app.post('/api/orders', async (req, res) => {
     await connection.commit();
     connection.release();
 
-    // Sync in-memory store
-    memoryOrders.unshift({
-      id: orderId,
-      customerName,
-      customerPhone,
-      customerAddress,
-      status: 'pending',
-      createdAt,
-      total,
-      items: items.map(item => ({
-        product: {
-          id: item.product.id,
-          name: item.product.name,
-          image: item.product.image || ''
-        },
-        weight: item.weight,
-        quantity: item.quantity,
-        price: item.price
-      }))
-    });
+    // Sync in-memory store & persist to fallback file
+    memoryOrders.unshift(newOrder);
+    try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
 
     res.status(201).json({ message: "Order placed successfully", id: orderId });
   } catch (error) {
@@ -444,28 +725,14 @@ app.post('/api/orders', async (req, res) => {
       await connection.rollback();
       connection.release();
     }
-    console.warn("Database offline. Saving order in-memory.");
-    const newOrder = {
-      id: orderId,
-      customerName,
-      customerPhone,
-      customerAddress,
-      status: 'pending',
-      createdAt,
-      total,
-      items: items.map(item => ({
-        product: {
-          id: item.product.id,
-          name: item.product.name,
-          image: item.product.image || ''
-        },
-        weight: item.weight,
-        quantity: item.quantity,
-        price: item.price
-      }))
-    };
+    console.warn("Database offline. Saving order to fallback JSON.");
     memoryOrders.unshift(newOrder);
-    res.status(201).json({ message: "Order placed successfully (In-Memory Fallback)", id: orderId });
+    try {
+      fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
+      res.status(201).json({ message: "Order placed successfully (Fallback JSON)", id: orderId });
+    } catch (fsErr) {
+      res.status(500).json({ error: "Failed to persist fallback order: " + fsErr.message });
+    }
   }
 });
 
@@ -475,14 +742,50 @@ app.put('/api/orders/:id/status', async (req, res) => {
   try {
     await db.query("UPDATE orders SET status = ? WHERE id = ?", [status, id]);
     const order = memoryOrders.find(o => o.id === id);
-    if (order) order.status = status;
+    if (order) {
+      order.status = status;
+      try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
+    }
     res.json({ message: "Order status updated" });
   } catch (error) {
-    console.warn("Database offline. Updating order status in-memory.");
+    console.warn("Database offline. Updating order status in fallback JSON.");
     const order = memoryOrders.find(o => o.id === id);
     if (order) {
       order.status = status;
-      res.json({ message: "Order status updated (In-Memory Fallback)" });
+      try {
+        fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
+        res.json({ message: "Order status updated (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback order update: " + fsErr.message });
+      }
+    } else {
+      res.status(404).json({ error: "Order not found" });
+    }
+  }
+});
+
+app.put('/api/orders/:id/tracking', async (req, res) => {
+  const { id } = req.params;
+  const { trackingLink } = req.body;
+  try {
+    await db.query("UPDATE orders SET trackingLink = ? WHERE id = ?", [trackingLink, id]);
+    const order = memoryOrders.find(o => o.id === id);
+    if (order) {
+      order.trackingLink = trackingLink;
+      try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
+    }
+    res.json({ message: "Order tracking link updated" });
+  } catch (error) {
+    console.warn("Database offline. Updating order tracking link in fallback JSON.");
+    const order = memoryOrders.find(o => o.id === id);
+    if (order) {
+      order.trackingLink = trackingLink;
+      try {
+        fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
+        res.json({ message: "Order tracking link updated (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback order tracking update: " + fsErr.message });
+      }
     } else {
       res.status(404).json({ error: "Order not found" });
     }
@@ -494,14 +797,22 @@ app.delete('/api/orders/:id', async (req, res) => {
   try {
     await db.query("DELETE FROM orders WHERE id = ?", [id]);
     const idx = memoryOrders.findIndex(o => o.id === id);
-    if (idx !== -1) memoryOrders.splice(idx, 1);
+    if (idx !== -1) {
+      memoryOrders.splice(idx, 1);
+      try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
+    }
     res.json({ message: "Order deleted" });
   } catch (error) {
-    console.warn("Database offline. Deleting order in-memory.");
+    console.warn("Database offline. Deleting order from fallback JSON.");
     const idx = memoryOrders.findIndex(o => o.id === id);
     if (idx !== -1) {
       memoryOrders.splice(idx, 1);
-      res.json({ message: "Order deleted (In-Memory Fallback)" });
+      try {
+        fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
+        res.json({ message: "Order deleted (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback order deletion: " + fsErr.message });
+      }
     } else {
       res.status(404).json({ error: "Order not found" });
     }
@@ -514,45 +825,95 @@ app.get('/api/hero-slides', async (req, res) => {
     const [rows] = await db.query("SELECT * FROM hero_slides");
     res.json(rows);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Returning hero slides from fallback JSON.");
+    try {
+      if (fs.existsSync(heroSlidesFallbackPath)) {
+        const fileSlides = JSON.parse(fs.readFileSync(heroSlidesFallbackPath, 'utf8'));
+        if (fileSlides.length > fallbackHeroSlides.length) {
+          fallbackHeroSlides = fileSlides;
+        }
+        return res.json(fileSlides);
+      }
+    } catch (fsErr) {
+      console.warn("Failed to read fallback hero slides file, returning in-memory:", fsErr.message);
+    }
+    res.json(fallbackHeroSlides);
   }
 });
 
 app.post('/api/hero-slides', async (req, res) => {
+  const { id, name, image, desc } = req.body;
+  const slideId = id || `hs-${Date.now()}`;
+  const slideRecord = { id: slideId, name: name || '', image, desc: desc || '' };
   try {
-    const { id, name, image, desc } = req.body;
-    const slideId = id || `hs-${Date.now()}`;
     await db.query(
       `INSERT INTO hero_slides (id, name, image, \`desc\`) VALUES (?, ?, ?, ?)`,
       [slideId, name || '', image, desc || '']
     );
+    fallbackHeroSlides.unshift(slideRecord);
+    try { fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8'); } catch (fsErr) {}
     res.status(201).json({ message: "Hero slide added", id: slideId });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Storing hero slide in fallback JSON.");
+    fallbackHeroSlides.unshift(slideRecord);
+    try {
+      fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8');
+      res.status(201).json({ message: "Hero slide added (Fallback JSON)", id: slideId });
+    } catch (fsErr) {
+      res.status(500).json({ error: "Failed to persist fallback hero slide: " + fsErr.message });
+    }
   }
 });
 
 app.put('/api/hero-slides/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, image, desc } = req.body;
   try {
-    const { id } = req.params;
-    const { name, image, desc } = req.body;
     await db.query(
       `UPDATE hero_slides SET name = ?, image = ?, \`desc\` = ? WHERE id = ?`,
       [name || '', image, desc || '', id]
     );
+    fallbackHeroSlides = fallbackHeroSlides.map(slide => slide.id === id ? { id, name: name || '', image, desc: desc || '' } : slide);
+    try { fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Hero slide updated" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Updating hero slide in fallback JSON.");
+    const index = fallbackHeroSlides.findIndex(slide => slide.id === id);
+    if (index !== -1) {
+      fallbackHeroSlides[index] = { id, name: name || '', image, desc: desc || '' };
+      try {
+        fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8');
+        res.json({ message: "Hero slide updated (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback hero slide update: " + fsErr.message });
+      }
+    } else {
+      res.status(404).json({ error: "Hero slide not found" });
+    }
   }
 });
 
 app.delete('/api/hero-slides/:id', async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
     await db.query("DELETE FROM hero_slides WHERE id = ?", [id]);
+    fallbackHeroSlides = fallbackHeroSlides.filter(slide => slide.id !== id);
+    try { fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Hero slide deleted" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn("Database offline. Deleting hero slide from fallback JSON.");
+    const index = fallbackHeroSlides.findIndex(slide => slide.id === id);
+    if (index !== -1) {
+      fallbackHeroSlides.splice(index, 1);
+      try {
+        fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8');
+        res.json({ message: "Hero slide deleted (Fallback JSON)" });
+      } catch (fsErr) {
+        res.status(500).json({ error: "Failed to persist fallback hero slide deletion: " + fsErr.message });
+      }
+    } else {
+      res.status(404).json({ error: "Hero slide not found" });
+    }
   }
 });
 
