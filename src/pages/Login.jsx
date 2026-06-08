@@ -165,42 +165,33 @@ export default function Login() {
       const preFilledName = savedUser?.name ? savedUser.name.trim() : (otpName ? otpName.trim() : (decoded.name || ''));
 
       if (preFilledPhone && preFilledPhone.length === 10) {
-        // Direct login if all details are already populated & valid
+        // Direct login — complete login client-side immediately
+        setIsLoggedIn(true);
+        setCurrentUser({
+          name: preFilledName,
+          email: decoded.email,
+          phone: preFilledPhone,
+          picture: decoded.picture || ''
+        });
+        localStorage.setItem(`svada_user_${decoded.email}`, JSON.stringify({
+          name: preFilledName,
+          phone: preFilledPhone
+        }));
+        setSuccessMsg(`Welcome back, ${preFilledName}! Signed in via Google securely.`);
+        setGooglePending(null);
+        setTimeout(() => {
+          setSuccessMsg('');
+          setCurrentPage('account');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 2500);
+
+        // Fire-and-forget: record login in backend (non-blocking)
         const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
-        setOtpLoading(true);
-        setErrorMsg('');
         fetch(`${apiBase}/auth/record-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: decoded.email, name: preFilledName, phone: preFilledPhone })
-        })
-        .then(res => {
-          if (!res.ok) throw new Error("Synchronization failed");
-          return res.json();
-        })
-        .then(() => {
-          setIsLoggedIn(true);
-          setCurrentUser({
-            name: preFilledName,
-            email: decoded.email,
-            phone: preFilledPhone,
-            picture: decoded.picture || ''
-          });
-          setSuccessMsg(`Welcome back, ${preFilledName}! Signed in via Google securely.`);
-          setGooglePending(null);
-          setTimeout(() => {
-            setSuccessMsg('');
-            setCurrentPage('account');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }, 2500);
-        })
-        .catch(err => {
-          console.warn("Failed to record Google login:", err);
-          setErrorMsg("Login synchronization failed. Please try again.");
-        })
-        .finally(() => {
-          setOtpLoading(false);
-        });
+        }).catch(err => console.warn("record-login (non-blocking):", err));
       } else {
         // Pre-fill the details on the complete google sign-in view
         setGooglePending({
@@ -226,45 +217,34 @@ export default function Login() {
       }
       
       const finalName = googleNameInput.trim();
+
+      // Complete login client-side immediately — don't wait for API
+      setIsLoggedIn(true);
+      setCurrentUser({
+        name: finalName,
+        email: googlePending.email,
+        phone: phoneVal,
+        picture: googlePending.picture
+      });
+      localStorage.setItem(`svada_user_${googlePending.email}`, JSON.stringify({
+        name: finalName,
+        phone: phoneVal
+      }));
+      setSuccessMsg(`Welcome, ${finalName}! Signed in via Google securely.`);
+      setGooglePending(null);
+      setTimeout(() => {
+        setSuccessMsg('');
+        setCurrentPage('account');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 2500);
+
+      // Fire-and-forget: record login in backend (non-blocking)
       const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
-      setOtpLoading(true);
-      setErrorMsg('');
       fetch(`${apiBase}/auth/record-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: googlePending.email, name: finalName, phone: phoneVal })
-      })
-      .then(res => {
-        if (!res.ok) throw new Error("Synchronization failed");
-        return res.json();
-      })
-      .then(() => {
-        setIsLoggedIn(true);
-        setCurrentUser({
-          name: finalName,
-          email: googlePending.email,
-          phone: phoneVal,
-          picture: googlePending.picture
-        });
-        localStorage.setItem(`svada_user_${googlePending.email}`, JSON.stringify({
-          name: finalName,
-          phone: phoneVal
-        }));
-        setSuccessMsg(`Welcome, ${finalName}! Signed in via Google securely.`);
-        setGooglePending(null);
-        setTimeout(() => {
-          setSuccessMsg('');
-          setCurrentPage('account');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 2500);
-      })
-      .catch(err => {
-        console.warn("Failed to record Google login complete:", err);
-        setErrorMsg("Login synchronization failed. Please try again.");
-      })
-      .finally(() => {
-        setOtpLoading(false);
-      });
+      }).catch(err => console.warn("record-login (non-blocking):", err));
     }
   };
 
