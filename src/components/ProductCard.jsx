@@ -28,12 +28,26 @@ export default function ProductCard({ product, index = 0 }) {
   const { addToCart, wishlist, toggleWishlist, getProductPrice, setActiveQuickView, isLoggedIn, setCurrentPage } = useContext(ShopContext);
   
   // Weight Selection State: default is first weight label or 250g
-  const [selectedWeight] = useState(
+  const [selectedWeight, setSelectedWeight] = useState(
     product.weightLabels && product.weightLabels.length > 0
       ? product.weightLabels[0].value
       : '250g'
   );
   const [isAdded, setIsAdded] = useState(false);
+
+  const weightLabels = product.weightLabels
+    ? product.weightLabels
+    : product.isEcoPiece 
+      ? [
+          { value: '250g', label: '1 Piece' },
+          { value: '500g', label: '2 Pack' },
+          { value: '1kg', label: '4 Pack' }
+        ]
+      : [
+          { value: '250g', label: '250g' },
+          { value: '500g', label: '500g' },
+          { value: '1kg', label: '1kg' }
+        ];
 
   const price = getProductPrice(product, selectedWeight);
   const isInWishlist = wishlist.includes(product.id);
@@ -123,11 +137,7 @@ export default function ProductCard({ product, index = 0 }) {
               {getShortCategoryName(product.category)}
             </span>
             <span className="text-[10px] text-svada-light/80 font-bold uppercase tracking-wider">
-              {product.weightLabels 
-                ? (product.weightLabels.find(opt => opt.value === selectedWeight)?.label || selectedWeight)
-                : selectedWeight === '250g' ? (product.isEcoPiece ? '1 Pc' : '250g') : 
-                  selectedWeight === '500g' ? (product.isEcoPiece ? '2 Pcs' : '500g') : 
-                  (product.isEcoPiece ? '4 Pcs' : '1kg')}
+              {weightLabels.find(opt => opt.value === selectedWeight)?.label || selectedWeight}
             </span>
           </div>
 
@@ -142,10 +152,39 @@ export default function ProductCard({ product, index = 0 }) {
           {/* View Details Link */}
           <button
             onClick={() => setActiveQuickView(product)}
-            className="text-[9px] font-extrabold text-accent hover:text-[#9B5F2A] uppercase tracking-widest hover:underline cursor-pointer flex items-center gap-1 mb-2.5"
+            className="text-[9px] font-extrabold text-accent hover:text-[#9B5F2A] uppercase tracking-widest hover:underline cursor-pointer flex items-center gap-1 mb-2"
           >
             VIEW DETAILS
           </button>
+
+          {/* Pack Size Selector Dropdown */}
+          {product.inStock !== false && (
+            <div className="mb-3">
+              <label className="text-[9px] text-svada-light font-bold uppercase tracking-widest block mb-1">
+                Choose Size
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedWeight}
+                  onChange={(e) => setSelectedWeight(e.target.value)}
+                  className="w-full bg-[#FAF7F2] hover:bg-[#F3EFE6] border border-orange-100 text-xs font-bold text-svada-dark px-3 py-2 rounded-xl focus:outline-none focus:border-accent transition duration-200 cursor-pointer appearance-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23B3743B'><path d='M7 10l5 5 5-5H7z'/></svg>")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 12px center',
+                    backgroundSize: '16px',
+                    paddingRight: '28px'
+                  }}
+                >
+                  {weightLabels.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label} - ₹{getProductPrice(product, opt.value)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
