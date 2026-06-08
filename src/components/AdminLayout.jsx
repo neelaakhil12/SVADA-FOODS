@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Package, FolderTree, LogOut, Menu, X, ImagePlay, Film, ShoppingCart, Users } from 'lucide-react';
+import { LayoutDashboard, Package, FolderTree, LogOut, Menu, X, ImagePlay, Film, ShoppingCart, Users, Settings } from 'lucide-react';
 
 const AdminLayout = ({ children, activePage, setActivePage, onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -12,6 +12,7 @@ const AdminLayout = ({ children, activePage, setActivePage, onLogout }) => {
     { id: 'hero', label: 'Hero Slides', icon: ImagePlay },
     { id: 'videos', label: 'Watch & Buy', icon: Film },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (

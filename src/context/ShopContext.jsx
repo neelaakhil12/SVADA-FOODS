@@ -2180,6 +2180,7 @@ export const ShopProvider = ({ children }) => {
     ];
   });
   const [watchBuyVideos, setWatchBuyVideos] = useState(DEFAULT_VIDEOS);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(3500);
 
   const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
 
@@ -2271,6 +2272,21 @@ export const ShopProvider = ({ children }) => {
       .catch(err => {
         console.warn("Using default videos due to API error:", err);
         setWatchBuyVideos(DEFAULT_VIDEOS);
+      });
+
+    // 6. Fetch Settings
+    fetch(`${API_BASE}/settings`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.free_shipping_threshold) {
+          setFreeShippingThreshold(Number(data.free_shipping_threshold));
+        }
+      })
+      .catch(err => {
+        console.warn("Using default shipping threshold due to API error:", err);
       });
   }, []);
 
@@ -2923,6 +2939,16 @@ export const ShopProvider = ({ children }) => {
       .catch(err => console.error("Error deleting hero slide:", err));
   };
 
+  const updateFreeShippingThreshold = (threshold) => {
+    setFreeShippingThreshold(Number(threshold));
+    fetch(`${API_BASE}/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ free_shipping_threshold: String(threshold) })
+    })
+    .catch(err => console.error("Error saving shipping threshold:", err));
+  };
+
   return (
     <ShopContext.Provider
       value={{
@@ -2979,7 +3005,9 @@ export const ShopProvider = ({ children }) => {
         watchBuyVideos,
         addWatchBuyVideo,
         updateWatchBuyVideo,
-        deleteWatchBuyVideo
+        deleteWatchBuyVideo,
+        freeShippingThreshold,
+        updateFreeShippingThreshold
       }}
     >
       {children}

@@ -3,7 +3,7 @@ import { X, Truck } from 'lucide-react';
 import { ShopContext } from '../context/ShopContext';
 
 export default function PromoPopup({ showTrigger }) {
-  const { setCurrentPage } = useContext(ShopContext);
+  const { setCurrentPage, freeShippingThreshold } = useContext(ShopContext);
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -84,7 +84,7 @@ export default function PromoPopup({ showTrigger }) {
 
         {/* Minimum Purchase Requirement */}
         <p className="text-xs sm:text-sm font-black text-[#B3743B] tracking-wide mt-3 max-w-[210px] sm:max-w-[250px] leading-relaxed uppercase select-none">
-          On Purchase of Rs. 3500/- and Above
+          On Purchase of Rs. {freeShippingThreshold}/- and Above
         </p>
 
         {/* Button to view policy */}

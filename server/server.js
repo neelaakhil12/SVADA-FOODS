@@ -60,7 +60,17 @@ const categoriesFallbackPath = path.join(__dirname, 'categories-fallback.json');
 const ordersFallbackPath = path.join(__dirname, 'orders-fallback.json');
 const heroSlidesFallbackPath = path.join(__dirname, 'hero-slides-fallback.json');
 const usersFallbackPath = path.join(__dirname, 'users-fallback.json');
+const settingsFallbackPath = path.join(__dirname, 'settings-fallback.json');
 const memoryUsers = [];
+
+let fallbackSettings = { free_shipping_threshold: "3500" };
+try {
+  if (fs.existsSync(settingsFallbackPath)) {
+    fallbackSettings = JSON.parse(fs.readFileSync(settingsFallbackPath, 'utf8'));
+  }
+} catch (err) {
+  console.warn("Failed to load fallback settings data:", err.message);
+}
 
 
 // Load fallback products
@@ -329,6 +339,18 @@ async function checkAndInitDatabase() {
       } else {
         console.log("Watch & Buy videos already exist. Skipping seed.");
       }
+    }
+
+    // Check and Seed Settings if empty
+    try {
+      const [settingRows] = await db.query("SELECT COUNT(*) as count FROM settings");
+      if (settingRows[0].count === 0) {
+        console.log("Seeding settings table...");
+        await db.query("INSERT INTO settings (key_name, value_name) VALUES ('free_shipping_threshold', '3500')");
+        console.log("Settings seeded successfully.");
+      }
+    } catch (settingErr) {
+      console.warn("Failed to check or seed settings table:", settingErr.message);
     }
 
     // Auto-migrate: Add trackingLink column to orders table if it doesn't exist
@@ -1539,6 +1561,47 @@ app.post('/api/admin/login', (req, res) => {
     res.json({ success: true, token: 'admin-session-token' });
   } else {
     res.status(401).json({ error: "Invalid credentials" });
+  }
+});
+
+// --- SETTINGS ---
+app.get('/api/settings', async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM settings");
+    const settingsMap = {};
+    rows.forEach(r => { settingsMap[r.key_name] = r.value_name; });
+    res.json(settingsMap);
+  } catch (error) {
+    console.warn("Database offline. Returning settings from fallback JSON.");
+    res.json(fallbackSettings);
+  }
+});
+
+app.post('/api/settings', async (req, res) => {
+  const newSettings = req.body;
+  try {
+    for (const [key, value] of Object.entries(newSettings)) {
+      await db.query(
+        `INSERT INTO settings (key_name, value_name) 
+         VALUES (?, ?) 
+         ON DUPLICATE KEY UPDATE value_name = ?`,
+        [key, String(value), String(value)]
+      );
+      fallbackSettings[key] = String(value);
+    }
+    try { fs.writeFileSync(settingsFallbackPath, JSON.stringify(fallbackSettings, null, 2), 'utf8'); } catch (_) {}
+    res.json({ success: true, message: "Settings updated successfully" });
+  } catch (error) {
+    console.warn("Database offline. Storing settings in fallback JSON.");
+    for (const [key, value] of Object.entries(newSettings)) {
+      fallbackSettings[key] = String(value);
+    }
+    try {
+      fs.writeFileSync(settingsFallbackPath, JSON.stringify(fallbackSettings, null, 2), 'utf8');
+      res.json({ success: true, message: "Settings updated (Fallback JSON)" });
+    } catch (fsErr) {
+      res.status(500).json({ error: "Failed to persist fallback settings: " + fsErr.message });
+    }
   }
 });
 

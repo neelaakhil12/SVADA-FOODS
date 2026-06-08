@@ -73,4 +73,9 @@ CREATE TABLE IF NOT EXISTS users (
   lastLogin DATETIME NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+  key_name VARCHAR(100) PRIMARY KEY,
+  value_name VARCHAR(255) NOT NULL
+);
+
 

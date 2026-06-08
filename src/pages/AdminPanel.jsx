@@ -8,6 +8,7 @@ import AdminHeroSlides from './AdminHeroSlides';
 import AdminVideos from './AdminVideos';
 import AdminOrders from './AdminOrders';
 import AdminUsers from './AdminUsers';
+import AdminSettings from './AdminSettings';
 
 
 const AdminPanel = () => {
@@ -45,6 +46,8 @@ const AdminPanel = () => {
         return <AdminVideos />;
       case 'users':
         return <AdminUsers />;
+      case 'settings':
+        return <AdminSettings />;
       default:
         return <AdminDashboard />;
     }

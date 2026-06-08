@@ -9,7 +9,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
   const {
     currentPage, setCurrentPage, cartCount, wishlist,
     isLoggedIn, currentUser, setIsLoggedIn, setSelectedCategory, isAdmin,
-    categories: dynamicCategories,
+    categories: dynamicCategories, freeShippingThreshold
   } = useContext(ShopContext);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -292,7 +292,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                 <Truck className="h-4 w-4 text-[#3B1E0A] flex-shrink-0" />
                 <span>
                   Free Shipping in India :{' '}
-                  <span className="font-black text-[#3B1E0A]">Order Above ₹3500/-</span>
+                  <span className="font-black text-[#3B1E0A]">Order Above ₹{freeShippingThreshold}/-</span>
                 </span>
               </div>
             </div>
@@ -392,7 +392,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
           <div className="flex items-center gap-2 bg-[#3B1E0A]/5 border border-[#3B1E0A]/10 rounded-xl p-3 mt-2">
             <Truck className="h-4 w-4 text-[#3B1E0A] flex-shrink-0" />
             <p className="text-xs font-semibold text-svada-dark">
-              Free Shipping above <span className="text-[#3B1E0A] font-black">₹3500/-</span>
+              Free Shipping above <span className="text-[#3B1E0A] font-black">₹{freeShippingThreshold}/-</span>
             </p>
           </div>
         </div>
