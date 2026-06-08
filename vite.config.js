@@ -8,5 +8,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    port: 5173,
+    strictPort: true, // Fail if 5173 is busy instead of bumping to 5174
+    watch: {
+      ignored: ['**/server/**', '**/uploads/**', '**/dist/**']
+    }
+  },
 })
+
+
 

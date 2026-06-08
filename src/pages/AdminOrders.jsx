@@ -128,7 +128,14 @@ export default function AdminOrders() {
         <body>
           <div class="invoice-card">
             <div class="header">
-              <div class="logo">SVADA <span>FARMS</span></div>
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="${window.location.origin}/logo.png" alt="Logo" style="width: 80px; height: 80px; border-radius: 16px; border: 1px solid #fed7aa; object-fit: contain; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);" />
+                <div>
+                  <div class="logo" style="line-height: 1; font-size: 26px; font-weight: 900; color: #3B1E0A; font-family: 'Outfit', sans-serif;">SVADA <span style="color: #C2824B;">FARMS</span></div>
+                  <p style="margin: 4px 0 0 0; font-size: 11px; color: #666; font-weight: 500; font-family: 'Poppins', sans-serif;">Homemade Foods & Natural Products</p>
+                  <p style="margin: 2px 0 0 0; font-size: 9px; color: #777; font-family: 'Poppins', sans-serif;">📞 +91 90009 55239 | svadafarms@gmail.com</p>
+                </div>
+              </div>
               <div class="invoice-details">
                 <h2>INVOICE</h2>
                 <p style="margin: 0; font-weight: bold;">Order ID: ${order.id}</p>
@@ -300,6 +307,8 @@ export default function AdminOrders() {
                             ? 'bg-green-50 text-green-700 border-green-200' 
                             : order.status === 'cancelled'
                             ? 'bg-red-50 text-red-700 border-red-200'
+                            : order.status === 'accepted'
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
                             : 'bg-amber-50 text-amber-700 border-amber-200'
                         }`}>
                           {order.status}
@@ -310,7 +319,7 @@ export default function AdminOrders() {
                         {formatDate(order.createdAt)}
                       </p>
                     </div>
-
+ 
                     {/* Status Update Buttons */}
                     <div className="flex items-center gap-2">
                       <button
@@ -320,8 +329,18 @@ export default function AdminOrders() {
                         <Eye size={14} />
                         Invoice
                       </button>
-
+ 
                       {order.status === 'pending' && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'accepted')}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                        >
+                          <ClipboardCheck size={14} />
+                          Accept
+                        </button>
+                      )}
+
+                      {(order.status === 'pending' || order.status === 'accepted') && (
                         <>
                           <button
                             onClick={() => handleStatusChange(order.id, 'completed')}

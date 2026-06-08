@@ -3,7 +3,7 @@ import { ShopContext } from '../context/ShopContext';
 import { X, ShoppingBag, Heart, Star, ShieldCheck, Check, Minus, Plus } from 'lucide-react';
 
 export default function QuickViewModal() {
-  const { activeQuickView, setActiveQuickView, addToCart, wishlist, toggleWishlist, getProductPrice } = useContext(ShopContext);
+  const { activeQuickView, setActiveQuickView, addToCart, wishlist, toggleWishlist, getProductPrice, isLoggedIn, setCurrentPage } = useContext(ShopContext);
   const [selectedWeight, setSelectedWeight] = useState('250g');
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
@@ -53,12 +53,18 @@ export default function QuickViewModal() {
         ];
 
   const handleAddToCart = () => {
+    if (!isLoggedIn) {
+      setCurrentPage('login');
+      setActiveQuickView(null);
+      return;
+    }
     addToCart(product, selectedWeight, quantity);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Dark blur backdrop */}
       <div 
@@ -258,7 +264,7 @@ export default function QuickViewModal() {
 
       </div>
     </div>
+
+    </>
   );
 }
-
-

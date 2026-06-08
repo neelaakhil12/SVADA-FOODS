@@ -3,10 +3,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import db from './db.js';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
+import Razorpay from 'razorpay';
 
 // Prevent Node process from crashing on unhandled promise rejections or database connection errors
 process.on('unhandledRejection', (reason, promise) => {
@@ -57,6 +59,9 @@ const productsFallbackPath = path.join(__dirname, 'products-fallback.json');
 const categoriesFallbackPath = path.join(__dirname, 'categories-fallback.json');
 const ordersFallbackPath = path.join(__dirname, 'orders-fallback.json');
 const heroSlidesFallbackPath = path.join(__dirname, 'hero-slides-fallback.json');
+const usersFallbackPath = path.join(__dirname, 'users-fallback.json');
+const memoryUsers = [];
+
 
 // Load fallback products
 try {
@@ -115,7 +120,15 @@ try {
 try {
   if (fs.existsSync(ordersFallbackPath)) {
     const loaded = JSON.parse(fs.readFileSync(ordersFallbackPath, 'utf8'));
-    memoryOrders.push(...loaded);
+    const uniqueLoaded = [];
+    const seenIds = new Set();
+    for (const order of loaded) {
+      if (order && order.id && !seenIds.has(order.id)) {
+        seenIds.add(order.id);
+        uniqueLoaded.push(order);
+      }
+    }
+    memoryOrders.push(...uniqueLoaded);
   }
 } catch (err) {
   console.warn("Failed to load fallback orders data:", err.message);
@@ -144,6 +157,18 @@ try {
   }
 } catch (err) {
   console.warn("Failed to load fallback hero slides data:", err.message);
+}
+
+// Load fallback users
+try {
+  if (fs.existsSync(usersFallbackPath)) {
+    const loaded = JSON.parse(fs.readFileSync(usersFallbackPath, 'utf8'));
+    if (Array.isArray(loaded)) {
+      memoryUsers.push(...loaded);
+    }
+  }
+} catch (err) {
+  console.warn("Failed to load fallback users data:", err.message);
 }
 
 // Mail Transporter Configuration
@@ -195,6 +220,35 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Serve React build static files in production
 app.use(express.static(path.join(__dirname, '../dist')));
+
+async function saveOrUpdateUser(email, name, phone) {
+  const lastLogin = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const userRecord = { email, name, phone, lastLogin };
+
+  try {
+    await db.query(
+      `INSERT INTO users (email, name, phone, lastLogin) 
+       VALUES (?, ?, ?, ?) 
+       ON DUPLICATE KEY UPDATE name = ?, phone = ?, lastLogin = ?`,
+      [email, name, phone, lastLogin, name, phone, lastLogin]
+    );
+    console.log(`Saved/Updated user in DB: ${email}`);
+  } catch (dbErr) {
+    console.warn("Database offline. Saving user to memory/fallback JSON:", dbErr.message);
+  }
+
+  const idx = memoryUsers.findIndex(u => u.email === email);
+  if (idx !== -1) {
+    memoryUsers[idx] = userRecord;
+  } else {
+    memoryUsers.push(userRecord);
+  }
+  try {
+    fs.writeFileSync(usersFallbackPath, JSON.stringify(memoryUsers, null, 2), 'utf8');
+  } catch (fsErr) {
+    console.warn("Failed to write users fallback:", fsErr.message);
+  }
+}
 
 // -------------------------------------------------------------
 // DATABASE AUTO-INITIALIZATION & SEEDING ON STARTUP
@@ -716,7 +770,12 @@ app.post('/api/orders', async (req, res) => {
     connection.release();
 
     // Sync in-memory store & persist to fallback file
-    memoryOrders.unshift(newOrder);
+    const existingIdx = memoryOrders.findIndex(o => o.id === newOrder.id);
+    if (existingIdx !== -1) {
+      memoryOrders[existingIdx] = newOrder;
+    } else {
+      memoryOrders.unshift(newOrder);
+    }
     try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
 
     res.status(201).json({ message: "Order placed successfully", id: orderId });
@@ -726,7 +785,12 @@ app.post('/api/orders', async (req, res) => {
       connection.release();
     }
     console.warn("Database offline. Saving order to fallback JSON.");
-    memoryOrders.unshift(newOrder);
+    const existingIdx = memoryOrders.findIndex(o => o.id === newOrder.id);
+    if (existingIdx !== -1) {
+      memoryOrders[existingIdx] = newOrder;
+    } else {
+      memoryOrders.unshift(newOrder);
+    }
     try {
       fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
       res.status(201).json({ message: "Order placed successfully (Fallback JSON)", id: orderId });
@@ -741,17 +805,27 @@ app.put('/api/orders/:id/status', async (req, res) => {
   const { status } = req.body;
   try {
     await db.query("UPDATE orders SET status = ? WHERE id = ?", [status, id]);
-    const order = memoryOrders.find(o => o.id === id);
-    if (order) {
-      order.status = status;
+    let updated = false;
+    memoryOrders.forEach(o => {
+      if (o.id === id) {
+        o.status = status;
+        updated = true;
+      }
+    });
+    if (updated) {
       try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
     }
     res.json({ message: "Order status updated" });
   } catch (error) {
     console.warn("Database offline. Updating order status in fallback JSON.");
-    const order = memoryOrders.find(o => o.id === id);
-    if (order) {
-      order.status = status;
+    let updated = false;
+    memoryOrders.forEach(o => {
+      if (o.id === id) {
+        o.status = status;
+        updated = true;
+      }
+    });
+    if (updated) {
       try {
         fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
         res.json({ message: "Order status updated (Fallback JSON)" });
@@ -769,17 +843,27 @@ app.put('/api/orders/:id/tracking', async (req, res) => {
   const { trackingLink } = req.body;
   try {
     await db.query("UPDATE orders SET trackingLink = ? WHERE id = ?", [trackingLink, id]);
-    const order = memoryOrders.find(o => o.id === id);
-    if (order) {
-      order.trackingLink = trackingLink;
+    let updated = false;
+    memoryOrders.forEach(o => {
+      if (o.id === id) {
+        o.trackingLink = trackingLink;
+        updated = true;
+      }
+    });
+    if (updated) {
       try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
     }
     res.json({ message: "Order tracking link updated" });
   } catch (error) {
     console.warn("Database offline. Updating order tracking link in fallback JSON.");
-    const order = memoryOrders.find(o => o.id === id);
-    if (order) {
-      order.trackingLink = trackingLink;
+    let updated = false;
+    memoryOrders.forEach(o => {
+      if (o.id === id) {
+        o.trackingLink = trackingLink;
+        updated = true;
+      }
+    });
+    if (updated) {
       try {
         fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
         res.json({ message: "Order tracking link updated (Fallback JSON)" });
@@ -796,20 +880,22 @@ app.delete('/api/orders/:id', async (req, res) => {
   const { id } = req.params;
   try {
     await db.query("DELETE FROM orders WHERE id = ?", [id]);
-    const idx = memoryOrders.findIndex(o => o.id === id);
-    if (idx !== -1) {
-      memoryOrders.splice(idx, 1);
+    const filtered = memoryOrders.filter(o => o.id !== id);
+    if (filtered.length !== memoryOrders.length) {
+      memoryOrders.length = 0;
+      memoryOrders.push(...filtered);
       try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
     }
-    res.json({ message: "Order deleted" });
+    res.json({ message: "Order deleted successfully" });
   } catch (error) {
     console.warn("Database offline. Deleting order from fallback JSON.");
-    const idx = memoryOrders.findIndex(o => o.id === id);
-    if (idx !== -1) {
-      memoryOrders.splice(idx, 1);
+    const filtered = memoryOrders.filter(o => o.id !== id);
+    if (filtered.length !== memoryOrders.length) {
+      memoryOrders.length = 0;
+      memoryOrders.push(...filtered);
       try {
         fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
-        res.json({ message: "Order deleted (Fallback JSON)" });
+        res.json({ message: "Order deleted successfully (Fallback JSON)" });
       } catch (fsErr) {
         res.status(500).json({ error: "Failed to persist fallback order deletion: " + fsErr.message });
       }
@@ -1081,7 +1167,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
       );
       console.log(`Saved OTP ${otp} to MySQL for ${email}`);
     } catch (dbErr) {
-      console.warn("Database offline. Falling back to in-memory OTP storage.");
+      console.warn(`Database offline. Falling back to in-memory OTP storage. OTP for ${email} is ${otp}`);
       memoryOtpStore.set(email, { otp, expiresAt });
     }
 
@@ -1177,7 +1263,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
 });
 
 app.post('/api/auth/verify-otp', async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp, name, phone } = req.body;
   if (!email || !otp) {
     return res.status(400).json({ error: "Email and OTP code are required." });
   }
@@ -1223,18 +1309,225 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     } else {
       memoryOtpStore.delete(email);
     }
+    
     const namePrefix = email.split('@')[0].toUpperCase();
+    const finalName = name || namePrefix;
+    const finalPhone = phone || '';
+
+    await saveOrUpdateUser(email, finalName, finalPhone);
 
     res.json({
       success: true,
       user: {
-        name: namePrefix,
-        email: email
+        name: finalName,
+        email: email,
+        phone: finalPhone
       }
     });
   } catch (error) {
     console.error("Error verifying OTP:", error);
     res.status(500).json({ error: "Verification process encountered an error." });
+  }
+});
+
+// Record user login details (e.g. from Google Login)
+app.post('/api/auth/record-login', async (req, res) => {
+  const { email, name, phone, isSync } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+  try {
+    if (isSync) {
+      let exists = false;
+      try {
+        const [rows] = await db.query("SELECT email FROM users WHERE email = ?", [email]);
+        if (rows && rows.length > 0) {
+          exists = true;
+        }
+      } catch (dbErr) {
+        // Fallback check
+        exists = memoryUsers.some(u => u.email === email);
+      }
+      if (!exists) {
+        return res.status(404).json({ error: "User deleted or not found", deleted: true });
+      }
+    }
+
+    const namePrefix = email.split('@')[0].toUpperCase();
+    await saveOrUpdateUser(email, name || namePrefix, phone || '');
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error recording user login:", error);
+    res.status(500).json({ error: "Failed to record login details." });
+  }
+});
+
+// Fetch all registered/logged-in users
+app.get('/api/users', async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM users ORDER BY lastLogin DESC");
+    res.json(rows);
+  } catch (error) {
+    console.warn("Database offline. Returning users from fallback JSON.");
+    res.json(memoryUsers.sort((a, b) => new Date(b.lastLogin) - new Date(a.lastLogin)));
+  }
+});
+
+// Delete user by email
+app.delete('/api/users/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    await db.query("DELETE FROM users WHERE email = ?", [email]);
+    const filtered = memoryUsers.filter(u => u.email !== email);
+    memoryUsers.length = 0;
+    memoryUsers.push(...filtered);
+    try {
+      fs.writeFileSync(usersFallbackPath, JSON.stringify(memoryUsers, null, 2), 'utf8');
+    } catch (_) {}
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.warn("Database offline. Deleting user from fallback JSON.");
+    const filtered = memoryUsers.filter(u => u.email !== email);
+    memoryUsers.length = 0;
+    memoryUsers.push(...filtered);
+    try {
+      fs.writeFileSync(usersFallbackPath, JSON.stringify(memoryUsers, null, 2), 'utf8');
+      res.json({ message: "User deleted successfully (Fallback JSON)" });
+    } catch (fsErr) {
+      console.error(fsErr);
+      res.status(500).json({ error: "Failed to persist fallback user deletion: " + fsErr.message });
+    }
+  }
+});
+
+// --- RAZORPAY PAYMENT GATEWAY ---
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+// Create Razorpay order
+app.post('/api/payments/create-order', async (req, res) => {
+  try {
+    const { amount, currency = 'INR', receipt } = req.body;
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' });
+    }
+
+    const options = {
+      amount: Math.round(amount * 100), // Razorpay expects paise
+      currency,
+      receipt: receipt || `svada_${Date.now()}`,
+      payment_capture: 1
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.json({
+      success: true,
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (error) {
+    console.error('Razorpay create order error:', error);
+    res.status(500).json({ error: 'Failed to create payment order', details: error.message });
+  }
+});
+
+// Verify Razorpay payment and record order
+app.post('/api/payments/verify', async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      customerName,
+      customerPhone,
+      customerAddress,
+      total,
+      items
+    } = req.body;
+
+    // Verify signature
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex');
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, error: 'Payment verification failed. Invalid signature.' });
+    }
+
+    // Payment is verified — record the order
+    const orderId = `RP-${razorpay_payment_id}`;
+    const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    const newOrder = {
+      id: orderId,
+      customerName,
+      customerPhone,
+      customerAddress,
+      status: 'pending',
+      createdAt,
+      total,
+      razorpay_order_id,
+      razorpay_payment_id,
+      items: (items || []).map(item => ({
+        product: {
+          id: item.product.id,
+          name: item.product.name,
+          image: item.product.image || ''
+        },
+        weight: item.weight,
+        quantity: item.quantity,
+        price: item.price
+      }))
+    };
+
+    let connection;
+    try {
+      connection = await db.getConnection();
+      await connection.beginTransaction();
+
+      await connection.query(
+        `INSERT INTO orders (id, customerName, customerPhone, customerAddress, status, createdAt, total)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [orderId, customerName, customerPhone, customerAddress, 'pending', createdAt, total]
+      );
+
+      if (items && items.length > 0) {
+        for (const item of items) {
+          await connection.query(
+            `INSERT INTO order_items (orderId, productId, name, weight, quantity, price)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [orderId, item.product.id, item.product.name, item.weight, item.quantity, item.price]
+          );
+        }
+      }
+
+      await connection.commit();
+    } catch (dbErr) {
+      if (connection) await connection.rollback();
+      console.warn('DB offline, saving Razorpay order to fallback:', dbErr.message);
+    } finally {
+      if (connection) connection.release();
+    }
+
+    // Also sync in-memory store
+    const existingIdx = memoryOrders.findIndex(o => o.id === newOrder.id);
+    if (existingIdx !== -1) {
+      memoryOrders[existingIdx] = newOrder;
+    } else {
+      memoryOrders.unshift(newOrder);
+    }
+    try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (_) {}
+
+    res.json({ success: true, orderId, message: 'Payment verified and order placed successfully.' });
+  } catch (error) {
+    console.error('Razorpay verify error:', error);
+    res.status(500).json({ success: false, error: 'Payment verification error', details: error.message });
   }
 });
 

@@ -19,7 +19,15 @@ const AdminProducts = () => {
     image: '',
     isBestseller: false,
     isEcoPiece: false,
-    inStock: true
+    inStock: true,
+    isLiquid: false,
+    isSolid: true,
+    liquid250ml: '',
+    liquid500ml: '',
+    liquid1lt: '',
+    solid250g: '',
+    solid500g: '',
+    solid1kg: ''
   });
 
   const filteredProducts = products.filter(product =>
@@ -30,6 +38,20 @@ const AdminProducts = () => {
   const handleOpenModal = (product = null) => {
     if (product) {
       setEditingProduct(product);
+      
+      const hasLiquidLabels = product.weightLabels && product.weightLabels.some(opt => 
+        opt.label.toUpperCase().includes('ML') || opt.label.toUpperCase().includes('LT')
+      );
+      
+      const isLiq = !!hasLiquidLabels;
+      const isSol = !isLiq;
+
+      const getOptionPrice = (val) => {
+        if (!product.weightLabels) return '';
+        const opt = product.weightLabels.find(o => o.value === val);
+        return opt ? opt.price : '';
+      };
+
       setFormData({
         name: product.name,
         category: product.category,
@@ -41,7 +63,15 @@ const AdminProducts = () => {
         image: product.image,
         isBestseller: product.isBestseller || false,
         isEcoPiece: product.isEcoPiece || false,
-        inStock: product.inStock !== false
+        inStock: product.inStock !== false,
+        isLiquid: isLiq,
+        isSolid: isSol,
+        liquid250ml: isLiq ? (getOptionPrice('250ml') || product.price250g || '') : '',
+        liquid500ml: isLiq ? (getOptionPrice('500ml') || product.price500g || '') : '',
+        liquid1lt: isLiq ? (getOptionPrice('1lt') || product.price1kg || '') : '',
+        solid250g: isSol ? product.price250g : '',
+        solid500g: isSol ? product.price500g : '',
+        solid1kg: isSol ? product.price1kg : ''
       });
       setImagePreview(product.image || '');
     } else {
@@ -57,7 +87,15 @@ const AdminProducts = () => {
         image: '',
         isBestseller: false,
         isEcoPiece: false,
-        inStock: true
+        inStock: true,
+        isLiquid: false,
+        isSolid: true,
+        liquid250ml: '',
+        liquid500ml: '',
+        liquid1lt: '',
+        solid250g: '',
+        solid500g: '',
+        solid1kg: ''
       });
       setImagePreview('');
     }
@@ -96,11 +134,42 @@ const AdminProducts = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    let weightLabels = null;
+    let p250 = 0;
+    let p500 = 0;
+    let p1k = 0;
+
+    if (formData.isLiquid) {
+      p250 = Number(formData.liquid250ml) || 0;
+      p500 = Number(formData.liquid500ml) || 0;
+      p1k = Number(formData.liquid1lt) || 0;
+      
+      weightLabels = [
+        { value: '250ml', label: '250ML', price: p250 },
+        { value: '500ml', label: '500ML', price: p500 },
+        { value: '1lt', label: '1LT', price: p1k }
+      ].filter(opt => opt.price > 0);
+    } else {
+      p250 = Number(formData.solid250g) || 0;
+      p500 = Number(formData.solid500g) || 0;
+      p1k = Number(formData.solid1kg) || 0;
+      weightLabels = null;
+    }
+
     const productData = {
-      ...formData,
-      price250g: Number(formData.price250g),
-      price500g: Number(formData.price500g),
-      price1kg: Number(formData.price1kg)
+      name: formData.name,
+      category: formData.category,
+      price250g: p250,
+      price500g: p500,
+      price1kg: p1k,
+      description: formData.description,
+      ingredients: formData.ingredients,
+      image: formData.image,
+      isBestseller: formData.isBestseller,
+      isEcoPiece: formData.isEcoPiece,
+      inStock: formData.inStock,
+      weightLabels: weightLabels
     };
 
     if (editingProduct) {
@@ -283,40 +352,137 @@ const AdminProducts = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (250g)</label>
-                    <input
-                      type="number"
-                      name="price250g"
-                      value={formData.price250g}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A]"
-                    />
+                {/* Liquid vs Solid Selection */}
+                <div className="border border-orange-100 rounded-xl p-4 bg-orange-50/20 space-y-4">
+                  
+                  {/* Liquid Pricing Header */}
+                  <div className="flex items-center justify-between border-b border-orange-100 pb-2">
+                    <span className="text-xs font-bold text-svada-dark uppercase tracking-wider flex items-center gap-1.5">
+                      ⚙️ LIQUID PRICING (ML/LT)
+                    </span>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <span className="text-xs font-bold text-gray-500 uppercase">ENABLE LIQUID</span>
+                      <input
+                        type="checkbox"
+                        name="isLiquid"
+                        checked={formData.isLiquid}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setFormData(prev => ({
+                            ...prev,
+                            isLiquid: val,
+                            isSolid: !val
+                          }));
+                        }}
+                        className="rounded text-green-600 focus:ring-green-500 w-4.5 h-4.5"
+                      />
+                    </label>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (500g)</label>
-                    <input
-                      type="number"
-                      name="price500g"
-                      value={formData.price500g}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A]"
-                    />
+
+                  {/* Liquid Inputs Grid */}
+                  <div className={`grid grid-cols-3 gap-3 transition-opacity ${!formData.isLiquid ? 'opacity-40 pointer-events-none' : ''}`}>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">250ML (₹)</label>
+                      <input
+                        type="number"
+                        name="liquid250ml"
+                        value={formData.liquid250ml}
+                        onChange={handleInputChange}
+                        required={formData.isLiquid}
+                        disabled={!formData.isLiquid}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">500ML (₹)</label>
+                      <input
+                        type="number"
+                        name="liquid500ml"
+                        value={formData.liquid500ml}
+                        onChange={handleInputChange}
+                        required={formData.isLiquid}
+                        disabled={!formData.isLiquid}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">1LT (₹)</label>
+                      <input
+                        type="number"
+                        name="liquid1lt"
+                        value={formData.liquid1lt}
+                        onChange={handleInputChange}
+                        required={formData.isLiquid}
+                        disabled={!formData.isLiquid}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (1kg)</label>
-                    <input
-                      type="number"
-                      name="price1kg"
-                      value={formData.price1kg}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A]"
-                    />
+
+                  {/* Solid Pricing Header */}
+                  <div className="flex items-center justify-between border-b border-orange-100 pb-2 pt-2">
+                    <span className="text-xs font-bold text-svada-dark uppercase tracking-wider flex items-center gap-1.5">
+                      📦 SOLID PRICING (GRAMS)
+                    </span>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <span className="text-xs font-bold text-gray-500 uppercase">ENABLE SOLID</span>
+                      <input
+                        type="checkbox"
+                        name="isSolid"
+                        checked={formData.isSolid}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setFormData(prev => ({
+                            ...prev,
+                            isSolid: val,
+                            isLiquid: !val
+                          }));
+                        }}
+                        className="rounded text-green-600 focus:ring-green-500 w-4.5 h-4.5"
+                      />
+                    </label>
                   </div>
+
+                  {/* Solid Inputs Grid */}
+                  <div className={`grid grid-cols-3 gap-3 transition-opacity ${!formData.isSolid ? 'opacity-40 pointer-events-none' : ''}`}>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">250GRMS (₹)</label>
+                      <input
+                        type="number"
+                        name="solid250g"
+                        value={formData.solid250g}
+                        onChange={handleInputChange}
+                        required={formData.isSolid}
+                        disabled={!formData.isSolid}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">500GRMS (₹)</label>
+                      <input
+                        type="number"
+                        name="solid500g"
+                        value={formData.solid500g}
+                        onChange={handleInputChange}
+                        required={formData.isSolid}
+                        disabled={!formData.isSolid}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">1000GRMS (₹)</label>
+                      <input
+                        type="number"
+                        name="solid1kg"
+                        value={formData.solid1kg}
+                        onChange={handleInputChange}
+                        required={formData.isSolid}
+                        disabled={!formData.isSolid}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
+                      />
+                    </div>
+                  </div>
+
                 </div>
 
                 <div>

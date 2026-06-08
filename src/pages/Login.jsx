@@ -1,12 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Mail, User, ShieldCheck, ArrowRight, Sparkles, CheckCircle, ShoppingBag, Phone } from 'lucide-react';
+import TrackingModal from '../components/TrackingModal';
 
 export default function Login() {
   const { isLoggedIn, currentUser, setIsLoggedIn, setCurrentUser, setCurrentPage, orders } = useContext(ShopContext);
   
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [trackingLink, setTrackingLink] = useState('');
+  const [showTracking, setShowTracking] = useState(false);
   
   const [linkingPhone, setLinkingPhone] = useState('');
 
@@ -88,7 +91,7 @@ export default function Login() {
       const res = await fetch(`${apiBase}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: otpEmail, otp: otpCode })
+        body: JSON.stringify({ email: otpEmail, otp: otpCode, name: otpName.trim(), phone: phoneVal })
       });
 
       const data = await res.json();
@@ -103,11 +106,15 @@ export default function Login() {
         email: otpEmail,
         phone: phoneVal
       });
+      localStorage.setItem(`svada_user_${otpEmail}`, JSON.stringify({
+        name: finalName,
+        phone: phoneVal
+      }));
       setSuccessMsg(`Welcome, ${finalName}! Logging you in securely...`);
       
       setTimeout(() => {
         setSuccessMsg('');
-        setCurrentPage('home');
+        setCurrentPage('account');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 2500);
     } catch (err) {
@@ -142,8 +149,20 @@ export default function Login() {
     const decoded = decodeJwt(response.credential);
     if (decoded && decoded.email) {
       setErrorMsg(''); // Clear any previous error banner
-      const preFilledPhone = otpPhone ? otpPhone.trim() : '';
-      const preFilledName = otpName ? otpName.trim() : (decoded.name || '');
+      
+      // Look up if user has logged in before on this device to retrieve their phone number
+      let savedUser = null;
+      try {
+        const savedUserStr = localStorage.getItem(`svada_user_${decoded.email}`);
+        if (savedUserStr) {
+          savedUser = JSON.parse(savedUserStr);
+        }
+      } catch (e) {
+        console.warn("Error parsing saved user profile from localStorage:", e);
+      }
+
+      const preFilledPhone = savedUser?.phone ? savedUser.phone.trim() : (otpPhone ? otpPhone.trim() : '');
+      const preFilledName = savedUser?.name ? savedUser.name.trim() : (otpName ? otpName.trim() : (decoded.name || ''));
 
       if (preFilledPhone && preFilledPhone.length === 10) {
         // Direct login if all details are already populated & valid
@@ -154,12 +173,19 @@ export default function Login() {
           phone: preFilledPhone,
           picture: decoded.picture || ''
         });
+        const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+        fetch(`${apiBase}/auth/record-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: decoded.email, name: preFilledName, phone: preFilledPhone })
+        }).catch(err => console.warn("Failed to record Google login:", err));
+
         setSuccessMsg(`Welcome back, ${preFilledName}! Signed in via Google securely.`);
         setGooglePending(null);
         
         setTimeout(() => {
           setSuccessMsg('');
-          setCurrentPage('home');
+          setCurrentPage('account');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 2500);
       } else {
@@ -194,12 +220,23 @@ export default function Login() {
         phone: phoneVal,
         picture: googlePending.picture
       });
+      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      fetch(`${apiBase}/auth/record-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: googlePending.email, name: finalName, phone: phoneVal })
+      }).catch(err => console.warn("Failed to record Google login complete:", err));
+
+      localStorage.setItem(`svada_user_${googlePending.email}`, JSON.stringify({
+        name: finalName,
+        phone: phoneVal
+      }));
       setSuccessMsg(`Welcome, ${finalName}! Signed in via Google securely.`);
       setGooglePending(null);
       
       setTimeout(() => {
         setSuccessMsg('');
-        setCurrentPage('home');
+        setCurrentPage('account');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 2500);
     }
@@ -607,14 +644,15 @@ export default function Login() {
                                 <span className="font-bold">🚚 Delivery Courier Tracking:</span>
                                 <p className="text-[10px] text-blue-700/80 mt-0.5">Handed to courier partner (DTDC / delivery service).</p>
                               </div>
-                              <a
-                                href={order.trackingLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-[11px] font-bold px-4.5 py-2 rounded-xl text-center transition flex-shrink-0"
+                              <button
+                                onClick={() => {
+                                  setTrackingLink(order.trackingLink);
+                                  setShowTracking(true);
+                                }}
+                                className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-[11px] font-bold px-4.5 py-2 rounded-xl text-center transition flex-shrink-0 cursor-pointer"
                               >
                                 Track Package
-                              </a>
+                              </button>
                             </div>
                           )}
 
@@ -892,6 +930,12 @@ export default function Login() {
             </div>
           </div>
 
+          {/* Tracking Modal */}
+          <TrackingModal
+            isOpen={showTracking}
+            onClose={() => setShowTracking(false)}
+            trackingLink={trackingLink}
+          />
         </div>
 
       </div>
@@ -899,5 +943,3 @@ export default function Login() {
     </div>
   );
 }
-
-

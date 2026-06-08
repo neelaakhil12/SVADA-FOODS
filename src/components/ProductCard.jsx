@@ -25,7 +25,7 @@ const getShortCategoryName = (category) => {
 };
 
 export default function ProductCard({ product, index = 0 }) {
-  const { addToCart, wishlist, toggleWishlist, getProductPrice, setActiveQuickView } = useContext(ShopContext);
+  const { addToCart, wishlist, toggleWishlist, getProductPrice, setActiveQuickView, isLoggedIn, setCurrentPage } = useContext(ShopContext);
   
   // Weight Selection State: default is first weight label or 250g
   const [selectedWeight] = useState(
@@ -50,6 +50,10 @@ export default function ProductCard({ product, index = 0 }) {
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
+    if (!isLoggedIn) {
+      setCurrentPage('login');
+      return;
+    }
     addToCart(product, selectedWeight, 1);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -173,5 +177,3 @@ export default function ProductCard({ product, index = 0 }) {
     </div>
   );
 }
-
-

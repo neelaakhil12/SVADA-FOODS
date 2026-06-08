@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { DollarSign, TrendingUp, Clock, CheckCircle, Package, FolderOpen } from 'lucide-react';
+import { IndianRupee, TrendingUp, Clock, CheckCircle, Package, FolderOpen } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { 
@@ -31,7 +31,7 @@ const AdminDashboard = () => {
               <p className="text-3xl font-bold text-gray-800">₹{todayEarnings.toLocaleString()}</p>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
-              <DollarSign className="text-green-600" size={24} />
+              <IndianRupee className="text-green-600" size={24} />
             </div>
           </div>
         </div>

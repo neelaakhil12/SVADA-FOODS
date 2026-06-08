@@ -2235,20 +2235,7 @@ export const ShopProvider = ({ children }) => {
       });
 
     // 3. Fetch Orders
-    fetch(`${API_BASE}/orders`)
-      .then(res => {
-        if (!res.ok) throw new Error("API error");
-        return res.json();
-      })
-      .then(data => {
-        setOrders(data);
-        localStorage.setItem('svada_orders', JSON.stringify(data));
-      })
-      .catch(err => {
-        console.error("Error fetching orders:", err);
-        const local = localStorage.getItem('svada_orders');
-        if (local) setOrders(JSON.parse(local));
-      });
+    fetchOrders();
 
     // 4. Fetch Hero Slides
     fetch(`${API_BASE}/hero-slides`)
@@ -2286,6 +2273,42 @@ export const ShopProvider = ({ children }) => {
         setWatchBuyVideos(DEFAULT_VIDEOS);
       });
   }, []);
+
+  // Sync existing logged-in user session with the backend on app start/session update
+  useEffect(() => {
+    if (isLoggedIn && currentUser && currentUser.email) {
+      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      fetch(`${apiBase}/auth/record-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          name: currentUser.name || '',
+          phone: currentUser.phone || '',
+          isSync: true
+        })
+      })
+      .then(res => {
+        if (res.status === 404) {
+          setIsLoggedIn(false);
+          setCurrentUser(null);
+          localStorage.removeItem('svada_currentUser');
+          localStorage.setItem('svada_isLoggedIn', 'false');
+          console.warn("Active user session invalidated - user deleted by admin.");
+          throw new Error("User deleted");
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("Active user session synced with backend:", data);
+      })
+      .catch(err => {
+        if (err.message !== "User deleted") {
+          console.warn("Failed to sync active user session with backend:", err);
+        }
+      });
+    }
+  }, [isLoggedIn, currentUser]);
 
   // Save Admin State to LocalStorage
   useEffect(() => {
@@ -2371,6 +2394,12 @@ export const ShopProvider = ({ children }) => {
 
   // Calculate Price helper based on weight selection
   const getProductPrice = (product, weight) => {
+    if (product.weightLabels && product.weightLabels.length > 0) {
+      const match = product.weightLabels.find(opt => opt.value === weight);
+      if (match && typeof match.price === 'number') {
+        return match.price;
+      }
+    }
     if (weight === '250g') return product.price250g;
     if (weight === '500g') return product.price500g;
     if (weight === '1kg') return product.price1kg;
@@ -2411,7 +2440,9 @@ export const ShopProvider = ({ children }) => {
     message += `*Ordered Items:*\n`;
     cart.forEach((item, idx) => {
       const price = getProductPrice(item.product, item.weight);
-      const label = item.product.isEcoPiece 
+      const label = item.product.weightLabels
+        ? (item.product.weightLabels.find(opt => opt.value === item.weight)?.label || item.weight)
+        : item.product.isEcoPiece 
         ? (item.weight === '250g' ? '1 Pc' : item.weight === '500g' ? '2 Pcs' : '4 Pcs')
         : item.weight;
       message += `${idx + 1}. *${item.product.name}*\n   Qty: ${item.quantity} x Size: ${label} (₹${price} each)\n   Subtotal: ₹${price * item.quantity}\n\n`;
@@ -2479,6 +2510,29 @@ export const ShopProvider = ({ children }) => {
         .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
     })
     .catch(err => console.error("Error deleting video:", err));
+  };
+
+  const fetchOrders = () => {
+    return fetch(`${API_BASE}/orders`)
+      .then(res => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then(data => {
+        setOrders(data);
+        localStorage.setItem('svada_orders', JSON.stringify(data));
+        return data;
+      })
+      .catch(err => {
+        console.error("Error fetching orders:", err);
+        const local = localStorage.getItem('svada_orders');
+        if (local) {
+          const parsed = JSON.parse(local);
+          setOrders(parsed);
+          return parsed;
+        }
+        return [];
+      });
   };
 
   // Admin Functions
@@ -2732,7 +2786,7 @@ export const ShopProvider = ({ children }) => {
   };
 
   const getPendingOrders = () => {
-    return orders.filter(order => order.status === 'pending');
+    return orders.filter(order => order.status === 'pending' || order.status === 'accepted');
   };
 
   const getCompletedOrders = () => {
@@ -2904,6 +2958,7 @@ export const ShopProvider = ({ children }) => {
         getProductPrice,
         handleWhatsAppCheckout,
         addOrder,
+        fetchOrders,
         updateOrderStatus,
         updateOrderTracking,
         deleteOrder,

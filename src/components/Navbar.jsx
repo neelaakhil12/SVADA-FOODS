@@ -142,7 +142,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
 
                 {/* Account */}
                 <button
-                  onClick={() => handleNavClick('login')}
+                  onClick={() => handleNavClick(isLoggedIn ? 'account' : 'login')}
                   className="hidden md:flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg hover:bg-[#3B1E0A]/5 text-svada-dark hover:text-[#3B1E0A] transition group cursor-pointer"
                   title={isLoggedIn ? `Account: ${currentUser?.name}` : 'Login / Register'}
                 >
@@ -151,7 +151,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                     {isLoggedIn ? currentUser?.name?.split(' ')[0] : 'Account'}
                   </span>
                   <span className="text-[8px] text-svada-light group-hover:text-[#3B1E0A] leading-none whitespace-nowrap">
-                    {isLoggedIn ? 'Profile' : 'Login / Register'}
+                    {isLoggedIn ? 'My Orders' : 'Login / Register'}
                   </span>
                 </button>
 
@@ -510,9 +510,9 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
 
         {/* Account */}
         <button
-          onClick={() => handleNavClick('login')}
+          onClick={() => handleNavClick(isLoggedIn ? 'account' : 'login')}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer ${
-            currentPage === 'login' ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
+            currentPage === 'account' || currentPage === 'login' ? 'text-[#3B1E0A]' : 'text-svada-dark hover:text-[#3B1E0A]'
           }`}
         >
           <User className="h-5 w-5" />

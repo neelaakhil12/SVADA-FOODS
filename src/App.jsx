@@ -18,6 +18,7 @@ import RefundPolicy from './pages/RefundPolicy';
 import Terms from './pages/Terms';
 import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel';
+import Account from './pages/Account';
 import PromoPopup from './components/PromoPopup';
 
 // AOS Scroll Animations
@@ -49,6 +50,8 @@ function AppContent({ showSplash }) {
       setCurrentPage('contact');
     } else if (path === '/login') {
       setCurrentPage('login');
+    } else if (path === '/account') {
+      setCurrentPage('account');
     }
   }, [setCurrentPage]);
 
@@ -60,6 +63,7 @@ function AppContent({ showSplash }) {
       'about': '/about',
       'contact': '/contact',
       'login': '/login',
+      'account': '/account',
       'admin-login': '/admin-login',
       'admin': '/admin',
       'privacy': '/privacy',
@@ -106,6 +110,8 @@ function AppContent({ showSplash }) {
         return <Contact />;
       case 'login':
         return <Login />;
+      case 'account':
+        return <Account />;
       case 'privacy':
         return <Privacy />;
       case 'shipping':
@@ -187,11 +193,18 @@ function AppContent({ showSplash }) {
 }
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('svada_splash_shown');
+  });
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem('svada_splash_shown', 'true');
+    setShowSplash(false);
+  };
 
   return (
     <ShopProvider>
-      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <AppContent showSplash={showSplash} />
     </ShopProvider>
   );

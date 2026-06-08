@@ -7,6 +7,8 @@ import AdminCategories from './AdminCategories';
 import AdminHeroSlides from './AdminHeroSlides';
 import AdminVideos from './AdminVideos';
 import AdminOrders from './AdminOrders';
+import AdminUsers from './AdminUsers';
+
 
 const AdminPanel = () => {
   const { isAdmin, setIsAdmin, setCurrentPage } = useContext(ShopContext);
@@ -41,6 +43,8 @@ const AdminPanel = () => {
         return <AdminHeroSlides />;
       case 'videos':
         return <AdminVideos />;
+      case 'users':
+        return <AdminUsers />;
       default:
         return <AdminDashboard />;
     }
