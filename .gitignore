@@ -36,3 +36,10 @@ dist-ssr
 .env
 .env.local
 .env.production
+
+# Dynamic Database Fallback Files
+server/*-fallback.json
+
+# User Uploads
+uploads/
+
