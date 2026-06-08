@@ -55,14 +55,14 @@ export default function SplashScreen({ onComplete }) {
       >
         {/* 1. Colorful Brand Logo (Bottom Layer) */}
         <img
-          src="/logo.png"
+          src="/logo.png?v=2"
           alt="SVADA FARMS Logo"
           className="w-full h-full object-contain rounded-full filter drop-shadow-[0_8px_30px_rgba(217,79,4,0.08)]"
         />
 
         {/* 2. Solid White Logo (Top Layer with wipe effect) */}
         <img
-          src="/logo.png"
+          src="/logo.png?v=2"
           alt="SVADA FARMS Logo Cover"
           className="absolute inset-0 w-full h-full object-contain rounded-full select-none pointer-events-none filter brightness-0 invert drop-shadow-[0_8px_30px_rgba(255,255,255,0.4)]"
           style={{

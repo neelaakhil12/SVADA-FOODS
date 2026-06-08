@@ -129,7 +129,7 @@ export default function AdminOrders() {
           <div class="invoice-card">
             <div class="header">
               <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="${window.location.origin}/logo.png" alt="Logo" style="width: 80px; height: 80px; border-radius: 16px; border: 1px solid #fed7aa; object-fit: contain; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);" />
+                <img src="${window.location.origin}/logo.png?v=2" alt="Logo" style="width: 80px; height: 80px; border-radius: 16px; border: 1px solid #fed7aa; object-fit: contain; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);" />
                 <div>
                   <div class="logo" style="line-height: 1; font-size: 26px; font-weight: 900; color: #3B1E0A; font-family: 'Outfit', sans-serif;">SVADA <span style="color: #C2824B;">FARMS</span></div>
                   <p style="margin: 4px 0 0 0; font-size: 11px; color: #666; font-weight: 500; font-family: 'Poppins', sans-serif;">Homemade Foods & Natural Products</p>

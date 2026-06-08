@@ -910,7 +910,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
             <div className="text-center mb-5">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <img
-                  src="/logo.png"
+                  src="/logo.png?v=2"
                   alt="SVADA FARMS Logo"
                   className="w-8 h-8 rounded-full border border-orange-100 object-contain shadow-sm"
                 />

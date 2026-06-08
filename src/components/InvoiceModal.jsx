@@ -92,7 +92,7 @@ export default function InvoiceModal({ order, isOpen, onClose }) {
             <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-[#3B1E0A]/10">
               <div className="flex items-center gap-3">
                 <img
-                  src="/logo.png"
+                  src="/logo.png?v=2"
                   alt="SVADA FARMS Logo"
                   className="w-20 h-20 rounded-2xl border border-orange-100 object-contain shadow-md"
                 />

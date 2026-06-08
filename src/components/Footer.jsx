@@ -59,7 +59,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center cursor-pointer" onClick={() => handleNavClick('home')}>
               <img
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="SVADA Logo"
                 className="h-28 md:h-32 w-auto object-contain rounded-full transform hover:scale-105 transition duration-300"
               />

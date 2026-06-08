@@ -100,7 +100,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                 onClick={() => handleNavClick('home')}
               >
                 <img
-                  src="/logo.png"
+                  src="/logo.png?v=2"
                   alt="SVADA FARMS Logo"
                   className="h-14 md:h-18 w-auto object-contain rounded-full hover:scale-105 transition duration-300"
                 />
