@@ -137,12 +137,7 @@ export default function AdminLogin() {
             </button>
           </div>
 
-          {/* Demo Credentials Notice */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800 font-semibold mb-1">Demo Credentials:</p>
-            <p className="text-xs text-blue-700">Email: {ADMIN_CREDENTIALS.email}</p>
-            <p className="text-xs text-blue-700">Password: {ADMIN_CREDENTIALS.password}</p>
-          </div>
+
         </div>
       </div>
     </div>
