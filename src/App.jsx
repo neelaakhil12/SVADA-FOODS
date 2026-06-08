@@ -193,18 +193,11 @@ function AppContent({ showSplash }) {
 }
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(() => {
-    return !sessionStorage.getItem('svada_splash_shown');
-  });
-
-  const handleSplashComplete = () => {
-    sessionStorage.setItem('svada_splash_shown', 'true');
-    setShowSplash(false);
-  };
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <ShopProvider>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       <AppContent showSplash={showSplash} />
     </ShopProvider>
   );
