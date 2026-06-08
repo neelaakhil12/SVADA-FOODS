@@ -1541,8 +1541,8 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
-// Fallback all other client requests to index.html (React routing)
-app.get(/^(.*)$/, (req, res) => {
+// Fallback non-API client requests to index.html (React Router)
+app.get(/^(?!\/api\/).*$/, (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
