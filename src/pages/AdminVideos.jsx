@@ -5,7 +5,7 @@ import {
   AlertCircle, Loader, Play, Film
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
 
 const EMPTY_FORM = {
   title: '',
