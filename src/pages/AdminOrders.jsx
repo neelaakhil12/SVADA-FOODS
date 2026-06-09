@@ -75,6 +75,9 @@ export default function AdminOrders() {
       minute: '2-digit'
     });
 
+    const itemsSubtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shippingCharge = order.total - itemsSubtotal;
+
     const itemsRows = order.items.map((item, idx) => {
       const itemPrice = item.price;
       const subtotal = item.price * item.quantity;
@@ -174,11 +177,11 @@ export default function AdminOrders() {
               <table class="totals-table">
                 <tr>
                   <td style="color: #666;">Subtotal:</td>
-                  <td style="text-align: right; font-weight: bold;">₹${order.total}</td>
+                  <td style="text-align: right; font-weight: bold;">₹${itemsSubtotal}</td>
                 </tr>
                 <tr>
                   <td style="color: #666;">Shipping charges:</td>
-                  <td style="text-align: right; font-weight: bold; color: #22c55e;">FREE</td>
+                  <td style="text-align: right; font-weight: bold; ${shippingCharge > 0 ? '' : 'color: #22c55e;'}">${shippingCharge > 0 ? '₹' + shippingCharge : 'FREE'}</td>
                 </tr>
                 <tr class="grand-total">
                   <td>Total Paid:</td>

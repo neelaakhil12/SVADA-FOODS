@@ -63,7 +63,7 @@ const usersFallbackPath = path.join(__dirname, 'users-fallback.json');
 const settingsFallbackPath = path.join(__dirname, 'settings-fallback.json');
 const memoryUsers = [];
 
-let fallbackSettings = { free_shipping_threshold: "3500" };
+let fallbackSettings = { free_shipping_threshold: "3500", shipping_cost: "90" };
 try {
   if (fs.existsSync(settingsFallbackPath)) {
     fallbackSettings = JSON.parse(fs.readFileSync(settingsFallbackPath, 'utf8'));
@@ -346,8 +346,14 @@ async function checkAndInitDatabase() {
       const [settingRows] = await db.query("SELECT COUNT(*) as count FROM settings");
       if (settingRows[0].count === 0) {
         console.log("Seeding settings table...");
-        await db.query("INSERT INTO settings (key_name, value_name) VALUES ('free_shipping_threshold', '3500')");
+        await db.query("INSERT INTO settings (key_name, value_name) VALUES ('free_shipping_threshold', '3500'), ('shipping_cost', '90')");
         console.log("Settings seeded successfully.");
+      } else {
+        const [shippingRows] = await db.query("SELECT * FROM settings WHERE key_name = 'shipping_cost'");
+        if (shippingRows.length === 0) {
+          await db.query("INSERT INTO settings (key_name, value_name) VALUES ('shipping_cost', '90')");
+          console.log("Seeded missing shipping_cost setting.");
+        }
       }
     } catch (settingErr) {
       console.warn("Failed to check or seed settings table:", settingErr.message);

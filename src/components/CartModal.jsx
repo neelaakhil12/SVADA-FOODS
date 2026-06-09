@@ -37,10 +37,13 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
     clearCart,
     isLoggedIn,
     currentUser,
-    fetchOrders
+    fetchOrders,
+    shippingCost,
+    freeShippingThreshold
   } = useContext(ShopContext);
 
   const [isCheckoutMode, setIsCheckoutMode] = useState(false);
+  const shipping = cartTotal >= freeShippingThreshold ? 0 : shippingCost;
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -58,7 +61,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
   const [whatsappMessageText, setWhatsappMessageText] = useState('');
   const [locationLoading, setLocationLoading] = useState(false);
 
-  const constructOnlinePaymentWhatsAppMessage = (orderId, paymentId, totalAmount, itemsList, customerDetails) => {
+  const constructOnlinePaymentWhatsAppMessage = (orderId, paymentId, totalAmount, itemsList, customerDetails, shippingCharge) => {
     let message = `*SVADA Homemade Farms - Online Order Confirmed* ✅\n`;
     message += `=============================\n\n`;
     
@@ -85,8 +88,10 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
     });
 
     message += `=============================\n`;
-    message += `*Total Amount Paid:* ₹${totalAmount}\n`;
-    message += `*Shipping:* Extra charges apply at actuals\n\n`;
+    message += `*Bag Subtotal:* ₹${totalAmount - shippingCharge}\n`;
+    message += `*Shipping:* ${shippingCharge === 0 ? 'FREE' : `₹${shippingCharge}`}\n`;
+    message += `=============================\n`;
+    message += `*Total Amount Paid:* ₹${totalAmount}\n\n`;
     message += `This is a pre-paid online order. Please prepare for shipping and share tracking link. Thank you!`;
     
     return message;
@@ -249,7 +254,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
       const orderRes = await fetch(`${API_BASE}/payments/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: cartTotal, currency: 'INR', receipt: `svada_${Date.now()}` })
+        body: JSON.stringify({ amount: cartTotal + shipping, currency: 'INR', receipt: `svada_${Date.now()}` })
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData.success) {
@@ -299,7 +304,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 ...customerDetails,
-                total: cartTotal,
+                total: cartTotal + shipping,
                 items: cartItems
               })
             });
@@ -311,14 +316,15 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
               const msg = constructOnlinePaymentWhatsAppMessage(
                 orderId,
                 paymentId,
-                cartTotal,
+                cartTotal + shipping,
                 cart.map(item => ({
                   product: item.product,
                   weight: item.weight,
                   quantity: item.quantity,
                   price: getProductPrice(item.product, item.weight)
                 })),
-                customerDetails
+                customerDetails,
+                shipping
               );
               setWhatsappMessageText(msg);
 
@@ -327,7 +333,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
               setSuccessData({
                 orderId: orderId,
                 paymentId: paymentId,
-                amount: cartTotal
+                amount: cartTotal + shipping
               });
               setPaymentSuccess(true);
             } else {
@@ -745,7 +751,9 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                 </div>
                 <div className="flex justify-between text-svada-light text-xs">
                   <span>Estimated Shipping:</span>
-                  <span className="text-accent font-medium">Extra (At actual weight)</span>
+                  <span className="font-semibold text-svada-dark">
+                    {shipping === 0 ? <span className="text-emerald-600 font-bold">FREE</span> : `₹${shipping}`}
+                  </span>
                 </div>
                 
                 {/* No-COD reminder */}
@@ -755,7 +763,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
 
                 <div className="flex justify-between text-base pt-2 border-t border-orange-100">
                   <span className="font-bold text-svada-dark font-outfit">Total Payable:</span>
-                  <span className="font-black text-xl text-primary font-outfit">₹{cartTotal}</span>
+                  <span className="font-black text-xl text-primary font-outfit">₹{cartTotal + shipping}</span>
                 </div>
               </div>
 
@@ -786,7 +794,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                     ) : (
                       <>
                         <CreditCard className="h-4 w-4" />
-                        <span>Pay Online ₹{cartTotal}</span>
+                        <span>Pay Online ₹{cartTotal + shipping}</span>
                         <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-md font-bold">Razorpay</span>
                       </>
                     )}

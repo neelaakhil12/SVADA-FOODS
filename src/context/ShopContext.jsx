@@ -2181,6 +2181,7 @@ export const ShopProvider = ({ children }) => {
   });
   const [watchBuyVideos, setWatchBuyVideos] = useState(DEFAULT_VIDEOS);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(3500);
+  const [shippingCost, setShippingCost] = useState(90);
 
   const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
 
@@ -2284,9 +2285,12 @@ export const ShopProvider = ({ children }) => {
         if (data && data.free_shipping_threshold) {
           setFreeShippingThreshold(Number(data.free_shipping_threshold));
         }
+        if (data && data.shipping_cost) {
+          setShippingCost(Number(data.shipping_cost));
+        }
       })
       .catch(err => {
-        console.warn("Using default shipping threshold due to API error:", err);
+        console.warn("Using default shipping settings due to API error:", err);
       });
   }, []);
 
@@ -2464,11 +2468,14 @@ export const ShopProvider = ({ children }) => {
       message += `${idx + 1}. *${item.product.name}*\n   Qty: ${item.quantity} x Size: ${label} (₹${price} each)\n   Subtotal: ₹${price * item.quantity}\n\n`;
     });
 
+    const shipping = cartTotal >= freeShippingThreshold ? 0 : shippingCost;
     message += `=============================\n`;
-    message += `*Total Order Value:* ₹${cartTotal}\n`;
-    message += `*Shipping Policy:* Extra charges apply at actuals\n`;
+    message += `*Bag Subtotal:* ₹${cartTotal}\n`;
+    message += `*Shipping:* ${shipping === 0 ? 'FREE' : `₹${shipping}`}\n`;
+    message += `=============================\n`;
+    message += `*Total Order Value:* ₹${cartTotal + shipping}\n`;
     message += `*Payment Mode:* Prepaid Only (No COD available)\n\n`;
-    message += `Please confirm availability and share shipping cost. Thank you!`;
+    message += `Please confirm availability. Thank you!`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappNumber = '919000955239'; // Representative WhatsApp number
@@ -2566,11 +2573,12 @@ export const ShopProvider = ({ children }) => {
       price: getProductPrice(item.product, item.weight)
     }));
 
+    const shipping = cartTotal >= freeShippingThreshold ? 0 : shippingCost;
     const newOrder = {
       customerName: orderData.customerName,
       customerPhone: orderData.customerPhone,
       customerAddress: orderData.customerAddress,
-      total: cartTotal,
+      total: cartTotal + shipping,
       items: orderItems
     };
 
@@ -2949,6 +2957,16 @@ export const ShopProvider = ({ children }) => {
     .catch(err => console.error("Error saving shipping threshold:", err));
   };
 
+  const updateShippingCost = (cost) => {
+    setShippingCost(Number(cost));
+    fetch(`${API_BASE}/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shipping_cost: String(cost) })
+    })
+    .catch(err => console.error("Error saving shipping cost:", err));
+  };
+
   return (
     <ShopContext.Provider
       value={{
@@ -3007,7 +3025,9 @@ export const ShopProvider = ({ children }) => {
         updateWatchBuyVideo,
         deleteWatchBuyVideo,
         freeShippingThreshold,
-        updateFreeShippingThreshold
+        updateFreeShippingThreshold,
+        shippingCost,
+        updateShippingCost
       }}
     >
       {children}

@@ -34,7 +34,12 @@ export default function InvoiceModal({ order, isOpen, onClose }) {
     setTimeout(() => document.body.classList.remove('printing-invoice'), 1000);
   };
 
-  const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || order.total || 0;
+  const itemsSubtotal = order.items && order.items.length > 0 
+    ? order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) 
+    : order.total || 0;
+  const shippingCharge = order.items && order.items.length > 0
+    ? (order.total || 0) - itemsSubtotal
+    : 0;
 
   return (
     <>
@@ -185,11 +190,13 @@ export default function InvoiceModal({ order, isOpen, onClose }) {
               <div className="w-full max-w-xs space-y-2">
                 <div className="flex justify-between text-xs text-svada-light">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-svada-dark">₹{subtotal.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-svada-dark">₹{itemsSubtotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-xs text-svada-light">
                   <span>Shipping</span>
-                  <span className="font-semibold text-accent">At Actuals</span>
+                  <span className={`font-semibold ${shippingCharge > 0 ? 'text-svada-dark' : 'text-emerald-600 font-bold'}`}>
+                    {shippingCharge > 0 ? `₹${shippingCharge.toLocaleString('en-IN')}` : 'FREE'}
+                  </span>
                 </div>
                 <div className="flex justify-between text-xs text-svada-light">
                   <span>Payment Mode</span>
@@ -200,7 +207,7 @@ export default function InvoiceModal({ order, isOpen, onClose }) {
                 <div className="flex justify-between text-sm font-black border-t-2 border-[#3B1E0A]/20 pt-2 mt-1">
                   <span className="text-svada-dark">Total Paid</span>
                   <span className="text-[#3B1E0A] text-lg font-outfit">
-                    ₹{(order.total || subtotal).toLocaleString('en-IN')}
+                    ₹{(order.total || itemsSubtotal).toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>

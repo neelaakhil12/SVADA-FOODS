@@ -3,9 +3,10 @@ import { ShopContext } from '../context/ShopContext';
 import { Settings, Save, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function AdminSettings() {
-  const { freeShippingThreshold, updateFreeShippingThreshold } = useContext(ShopContext);
+  const { freeShippingThreshold, updateFreeShippingThreshold, shippingCost, updateShippingCost } = useContext(ShopContext);
 
   const [threshold, setThreshold] = useState(freeShippingThreshold);
+  const [cost, setCost] = useState(shippingCost);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -13,7 +14,8 @@ export default function AdminSettings() {
   // Keep state in sync with context fetches
   useEffect(() => {
     setThreshold(freeShippingThreshold);
-  }, [freeShippingThreshold]);
+    setCost(shippingCost);
+  }, [freeShippingThreshold, shippingCost]);
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -28,8 +30,16 @@ export default function AdminSettings() {
       return;
     }
 
+    const numericCost = Number(cost);
+    if (isNaN(numericCost) || numericCost < 0) {
+      setError('Please enter a valid positive standard shipping cost.');
+      setSaving(false);
+      return;
+    }
+
     try {
       await updateFreeShippingThreshold(numericVal);
+      await updateShippingCost(numericCost);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -80,6 +90,29 @@ export default function AdminSettings() {
             <p className="text-xs text-gray-400 leading-normal">
               Minimum order value (in Indian Rupees) above which shipping is marked as free.
               This updates the top notice bars, mobile sliding menus, and popup banners automatically.
+            </p>
+          </div>
+
+          {/* Shipping Cost Input */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Standard Shipping Cost (₹)
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm font-semibold">
+                ₹
+              </span>
+              <input
+                type="number"
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                className="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B1E0A]/30 focus:border-[#3B1E0A] text-sm font-medium"
+                placeholder="e.g. 90"
+                min="0"
+              />
+            </div>
+            <p className="text-xs text-gray-400 leading-normal">
+              Standard flat shipping rate applied to orders below the free shipping threshold.
             </p>
           </div>
 
