@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { ShopContext, DEFAULT_CATEGORY_METADATA } from '../context/ShopContext';
 import { Plus, Trash2, X, Save, Edit2, Upload, ImageIcon, Package } from 'lucide-react';
 
-const AdminCategories = () => {
+const AdminCategories = ({ onViewProducts }) => {
   const {
     categories,
     categoryMetadata,
@@ -232,6 +232,13 @@ const AdminCategories = () => {
                       {/* Hover action buttons overlay */}
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
                         <button
+                          onClick={() => onViewProducts && onViewProducts(name)}
+                          className="w-9 h-9 rounded-full bg-white text-[#3B1E0A] flex items-center justify-center hover:bg-orange-50 transition shadow-md"
+                          title="View Products"
+                        >
+                          <Package size={15} />
+                        </button>
+                        <button
                           onClick={() => openEdit(name)}
                           className="w-9 h-9 rounded-full bg-white text-[#3B1E0A] flex items-center justify-center hover:bg-orange-50 transition shadow-md"
                           title="Edit Category"
@@ -253,12 +260,18 @@ const AdminCategories = () => {
                       <h3 className="font-bold text-gray-800 text-sm leading-snug line-clamp-2">{name}</h3>
                       {meta.desc && <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-1">{meta.desc}</p>}
                       <div className="mt-auto pt-2 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
+                        <button
+                          type="button"
+                          onClick={() => onViewProducts && onViewProducts(name)}
+                          className="text-[10px] font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 px-2 py-1 rounded-full transition-colors flex items-center gap-1 cursor-pointer"
+                          title="View Products"
+                        >
+                          <Package size={10} className="text-orange-500" />
                           {count} {count === 1 ? 'product' : 'products'}
-                        </span>
+                        </button>
                         <button
                           onClick={() => openEdit(name)}
-                          className="text-[11px] text-[#3B1E0A] font-semibold hover:underline flex items-center gap-1"
+                          className="text-[11px] text-[#3B1E0A] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Edit2 size={11} /> Edit
                         </button>

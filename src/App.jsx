@@ -55,7 +55,7 @@ function AppContent({ showSplash }) {
     }
   }, [setCurrentPage]);
 
-  // Update browser URL when page changes
+  // Update browser URL and dynamic SEO page headers when page changes
   useEffect(() => {
     const urlMap = {
       'home': '/',
@@ -75,6 +75,92 @@ function AppContent({ showSplash }) {
     if (urlMap[currentPage] && window.location.pathname !== urlMap[currentPage]) {
       window.history.pushState({}, '', urlMap[currentPage]);
     }
+
+    // Dynamic SEO Configuration Map
+    const seoConfig = {
+      'home': {
+        title: 'SVADA Homemade Farms - Authentic Telugu Pickles, Sweets & Healthy Organic Products',
+        description: 'Savor SVADA\'s authentic Telugu homemade foods, pickles (Mamidikaya Avakaya, Gongura, Kakarakaya), fresh spices, stone-ground flours, dry-fruit laddus, and eco-friendly utilities made cleanly with love and zero chemical preservatives.'
+      },
+      'products': {
+        title: 'Authentic Telugu Foods, Pickles & Sweets Collection | SVADA Homemade Farms',
+        description: 'Explore our collection of natural, wood-pressed cold pressed oils, pure forest honey, A2 cow ghee, traditional pickles, dry fruits, millets, organic rices, and home essentials.'
+      },
+      'about': {
+        title: 'Our Story - Traditional Recipes & Organic Farming | SVADA Homemade Farms',
+        description: 'Learn about SVADA\'s mission to revive traditional wood-pressed oils, handmade pickles, and organic farm food directly from village kitchens to your table.'
+      },
+      'contact': {
+        title: 'Contact Us - SVADA Homemade Farms Support',
+        description: 'Reach out to SVADA for orders, bulk inquiries, or support. We deliver fresh, authentic homemade foods all across India. Call or WhatsApp us today.'
+      },
+      'login': {
+        title: 'Customer Access Portal - Login / Sign Up | SVADA',
+        description: 'Access your SVADA account to view your past orders, update shipping addresses, and manage your wishlist.'
+      },
+      'account': {
+        title: 'My Account Profile & Order History | SVADA',
+        description: 'Manage your orders, update shipping addresses, track deliveries, and check your saved items in your SVADA account.'
+      },
+      'admin-login': {
+        title: 'Secure Admin Access Portal | SVADA',
+        description: 'Authorized personnel login gate for the SVADA Homemade Farms administration panel.'
+      },
+      'admin': {
+        title: 'SVADA Control Center - Admin Panel',
+        description: 'Manage products, orders, slide images, categories, and settings for SVADA Homemade Farms dashboard.'
+      },
+      'privacy': {
+        title: 'Privacy Policy | SVADA Homemade Farms',
+        description: 'Read the SVADA privacy policy outlining how we store, secure, and process customer information and transaction details.'
+      },
+      'shipping': {
+        title: 'Shipping & Delivery Policy | SVADA Homemade Farms',
+        description: 'Check SVADA\'s shipping policies, free shipping thresholds, delivery timelines across India, and packaging details.'
+      },
+      'refund': {
+        title: 'Returns & Refund Policy | SVADA Homemade Farms',
+        description: 'Learn about SVADA\'s simple returns, exchanges, and refund procedures for pickles, ghee, sweets, and other products.'
+      },
+      'terms': {
+        title: 'Terms of Service & Conditions | SVADA Homemade Farms',
+        description: 'Review the terms of service, payment options, order acceptances, and user guidelines for the SVADA online store.'
+      }
+    };
+
+    const config = seoConfig[currentPage] || seoConfig['home'];
+
+    // 1. Update document title
+    document.title = config.title;
+
+    // 2. Helper to set/update metadata tags
+    const updateMetaTag = (name, content) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    const updateOgTag = (property, content) => {
+      let meta = document.querySelector(`meta[property="${property}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // 3. Apply updates to DOM head
+    updateMetaTag('description', config.description);
+    updateOgTag('og:title', config.title);
+    updateOgTag('og:description', config.description);
+    updateMetaTag('twitter:title', config.title);
+    updateMetaTag('twitter:description', config.description);
+
   }, [currentPage]);
 
   // Initialize AOS scroll trigger library

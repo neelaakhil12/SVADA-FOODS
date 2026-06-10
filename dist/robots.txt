@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /about
+Allow: /contact
+Allow: /shipping
+Allow: /refund
+Allow: /terms
+Allow: /privacy
+Disallow: /admin
+Disallow: /admin-login
+
+Sitemap: https://svadafarms.com/sitemap.xml

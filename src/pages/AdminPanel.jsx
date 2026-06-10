@@ -14,6 +14,7 @@ import AdminSettings from './AdminSettings';
 const AdminPanel = () => {
   const { isAdmin, setIsAdmin, setCurrentPage } = useContext(ShopContext);
   const [activePage, setActivePage] = useState('dashboard');
+  const [adminCategoryFilter, setAdminCategoryFilter] = useState('');
 
   const handleLogout = () => {
     setIsAdmin(false);
@@ -37,9 +38,21 @@ const AdminPanel = () => {
       case 'orders':
         return <AdminOrders />;
       case 'products':
-        return <AdminProducts />;
+        return (
+          <AdminProducts
+            categoryFilter={adminCategoryFilter}
+            setCategoryFilter={setAdminCategoryFilter}
+          />
+        );
       case 'categories':
-        return <AdminCategories />;
+        return (
+          <AdminCategories
+            onViewProducts={(catName) => {
+              setAdminCategoryFilter(catName);
+              setActivePage('products');
+            }}
+          />
+        );
       case 'hero':
         return <AdminHeroSlides />;
       case 'videos':

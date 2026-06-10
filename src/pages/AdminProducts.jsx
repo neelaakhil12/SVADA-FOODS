@@ -2,8 +2,13 @@ import React, { useState, useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Plus, Edit, Trash2, Search, X, Save, Upload } from 'lucide-react';
 
-const AdminProducts = () => {
+const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: propSetCategoryFilter }) => {
   const { products, categories, addProduct, updateProduct, deleteProduct } = useContext(ShopContext);
+  
+  // Fallback to local state if props are not provided
+  const [localCategoryFilter, setLocalCategoryFilter] = useState('');
+  const categoryFilter = propCategoryFilter !== undefined ? propCategoryFilter : localCategoryFilter;
+  const setCategoryFilter = propSetCategoryFilter !== undefined ? propSetCategoryFilter : setLocalCategoryFilter;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,9 +16,6 @@ const AdminProducts = () => {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    price250g: '',
-    price500g: '',
-    price1kg: '',
     description: '',
     ingredients: '',
     image: '',
@@ -21,43 +23,153 @@ const AdminProducts = () => {
     isEcoPiece: false,
     inStock: true,
     isLiquid: false,
-    isSolid: true,
-    liquid250ml: '',
-    liquid500ml: '',
-    liquid1lt: '',
-    solid250g: '',
-    solid500g: '',
-    solid1kg: ''
+    isSolid: true
+  });
+  const [productWeights, setProductWeights] = useState([]);
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          product.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter ? product.category === categoryFilter : true;
+    return matchesSearch && matchesCategory;
   });
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleTogglePricingType = (isLiq) => {
+    setFormData(prev => ({
+      ...prev,
+      isLiquid: isLiq,
+      isSolid: !isLiq
+    }));
+
+    // Re-initialize productWeights based on type
+    const defaults = isLiq 
+      ? [
+          { value: '250ml', label: '250ML', price: '', enabled: true, isCustom: false },
+          { value: '500ml', label: '500ML', price: '', enabled: true, isCustom: false },
+          { value: '1lt', label: '1LT', price: '', enabled: true, isCustom: false }
+        ]
+      : [
+          { value: '250g', label: '250g', price: '', enabled: true, isCustom: false },
+          { value: '500g', label: '500g', price: '', enabled: true, isCustom: false },
+          { value: '1kg', label: '1kg', price: '', enabled: true, isCustom: false }
+        ];
+    setProductWeights(defaults);
+  };
+
+  const handleWeightCheckboxChange = (index, checked) => {
+    setProductWeights(prev => prev.map((w, idx) => idx === index ? { ...w, enabled: checked } : w));
+  };
+
+  const handleWeightPriceChange = (index, value) => {
+    setProductWeights(prev => prev.map((w, idx) => idx === index ? { ...w, price: value } : w));
+  };
+
+  const handleWeightLabelChange = (index, labelVal) => {
+    const valKey = labelVal.toLowerCase().replace(/\s+/g, '');
+    setProductWeights(prev => prev.map((w, idx) => idx === index ? { ...w, label: labelVal, value: valKey } : w));
+  };
+
+  const handleAddCustomWeight = () => {
+    const placeholderLabel = formData.isLiquid ? '5L' : '2kg';
+    const placeholderValue = formData.isLiquid ? '5l' : '2kg';
+    setProductWeights(prev => [
+      ...prev,
+      {
+        value: placeholderValue,
+        label: placeholderLabel,
+        price: '',
+        enabled: true,
+        isCustom: true
+      }
+    ]);
+  };
+
+  const handleRemoveCustomWeight = (index) => {
+    setProductWeights(prev => prev.filter((_, idx) => idx !== index));
+  };
 
   const handleOpenModal = (product = null) => {
     if (product) {
       setEditingProduct(product);
       
       const hasLiquidLabels = product.weightLabels && product.weightLabels.some(opt => 
-        opt.label.toUpperCase().includes('ML') || opt.label.toUpperCase().includes('LT')
+        opt.label.toUpperCase().includes('ML') || opt.label.toUpperCase().includes('LT') || opt.label.toUpperCase().includes(' L') || opt.label.toUpperCase().endsWith('L')
       );
       
       const isLiq = !!hasLiquidLabels;
       const isSol = !isLiq;
 
-      const getOptionPrice = (val) => {
-        if (!product.weightLabels) return '';
-        const opt = product.weightLabels.find(o => o.value === val);
-        return opt ? opt.price : '';
-      };
+      let loadedWeights = [];
+      if (product.weightLabels && product.weightLabels.length > 0) {
+        loadedWeights = product.weightLabels.map(opt => {
+          const valLower = opt.value.toLowerCase();
+          const isDefault = isLiq 
+            ? ['250ml', '500ml', '1lt'].includes(valLower)
+            : ['250g', '500g', '1kg'].includes(valLower);
+            
+          return {
+            value: opt.value,
+            label: opt.label,
+            price: opt.price || '',
+            enabled: true,
+            isCustom: !isDefault
+          };
+        });
+        
+        // Ensure default options are present (as disabled if not in weightLabels)
+        const defaultList = isLiq 
+          ? [
+              { value: '250ml', label: '250ML' },
+              { value: '500ml', label: '500ML' },
+              { value: '1lt', label: '1LT' }
+            ]
+          : [
+              { value: '250g', label: '250g' },
+              { value: '500g', label: '500g' },
+              { value: '1kg', label: '1kg' }
+            ];
+            
+        defaultList.forEach(def => {
+          const exists = loadedWeights.some(w => w.value.toLowerCase() === def.value);
+          if (!exists) {
+            loadedWeights.push({
+              value: def.value,
+              label: def.label,
+              price: '',
+              enabled: false,
+              isCustom: false
+            });
+          }
+        });
+
+        // Sort defaults first
+        loadedWeights.sort((a, b) => {
+          if (a.isCustom && !b.isCustom) return 1;
+          if (!a.isCustom && b.isCustom) return -1;
+          return 0;
+        });
+      } else {
+        // Fallback using legacy database columns if no weightLabels
+        if (isSol) {
+          loadedWeights = [
+            { value: '250g', label: '250g', price: product.price250g || '', enabled: !!product.price250g, isCustom: false },
+            { value: '500g', label: '500g', price: product.price500g || '', enabled: !!product.price500g, isCustom: false },
+            { value: '1kg', label: '1kg', price: product.price1kg || '', enabled: !!product.price1kg, isCustom: false }
+          ];
+        } else {
+          loadedWeights = [
+            { value: '250ml', label: '250ML', price: product.price250g || '', enabled: !!product.price250g, isCustom: false },
+            { value: '500ml', label: '500ML', price: product.price500g || '', enabled: !!product.price500g, isCustom: false },
+            { value: '1lt', label: '1LT', price: product.price1kg || '', enabled: !!product.price1kg, isCustom: false }
+          ];
+        }
+      }
+
+      setProductWeights(loadedWeights);
 
       setFormData({
         name: product.name,
         category: product.category,
-        price250g: product.price250g,
-        price500g: product.price500g,
-        price1kg: product.price1kg,
         description: product.description,
         ingredients: product.ingredients,
         image: product.image,
@@ -65,23 +177,19 @@ const AdminProducts = () => {
         isEcoPiece: product.isEcoPiece || false,
         inStock: product.inStock !== false,
         isLiquid: isLiq,
-        isSolid: isSol,
-        liquid250ml: isLiq ? (getOptionPrice('250ml') || product.price250g || '') : '',
-        liquid500ml: isLiq ? (getOptionPrice('500ml') || product.price500g || '') : '',
-        liquid1lt: isLiq ? (getOptionPrice('1lt') || product.price1kg || '') : '',
-        solid250g: isSol ? product.price250g : '',
-        solid500g: isSol ? product.price500g : '',
-        solid1kg: isSol ? product.price1kg : ''
+        isSolid: isSol
       });
       setImagePreview(product.image || '');
     } else {
       setEditingProduct(null);
+      setProductWeights([
+        { value: '250g', label: '250g', price: '', enabled: true, isCustom: false },
+        { value: '500g', label: '500g', price: '', enabled: true, isCustom: false },
+        { value: '1kg', label: '1kg', price: '', enabled: true, isCustom: false }
+      ]);
       setFormData({
         name: '',
         category: '',
-        price250g: '',
-        price500g: '',
-        price1kg: '',
         description: '',
         ingredients: '',
         image: '',
@@ -89,13 +197,7 @@ const AdminProducts = () => {
         isEcoPiece: false,
         inStock: true,
         isLiquid: false,
-        isSolid: true,
-        liquid250ml: '',
-        liquid500ml: '',
-        liquid1lt: '',
-        solid250g: '',
-        solid500g: '',
-        solid1kg: ''
+        isSolid: true
       });
       setImagePreview('');
     }
@@ -135,27 +237,33 @@ const AdminProducts = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    let weightLabels = null;
+    // Save only enabled weights with valid prices
+    const enabledWeights = productWeights.filter(w => w.enabled && w.price !== '');
+
+    const getPriceForVal = (val) => {
+      const match = enabledWeights.find(w => w.value.toLowerCase() === val.toLowerCase());
+      return match ? Number(match.price) : 0;
+    };
+    
     let p250 = 0;
     let p500 = 0;
     let p1k = 0;
-
+    
     if (formData.isLiquid) {
-      p250 = Number(formData.liquid250ml) || 0;
-      p500 = Number(formData.liquid500ml) || 0;
-      p1k = Number(formData.liquid1lt) || 0;
-      
-      weightLabels = [
-        { value: '250ml', label: '250ML', price: p250 },
-        { value: '500ml', label: '500ML', price: p500 },
-        { value: '1lt', label: '1LT', price: p1k }
-      ].filter(opt => opt.price > 0);
+      p250 = getPriceForVal('250ml');
+      p500 = getPriceForVal('500ml');
+      p1k = getPriceForVal('1lt');
     } else {
-      p250 = Number(formData.solid250g) || 0;
-      p500 = Number(formData.solid500g) || 0;
-      p1k = Number(formData.solid1kg) || 0;
-      weightLabels = null;
+      p250 = getPriceForVal('250g');
+      p500 = getPriceForVal('500g');
+      p1k = getPriceForVal('1kg');
     }
+
+    const weightLabels = enabledWeights.map(w => ({
+      value: w.value,
+      label: w.label,
+      price: Number(w.price)
+    }));
 
     const productData = {
       name: formData.name,
@@ -169,7 +277,7 @@ const AdminProducts = () => {
       isBestseller: formData.isBestseller,
       isEcoPiece: formData.isEcoPiece,
       inStock: formData.inStock,
-      weightLabels: weightLabels
+      weightLabels: weightLabels.length > 0 ? weightLabels : null
     };
 
     if (editingProduct) {
@@ -196,28 +304,65 @@ const AdminProducts = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Products Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Products Management</h1>
+          {categoryFilter && (
+            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
+              Showing products in <span className="font-semibold text-orange-600 px-2 py-0.5 rounded-md bg-orange-50 border border-orange-100">{categoryFilter}</span>
+            </p>
+          )}
+        </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-[#3B1E0A] hover:bg-[#2B1507] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-[#3B1E0A] hover:bg-[#2B1507] text-white px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold transition-colors cursor-pointer shadow-sm"
         >
-          <Plus size={20} />
+          <Plus size={18} />
           Add Product
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      {/* Search & Category Filter */}
+      <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:flex-1">
+          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <input
             type="text"
-            placeholder="Search products by name or category..."
+            placeholder="Search products by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A]"
+            className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-sm transition-all"
           />
+        </div>
+        
+        <div className="flex w-full md:w-auto items-center gap-3">
+          <div className="relative w-full md:w-64">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-sm bg-white appearance-none cursor-pointer pr-10 font-medium text-gray-700"
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            {/* Dropdown arrow icon */}
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
+            </div>
+          </div>
+          
+          {categoryFilter && (
+            <button
+              onClick={() => setCategoryFilter('')}
+              className="px-4 py-2.5 border border-orange-200 hover:border-orange-300 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer"
+            >
+              <X size={14} /> Clear Filter
+            </button>
+          )}
         </div>
       </div>
 
@@ -352,137 +497,118 @@ const AdminProducts = () => {
                   </select>
                 </div>
 
-                {/* Liquid vs Solid Selection */}
-                <div className="border border-orange-100 rounded-xl p-4 bg-orange-50/20 space-y-4">
-                  
-                  {/* Liquid Pricing Header */}
-                  <div className="flex items-center justify-between border-b border-orange-100 pb-2">
-                    <span className="text-xs font-bold text-svada-dark uppercase tracking-wider flex items-center gap-1.5">
-                      ⚙️ LIQUID PRICING (ML/LT)
+                {/* Product Form Type: Solid vs Liquid */}
+                <div className="border border-orange-100 rounded-2xl p-5 bg-orange-50/20 space-y-6">
+                  <div className="flex items-center justify-between border-b border-orange-100 pb-3">
+                    <span className="text-xs font-bold text-svada-dark uppercase tracking-wider">
+                      ⚖️ PRICING & QUANTITY CONFIGURATION
                     </span>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <span className="text-xs font-bold text-gray-500 uppercase">ENABLE LIQUID</span>
-                      <input
-                        type="checkbox"
-                        name="isLiquid"
-                        checked={formData.isLiquid}
-                        onChange={(e) => {
-                          const val = e.target.checked;
-                          setFormData(prev => ({
-                            ...prev,
-                            isLiquid: val,
-                            isSolid: !val
-                          }));
-                        }}
-                        className="rounded text-green-600 focus:ring-green-500 w-4.5 h-4.5"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Liquid Inputs Grid */}
-                  <div className={`grid grid-cols-3 gap-3 transition-opacity ${!formData.isLiquid ? 'opacity-40 pointer-events-none' : ''}`}>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">250ML (₹)</label>
-                      <input
-                        type="number"
-                        name="liquid250ml"
-                        value={formData.liquid250ml}
-                        onChange={handleInputChange}
-                        required={formData.isLiquid}
-                        disabled={!formData.isLiquid}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">500ML (₹)</label>
-                      <input
-                        type="number"
-                        name="liquid500ml"
-                        value={formData.liquid500ml}
-                        onChange={handleInputChange}
-                        required={formData.isLiquid}
-                        disabled={!formData.isLiquid}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">1LT (₹)</label>
-                      <input
-                        type="number"
-                        name="liquid1lt"
-                        value={formData.liquid1lt}
-                        onChange={handleInputChange}
-                        required={formData.isLiquid}
-                        disabled={!formData.isLiquid}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
-                      />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleTogglePricingType(false)} // Solid
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          !formData.isLiquid
+                            ? 'bg-[#3B1E0A] text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Solid (Grams/KG)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleTogglePricingType(true)} // Liquid
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          formData.isLiquid
+                            ? 'bg-[#3B1E0A] text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Liquid (ML/Liters)
+                      </button>
                     </div>
                   </div>
 
-                  {/* Solid Pricing Header */}
-                  <div className="flex items-center justify-between border-b border-orange-100 pb-2 pt-2">
-                    <span className="text-xs font-bold text-svada-dark uppercase tracking-wider flex items-center gap-1.5">
-                      📦 SOLID PRICING (GRAMS)
-                    </span>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <span className="text-xs font-bold text-gray-500 uppercase">ENABLE SOLID</span>
-                      <input
-                        type="checkbox"
-                        name="isSolid"
-                        checked={formData.isSolid}
-                        onChange={(e) => {
-                          const val = e.target.checked;
-                          setFormData(prev => ({
-                            ...prev,
-                            isSolid: val,
-                            isLiquid: !val
-                          }));
-                        }}
-                        className="rounded text-green-600 focus:ring-green-500 w-4.5 h-4.5"
-                      />
-                    </label>
+                  {/* Weights List */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-12 gap-3 text-[10px] font-extrabold text-[#3B1E0A] uppercase tracking-wider px-1">
+                      <div className="col-span-2 text-center">Enable</div>
+                      <div className="col-span-5">Size / Label</div>
+                      <div className="col-span-4">Price (₹)</div>
+                      <div className="col-span-1"></div>
+                    </div>
+
+                    {productWeights.map((w, idx) => (
+                      <div key={idx} className={`grid grid-cols-12 gap-3 items-center p-2 rounded-xl border transition ${
+                        w.enabled ? 'bg-white border-orange-100' : 'bg-gray-50/60 border-gray-100 opacity-60'
+                      }`}>
+                        {/* Checkbox */}
+                        <div className="col-span-2 flex justify-center">
+                          <input
+                            type="checkbox"
+                            checked={w.enabled}
+                            onChange={(e) => handleWeightCheckboxChange(idx, e.target.checked)}
+                            className="rounded border-gray-300 text-[#3B1E0A] focus:ring-[#3B1E0A] w-4.5 h-4.5 cursor-pointer"
+                          />
+                        </div>
+                        
+                        {/* Label (Read-only for default, input for custom) */}
+                        <div className="col-span-5">
+                          {w.isCustom ? (
+                            <input
+                              type="text"
+                              value={w.label}
+                              onChange={(e) => handleWeightLabelChange(idx, e.target.value)}
+                              placeholder="e.g. 2kg or 5L"
+                              required
+                              className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#3B1E0A]"
+                            />
+                          ) : (
+                            <span className="text-xs font-semibold text-gray-700 ml-1">{w.label}</span>
+                          )}
+                        </div>
+
+                        {/* Price */}
+                        <div className="col-span-4">
+                          <input
+                            type="number"
+                            value={w.price}
+                            onChange={(e) => handleWeightPriceChange(idx, e.target.value)}
+                            placeholder="Price"
+                            required={w.enabled}
+                            disabled={!w.enabled}
+                            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#3B1E0A] disabled:bg-gray-100"
+                          />
+                        </div>
+
+                        {/* Actions (Delete button for custom weights) */}
+                        <div className="col-span-1 flex justify-center">
+                          {w.isCustom && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveCustomWeight(idx)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition"
+                              title="Remove size"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* Solid Inputs Grid */}
-                  <div className={`grid grid-cols-3 gap-3 transition-opacity ${!formData.isSolid ? 'opacity-40 pointer-events-none' : ''}`}>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">250GRMS (₹)</label>
-                      <input
-                        type="number"
-                        name="solid250g"
-                        value={formData.solid250g}
-                        onChange={handleInputChange}
-                        required={formData.isSolid}
-                        disabled={!formData.isSolid}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">500GRMS (₹)</label>
-                      <input
-                        type="number"
-                        name="solid500g"
-                        value={formData.solid500g}
-                        onChange={handleInputChange}
-                        required={formData.isSolid}
-                        disabled={!formData.isSolid}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-svada-light uppercase tracking-wider mb-1">1000GRMS (₹)</label>
-                      <input
-                        type="number"
-                        name="solid1kg"
-                        value={formData.solid1kg}
-                        onChange={handleInputChange}
-                        required={formData.isSolid}
-                        disabled={!formData.isSolid}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B1E0A] text-xs"
-                      />
-                    </div>
+                  {/* Add Custom Weight Trigger */}
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={handleAddCustomWeight}
+                      className="text-xs font-semibold text-[#3B1E0A] bg-orange-50 hover:bg-orange-100 border border-orange-200 px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus size={14} />
+                      Add Custom Size
+                    </button>
                   </div>
-
                 </div>
 
                 <div>
