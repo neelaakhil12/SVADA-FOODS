@@ -9,20 +9,35 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
   const {
     currentPage, setCurrentPage, cartCount, wishlist,
     isLoggedIn, currentUser, setIsLoggedIn, setSelectedCategory, isAdmin,
-    categories: dynamicCategories, freeShippingThreshold
+    categories: dynamicCategories, freeShippingThreshold,
+    products = [], setActiveQuickView, searchQuery: globalSearchQuery, setSearchQuery: setGlobalSearchQuery
   } = useContext(ShopContext);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const browseDropdownRef = useRef(null);
+  const searchDropdownRef = useRef(null);
+  const mobileSearchDropdownRef = useRef(null);
+
+  // Sync global search query back to local navbar search query
+  useEffect(() => {
+    setSearchQuery(globalSearchQuery || '');
+  }, [globalSearchQuery]);
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (browseDropdownRef.current && !browseDropdownRef.current.contains(e.target)) {
         setIsBrowseOpen(false);
+      }
+      if (
+        searchDropdownRef.current && !searchDropdownRef.current.contains(e.target) &&
+        (!mobileSearchDropdownRef.current || !mobileSearchDropdownRef.current.contains(e.target))
+      ) {
+        setIsSearchFocused(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -56,9 +71,48 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setGlobalSearchQuery(searchQuery);
+      setSelectedCategory('All');
       setCurrentPage('products');
+      setIsSearchFocused(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const filteredSuggestions = searchQuery.trim()
+    ? products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 6)
+    : [];
+
+  const handleSuggestionClick = (product) => {
+    setSearchQuery(product.name);
+    setGlobalSearchQuery(product.name);
+    setSelectedCategory('All');
+    setCurrentPage('products');
+    setIsSearchFocused(false);
+    setActiveQuickView(product);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const highlightText = (text, highlight) => {
+    if (!highlight.trim()) return <span>{text}</span>;
+    const regex = new RegExp(`(${highlight.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark key={index} className="bg-yellow-200 text-svada-dark font-bold rounded-xs px-0.5">
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
   };
 
   return (
@@ -110,12 +164,13 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
               </div>
 
               {/* Search Bar — desktop */}
-              <div className="hidden md:flex flex-1 max-w-lg mx-auto">
+              <div className="hidden md:flex flex-1 max-w-lg mx-auto relative" ref={searchDropdownRef}>
                 <form onSubmit={handleSearch} className="flex w-full border-2 border-orange-200 rounded-lg overflow-hidden focus-within:border-primary transition-colors duration-200">
                   {/* Search input */}
                   <input
                     type="text"
                     value={searchQuery}
+                    onFocus={() => setIsSearchFocused(true)}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for products..."
                     className="flex-1 min-w-0 px-4 py-2 text-sm text-svada-dark placeholder-svada-light outline-none bg-white"
@@ -129,6 +184,35 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                     <Search className="h-4 w-4" />
                   </button>
                 </form>
+
+                {isSearchFocused && filteredSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-orange-100 rounded-xl shadow-2xl z-[100] max-h-80 overflow-y-auto py-2 divide-y divide-orange-50">
+                    {filteredSuggestions.map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        onClick={() => handleSuggestionClick(product)}
+                        className="w-full text-left px-4 py-3 hover:bg-orange-50/70 transition duration-150 flex items-center gap-3 cursor-pointer"
+                      >
+                        {product.image && (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="h-10 w-10 object-cover rounded-lg border border-orange-100 flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-svada-dark truncate">
+                            {highlightText(product.name, searchQuery)}
+                          </div>
+                          <div className="text-[10px] text-[#3B1E0A] font-bold uppercase tracking-wider mt-0.5">
+                            {product.category}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Right icons */}
@@ -188,11 +272,12 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
             </div>
 
             {/* Mobile search bar & Quick Links */}
-            <div className="md:hidden pb-3">
+            <div className="md:hidden pb-3 relative" ref={mobileSearchDropdownRef}>
               <form onSubmit={handleSearch} className="flex w-full border-2 border-orange-200 rounded-lg overflow-hidden focus-within:border-primary transition-colors duration-200 mb-2">
                 <input
                   type="text"
                   value={searchQuery}
+                  onFocus={() => setIsSearchFocused(true)}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
                   className="flex-1 min-w-0 px-3 py-2 text-sm text-svada-dark placeholder-svada-light outline-none bg-white"
@@ -205,6 +290,35 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
                   <Search className="h-4 w-4" />
                 </button>
               </form>
+
+              {isSearchFocused && filteredSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-0 bg-white border border-orange-100 rounded-xl shadow-2xl z-[100] max-h-60 overflow-y-auto py-2 divide-y divide-orange-50">
+                  {filteredSuggestions.map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      onClick={() => handleSuggestionClick(product)}
+                      className="w-full text-left px-3 py-2.5 hover:bg-orange-50/70 transition duration-150 flex items-center gap-3 cursor-pointer"
+                    >
+                      {product.image && (
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="h-8 w-8 object-cover rounded-lg border border-orange-100 flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-svada-dark truncate">
+                          {highlightText(product.name, searchQuery)}
+                        </div>
+                        <div className="text-[9px] text-[#3B1E0A] font-bold uppercase tracking-wider mt-0.5">
+                          {product.category}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Mobile horizontal quick links */}
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1.5 border-t border-orange-100/60">

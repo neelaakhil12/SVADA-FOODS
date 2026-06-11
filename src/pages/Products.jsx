@@ -174,7 +174,7 @@ export default function Products() {
           )}
 
           {/* PRODUCT CARDS GRID */}
-          {selectedCategory === 'Personal hair care' ? (
+          {selectedCategory === 'Personal hair care' && products.filter(p => p.category === 'Personal hair care').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">
@@ -185,7 +185,7 @@ export default function Products() {
                 Premium, hand-crafted hair care formulations are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
-          ) : selectedCategory === 'Pooja supplies' ? (
+          ) : selectedCategory === 'Pooja supplies' && products.filter(p => p.category === 'Pooja supplies').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">
@@ -196,7 +196,7 @@ export default function Products() {
                 Pure, traditional pooja essentials and sacred supplies are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
-          ) : selectedCategory === 'Ready to eat & cook & fryums' ? (
+          ) : selectedCategory === 'Ready to eat & cook & fryums' && products.filter(p => p.category === 'Ready to eat & cook & fryums').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">
@@ -207,7 +207,7 @@ export default function Products() {
                 Wholesome ready-to-eat mixes, fryums, and instant meal kits are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
-          ) : selectedCategory === 'Rices, Flours, Pulses & other' ? (
+          ) : selectedCategory === 'Rices, Flours, Pulses & other' && products.filter(p => p.category === 'Rices, Flours, Pulses & other').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">
@@ -218,7 +218,7 @@ export default function Products() {
                 Premium quality rices, flours, pulses, and grains are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
-          ) : selectedCategory === 'seeds & Plants' ? (
+          ) : selectedCategory === 'seeds & Plants' && products.filter(p => p.category === 'seeds & Plants').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">
@@ -229,7 +229,7 @@ export default function Products() {
                 Natural seeds, gardening kits, and green plant supplies are currently in preparation. Coming soon to our catalog!
               </p>
             </div>
-          ) : selectedCategory === 'Sugars, Sweetners & syrups' ? (
+          ) : selectedCategory === 'Sugars, Sweetners & syrups' && products.filter(p => p.category === 'Sugars, Sweetners & syrups').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">

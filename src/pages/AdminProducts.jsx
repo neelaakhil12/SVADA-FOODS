@@ -23,7 +23,8 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
     isEcoPiece: false,
     inStock: true,
     isLiquid: false,
-    isSolid: true
+    isSolid: true,
+    isPieces: false
   });
   const [productWeights, setProductWeights] = useState([]);
 
@@ -34,25 +35,35 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
     return matchesSearch && matchesCategory;
   });
 
-  const handleTogglePricingType = (isLiq) => {
+  const handleTogglePricingType = (type) => {
     setFormData(prev => ({
       ...prev,
-      isLiquid: isLiq,
-      isSolid: !isLiq
+      isSolid: type === 'solid',
+      isLiquid: type === 'liquid',
+      isPieces: type === 'pieces'
     }));
 
     // Re-initialize productWeights based on type
-    const defaults = isLiq 
-      ? [
-          { value: '250ml', label: '250ML', price: '', enabled: true, isCustom: false },
-          { value: '500ml', label: '500ML', price: '', enabled: true, isCustom: false },
-          { value: '1lt', label: '1LT', price: '', enabled: true, isCustom: false }
-        ]
-      : [
-          { value: '250g', label: '250g', price: '', enabled: true, isCustom: false },
-          { value: '500g', label: '500g', price: '', enabled: true, isCustom: false },
-          { value: '1kg', label: '1kg', price: '', enabled: true, isCustom: false }
-        ];
+    let defaults = [];
+    if (type === 'pieces') {
+      defaults = [
+        { value: '1pc', label: '1 Pc', price: '', enabled: true, isCustom: false },
+        { value: '2pcs', label: '2 Pcs', price: '', enabled: true, isCustom: false },
+        { value: '3pcs', label: '3 Pcs', price: '', enabled: true, isCustom: false }
+      ];
+    } else if (type === 'liquid') {
+      defaults = [
+        { value: '250ml', label: '250ML', price: '', enabled: true, isCustom: false },
+        { value: '500ml', label: '500ML', price: '', enabled: true, isCustom: false },
+        { value: '1lt', label: '1LT', price: '', enabled: true, isCustom: false }
+      ];
+    } else {
+      defaults = [
+        { value: '250g', label: '250g', price: '', enabled: true, isCustom: false },
+        { value: '500g', label: '500g', price: '', enabled: true, isCustom: false },
+        { value: '1kg', label: '1kg', price: '', enabled: true, isCustom: false }
+      ];
+    }
     setProductWeights(defaults);
   };
 
@@ -70,8 +81,8 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
   };
 
   const handleAddCustomWeight = () => {
-    const placeholderLabel = formData.isLiquid ? '5L' : '2kg';
-    const placeholderValue = formData.isLiquid ? '5l' : '2kg';
+    const placeholderLabel = formData.isPieces ? '5 Pcs' : formData.isLiquid ? '5L' : '2kg';
+    const placeholderValue = formData.isPieces ? '5pcs' : formData.isLiquid ? '5l' : '2kg';
     setProductWeights(prev => [
       ...prev,
       {
@@ -95,15 +106,21 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
       const hasLiquidLabels = product.weightLabels && product.weightLabels.some(opt => 
         opt.label.toUpperCase().includes('ML') || opt.label.toUpperCase().includes('LT') || opt.label.toUpperCase().includes(' L') || opt.label.toUpperCase().endsWith('L')
       );
+      const hasPiecesLabels = product.weightLabels && product.weightLabels.some(opt => 
+        opt.label.toUpperCase().includes('PC')
+      );
       
-      const isLiq = !!hasLiquidLabels;
-      const isSol = !isLiq;
+      const isPieces = !!hasPiecesLabels || !!product.isEcoPiece;
+      const isLiq = !isPieces && !!hasLiquidLabels;
+      const isSol = !isPieces && !isLiq;
 
       let loadedWeights = [];
       if (product.weightLabels && product.weightLabels.length > 0) {
         loadedWeights = product.weightLabels.map(opt => {
           const valLower = opt.value.toLowerCase();
-          const isDefault = isLiq 
+          const isDefault = isPieces
+            ? ['1pc', '2pcs', '3pcs'].includes(valLower)
+            : isLiq 
             ? ['250ml', '500ml', '1lt'].includes(valLower)
             : ['250g', '500g', '1kg'].includes(valLower);
             
@@ -117,7 +134,13 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
         });
         
         // Ensure default options are present (as disabled if not in weightLabels)
-        const defaultList = isLiq 
+        const defaultList = isPieces
+          ? [
+              { value: '1pc', label: '1 Pc' },
+              { value: '2pcs', label: '2 Pcs' },
+              { value: '3pcs', label: '3 Pcs' }
+            ]
+          : isLiq 
           ? [
               { value: '250ml', label: '250ML' },
               { value: '500ml', label: '500ML' },
@@ -150,7 +173,13 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
         });
       } else {
         // Fallback using legacy database columns if no weightLabels
-        if (isSol) {
+        if (isPieces) {
+          loadedWeights = [
+            { value: '1pc', label: '1 Pc', price: product.price250g || '', enabled: !!product.price250g, isCustom: false },
+            { value: '2pcs', label: '2 Pcs', price: product.price500g || '', enabled: !!product.price500g, isCustom: false },
+            { value: '3pcs', label: '3 Pcs', price: product.price1kg || '', enabled: !!product.price1kg, isCustom: false }
+          ];
+        } else if (isSol) {
           loadedWeights = [
             { value: '250g', label: '250g', price: product.price250g || '', enabled: !!product.price250g, isCustom: false },
             { value: '500g', label: '500g', price: product.price500g || '', enabled: !!product.price500g, isCustom: false },
@@ -177,7 +206,8 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
         isEcoPiece: product.isEcoPiece || false,
         inStock: product.inStock !== false,
         isLiquid: isLiq,
-        isSolid: isSol
+        isSolid: isSol,
+        isPieces: isPieces
       });
       setImagePreview(product.image || '');
     } else {
@@ -197,7 +227,8 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
         isEcoPiece: false,
         inStock: true,
         isLiquid: false,
-        isSolid: true
+        isSolid: true,
+        isPieces: false
       });
       setImagePreview('');
     }
@@ -249,7 +280,11 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
     let p500 = 0;
     let p1k = 0;
     
-    if (formData.isLiquid) {
+    if (formData.isPieces) {
+      p250 = getPriceForVal('1pc');
+      p500 = getPriceForVal('2pcs');
+      p1k = getPriceForVal('3pcs');
+    } else if (formData.isLiquid) {
       p250 = getPriceForVal('250ml');
       p500 = getPriceForVal('500ml');
       p1k = getPriceForVal('1lt');
@@ -275,7 +310,7 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
       ingredients: formData.ingredients,
       image: formData.image,
       isBestseller: formData.isBestseller,
-      isEcoPiece: formData.isEcoPiece,
+      isEcoPiece: formData.isPieces,
       inStock: formData.inStock,
       weightLabels: weightLabels.length > 0 ? weightLabels : null
     };
@@ -506,9 +541,9 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => handleTogglePricingType(false)} // Solid
+                        onClick={() => handleTogglePricingType('solid')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          !formData.isLiquid
+                          formData.isSolid
                             ? 'bg-[#3B1E0A] text-white shadow-sm'
                             : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
@@ -517,7 +552,7 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleTogglePricingType(true)} // Liquid
+                        onClick={() => handleTogglePricingType('liquid')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           formData.isLiquid
                             ? 'bg-[#3B1E0A] text-white shadow-sm'
@@ -525,6 +560,17 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
                         }`}
                       >
                         Liquid (ML/Liters)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleTogglePricingType('pieces')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          formData.isPieces
+                            ? 'bg-[#3B1E0A] text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Pieces (Pcs)
                       </button>
                     </div>
                   </div>
