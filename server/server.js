@@ -24,6 +24,16 @@ const __dirname = path.dirname(__filename);
 // Load .env
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
+const isDbConfigured = !!process.env.DB_USER;
+
+const getDbErrorMessage = (error) => {
+  if (!error) return "Unknown database error";
+  if (error.errors && error.errors.length > 0) {
+    return error.errors.map(e => e.message || e.toString()).join(", ");
+  }
+  return error.message || error.toString();
+};
+
 // In-Memory Fallback Stores (used if MySQL is offline)
 const memoryOtpStore = new Map();
 const memoryOrders = [];
@@ -245,6 +255,9 @@ async function saveOrUpdateUser(email, name, phone) {
     );
     console.log(`Saved/Updated user in DB: ${email}`);
   } catch (dbErr) {
+    if (isDbConfigured) {
+      throw dbErr;
+    }
     console.warn("Database offline. Saving user to memory/fallback JSON:", dbErr.message);
   }
 
@@ -500,6 +513,10 @@ app.post('/api/products', async (req, res) => {
     try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
     res.status(201).json({ message: "Product created", id });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in POST /api/products:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Storing product in fallback JSON.");
     fallbackProducts.unshift(newProduct);
     try {
@@ -547,6 +564,10 @@ app.put('/api/products/:id', async (req, res) => {
     try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Product updated" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in PUT /api/products/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Updating product in fallback JSON.");
     const idx = fallbackProducts.findIndex(prod => prod.id === id);
     if (idx !== -1) {
@@ -585,6 +606,10 @@ app.delete('/api/products/:id', async (req, res) => {
     try { fs.writeFileSync(productsFallbackPath, JSON.stringify(fallbackProducts, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Product deleted" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in DELETE /api/products/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Deleting product from fallback JSON.");
     const idx = fallbackProducts.findIndex(prod => prod.id === id);
     if (idx !== -1) {
@@ -629,6 +654,10 @@ app.post('/api/categories', async (req, res) => {
     try { fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8'); } catch (fsErr) {}
     res.status(201).json({ message: "Category created" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in POST /api/categories:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Storing category in fallback JSON.");
     const catIdx = fallbackCategories.findIndex(c => c.name === name);
     if (catIdx !== -1) {
@@ -653,6 +682,10 @@ app.delete('/api/categories/:name', async (req, res) => {
     try { fs.writeFileSync(categoriesFallbackPath, JSON.stringify(fallbackCategories, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Category deleted" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in DELETE /api/categories/:name:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Deleting category from fallback JSON.");
     fallbackCategories = fallbackCategories.filter(c => c.name !== name);
     try {
@@ -692,6 +725,10 @@ app.put('/api/categories/:oldName/rename', async (req, res) => {
   } catch (error) {
     if (connection) {
       await connection.rollback();
+    }
+    if (isDbConfigured) {
+      console.error("Database error in PUT /api/categories/:oldName/rename:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
     }
     console.warn("Database offline. Renaming category in fallback JSON files.");
     
@@ -813,6 +850,10 @@ app.post('/api/orders', async (req, res) => {
       await connection.rollback();
       connection.release();
     }
+    if (isDbConfigured) {
+      console.error("Database error in POST /api/orders:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Saving order to fallback JSON.");
     const existingIdx = memoryOrders.findIndex(o => o.id === newOrder.id);
     if (existingIdx !== -1) {
@@ -846,6 +887,10 @@ app.put('/api/orders/:id/status', async (req, res) => {
     }
     res.json({ message: "Order status updated" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in PUT /api/orders/:id/status:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Updating order status in fallback JSON.");
     let updated = false;
     memoryOrders.forEach(o => {
@@ -884,6 +929,10 @@ app.put('/api/orders/:id/tracking', async (req, res) => {
     }
     res.json({ message: "Order tracking link updated" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in PUT /api/orders/:id/tracking:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Updating order tracking link in fallback JSON.");
     let updated = false;
     memoryOrders.forEach(o => {
@@ -917,6 +966,10 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
     res.json({ message: "Order deleted successfully" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in DELETE /api/orders/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Deleting order from fallback JSON.");
     const filtered = memoryOrders.filter(o => o.id !== id);
     if (filtered.length !== memoryOrders.length) {
@@ -969,6 +1022,10 @@ app.post('/api/hero-slides', async (req, res) => {
     try { fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8'); } catch (fsErr) {}
     res.status(201).json({ message: "Hero slide added", id: slideId });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in POST /api/hero-slides:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Storing hero slide in fallback JSON.");
     fallbackHeroSlides.unshift(slideRecord);
     try {
@@ -992,6 +1049,10 @@ app.put('/api/hero-slides/:id', async (req, res) => {
     try { fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Hero slide updated" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in PUT /api/hero-slides/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Updating hero slide in fallback JSON.");
     const index = fallbackHeroSlides.findIndex(slide => slide.id === id);
     if (index !== -1) {
@@ -1016,6 +1077,10 @@ app.delete('/api/hero-slides/:id', async (req, res) => {
     try { fs.writeFileSync(heroSlidesFallbackPath, JSON.stringify(fallbackHeroSlides, null, 2), 'utf8'); } catch (fsErr) {}
     res.json({ message: "Hero slide deleted" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in DELETE /api/hero-slides/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Deleting hero slide from fallback JSON.");
     const index = fallbackHeroSlides.findIndex(slide => slide.id === id);
     if (index !== -1) {
@@ -1068,6 +1133,10 @@ app.post('/api/videos', async (req, res) => {
     );
     res.status(201).json({ message: "Video record created", id: videoId });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in POST /api/videos:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Storing video record in fallback JSON.");
     fallbackVideos.unshift(videoRecord);
     try {
@@ -1097,6 +1166,10 @@ app.put('/api/videos/:id', async (req, res) => {
     }
     res.json({ message: "Video record updated" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in PUT /api/videos/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Updating video record in fallback JSON.");
     const v = fallbackVideos.find(item => item.id === id);
     if (v) {
@@ -1157,6 +1230,10 @@ app.delete('/api/videos/:id', async (req, res) => {
 
     res.json({ message: "Video record deleted" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in DELETE /api/videos/:id:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Deleting video record from fallback JSON.");
     const idx = fallbackVideos.findIndex(v => v.id === id);
     if (idx !== -1) {
@@ -1415,6 +1492,10 @@ app.delete('/api/users/:email', async (req, res) => {
     } catch (_) {}
     res.json({ message: "User deleted successfully" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in DELETE /api/users/:email:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Deleting user from fallback JSON.");
     const filtered = memoryUsers.filter(u => u.email !== email);
     memoryUsers.length = 0;
@@ -1598,6 +1679,10 @@ app.post('/api/settings', async (req, res) => {
     try { fs.writeFileSync(settingsFallbackPath, JSON.stringify(fallbackSettings, null, 2), 'utf8'); } catch (_) {}
     res.json({ success: true, message: "Settings updated successfully" });
   } catch (error) {
+    if (isDbConfigured) {
+      console.error("Database error in POST /api/settings:", error);
+      return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
+    }
     console.warn("Database offline. Storing settings in fallback JSON.");
     for (const [key, value] of Object.entries(newSettings)) {
       fallbackSettings[key] = String(value);

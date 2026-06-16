@@ -2487,6 +2487,7 @@ export const ShopProvider = ({ children }) => {
   // --- Video CRUD Actions ---
   const addWatchBuyVideo = (videoData) => {
     const newVideo = { ...videoData, id: `wb-${Date.now()}` };
+    const originalVideos = [...watchBuyVideos];
     setWatchBuyVideos(prev => [newVideo, ...prev]);
 
     fetch(`${API_BASE}/videos`, {
@@ -2494,16 +2495,30 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newVideo)
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(errData => {
+          throw new Error(errData.error || "Failed to create video on server");
+        }).catch(() => {
+          throw new Error("Failed to create video on server");
+        });
+      }
+      return res.json();
+    })
     .then(data => {
       fetch(`${API_BASE}/videos`)
         .then(r => r.json())
         .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
     })
-    .catch(err => console.error("Error creating video:", err));
+    .catch(err => {
+      console.error("Error creating video:", err);
+      alert(`Failed to create video: ${err.message}`);
+      setWatchBuyVideos(originalVideos);
+    });
   };
 
   const updateWatchBuyVideo = (id, videoData) => {
+    const originalVideos = [...watchBuyVideos];
     setWatchBuyVideos(prev => prev.map(v => v.id === id ? { ...v, ...videoData } : v));
 
     fetch(`${API_BASE}/videos/${id}`, {
@@ -2511,28 +2526,55 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(videoData)
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(errData => {
+          throw new Error(errData.error || "Failed to update video on server");
+        }).catch(() => {
+          throw new Error("Failed to update video on server");
+        });
+      }
+      return res.json();
+    })
     .then(() => {
       fetch(`${API_BASE}/videos`)
         .then(r => r.json())
         .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
     })
-    .catch(err => console.error("Error updating video:", err));
+    .catch(err => {
+      console.error("Error updating video:", err);
+      alert(`Failed to update video: ${err.message}`);
+      setWatchBuyVideos(originalVideos);
+    });
   };
 
   const deleteWatchBuyVideo = (id) => {
+    const originalVideos = [...watchBuyVideos];
     setWatchBuyVideos(prev => prev.filter(v => v.id !== id));
 
     fetch(`${API_BASE}/videos/${id}`, {
       method: 'DELETE'
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(errData => {
+          throw new Error(errData.error || "Failed to delete video on server");
+        }).catch(() => {
+          throw new Error("Failed to delete video on server");
+        });
+      }
+      return res.json();
+    })
     .then(() => {
       fetch(`${API_BASE}/videos`)
         .then(r => r.json())
         .then(list => { if (list && list.length > 0) setWatchBuyVideos(list); });
     })
-    .catch(err => console.error("Error deleting video:", err));
+    .catch(err => {
+      console.error("Error deleting video:", err);
+      alert(`Failed to delete video: ${err.message}`);
+      setWatchBuyVideos(originalVideos);
+    });
   };
 
   const fetchOrders = () => {
@@ -2636,6 +2678,9 @@ export const ShopProvider = ({ children }) => {
   const addCategory = (categoryName, image = '', desc = '') => {
     if (!categoryName) return;
     
+    const originalCategories = [...categories];
+    const originalMetadata = { ...categoryMetadata };
+
     // Optimistically update local state & localStorage
     setCategories(prev => {
       if (prev.includes(categoryName)) return prev;
@@ -2655,7 +2700,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify({ name: categoryName, image, description: desc })
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to add category on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to add category on server");
+          }).catch(() => {
+            throw new Error("Failed to add category on server");
+          });
+        }
         return res.json();
       })
       .then(() => fetch(`${API_BASE}/categories`))
@@ -2670,10 +2721,20 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
         localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error adding category to backend, kept local version:", err));
+      .catch(err => {
+        console.error("Error adding category to backend, reverting changes:", err);
+        alert(`Failed to add category: ${err.message}`);
+        setCategories(originalCategories);
+        setCategoryMetadata(originalMetadata);
+        localStorage.setItem('svada_categories', JSON.stringify(originalCategories));
+        localStorage.setItem('svada_category_metadata', JSON.stringify(originalMetadata));
+      });
   };
 
   const deleteCategory = (categoryName) => {
+    const originalCategories = [...categories];
+    const originalMetadata = { ...categoryMetadata };
+
     // Optimistically update local state & localStorage
     setCategories(prev => {
       const updated = prev.filter(c => c !== categoryName);
@@ -2691,7 +2752,13 @@ export const ShopProvider = ({ children }) => {
       method: 'DELETE'
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to delete category on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to delete category on server");
+          }).catch(() => {
+            throw new Error("Failed to delete category on server");
+          });
+        }
         return res.json();
       })
       .then(() => fetch(`${API_BASE}/categories`))
@@ -2706,7 +2773,14 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
         localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error deleting category on backend, kept local version:", err));
+      .catch(err => {
+        console.error("Error deleting category on backend, reverting changes:", err);
+        alert(`Failed to delete category: ${err.message}`);
+        setCategories(originalCategories);
+        setCategoryMetadata(originalMetadata);
+        localStorage.setItem('svada_categories', JSON.stringify(originalCategories));
+        localStorage.setItem('svada_category_metadata', JSON.stringify(originalMetadata));
+      });
   };
 
   const updateCategoryMetadata = (categoryName, data) => {
@@ -2714,6 +2788,8 @@ export const ShopProvider = ({ children }) => {
     const finalImage = data.image !== undefined ? data.image : (currentMeta.image || '');
     const finalDesc = data.desc !== undefined ? data.desc : (currentMeta.desc || '');
     
+    const originalMetadata = { ...categoryMetadata };
+
     // Optimistically update local state & localStorage
     setCategoryMetadata(prev => {
       const updated = { ...prev, [categoryName]: { image: finalImage, desc: finalDesc } };
@@ -2727,7 +2803,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify({ name: categoryName, image: finalImage, description: finalDesc })
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to update category metadata on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to update category metadata on server");
+          }).catch(() => {
+            throw new Error("Failed to update category metadata on server");
+          });
+        }
         return res.json();
       })
       .then(() => fetch(`${API_BASE}/categories`))
@@ -2740,7 +2822,12 @@ export const ShopProvider = ({ children }) => {
         setCategoryMetadata(meta);
         localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error updating category metadata on backend, kept local version:", err));
+      .catch(err => {
+        console.error("Error updating category metadata on backend, reverting changes:", err);
+        alert(`Failed to update category metadata: ${err.message}`);
+        setCategoryMetadata(originalMetadata);
+        localStorage.setItem('svada_category_metadata', JSON.stringify(originalMetadata));
+      });
   };
 
   const renameCategory = (oldName, newName, image = null, desc = null) => {
@@ -2749,6 +2836,10 @@ export const ShopProvider = ({ children }) => {
     const currentMeta = categoryMetadata[oldName] || {};
     const finalImage = image !== null ? image : (currentMeta.image || '');
     const finalDesc = desc !== null ? desc : (currentMeta.desc || '');
+
+    const originalCategories = [...categories];
+    const originalMetadata = { ...categoryMetadata };
+    const originalProducts = [...products];
 
     // Optimistically update local state & localStorage for categories, metadata, and products in that category
     setCategories(prev => {
@@ -2775,7 +2866,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify({ newName, image: finalImage, description: finalDesc })
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to rename category on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to rename category on server");
+          }).catch(() => {
+            throw new Error("Failed to rename category on server");
+          });
+        }
         return Promise.all([
           fetch(`${API_BASE}/products`).then(r => r.json()),
           fetch(`${API_BASE}/categories`).then(r => r.json())
@@ -2793,7 +2890,16 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem('svada_categories', JSON.stringify(cats.map(c => c.name)));
         localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
       })
-      .catch(err => console.error("Error renaming category on backend, kept local version:", err));
+      .catch(err => {
+        console.error("Error renaming category on backend, reverting changes:", err);
+        alert(`Failed to rename category: ${err.message}`);
+        setCategories(originalCategories);
+        setCategoryMetadata(originalMetadata);
+        setProducts(originalProducts);
+        localStorage.setItem('svada_categories', JSON.stringify(originalCategories));
+        localStorage.setItem('svada_category_metadata', JSON.stringify(originalMetadata));
+        localStorage.setItem('svada_custom_products', JSON.stringify(originalProducts));
+      });
   };
 
   const getTodayEarnings = () => {
@@ -2828,6 +2934,8 @@ export const ShopProvider = ({ children }) => {
       inStock: productData.inStock !== false
     };
 
+    const originalProducts = [...products];
+
     // Optimistically update local state & localStorage
     setProducts(prev => {
       const updated = [newProduct, ...prev];
@@ -2841,7 +2949,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify(newProduct)
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to add product on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to add product on server");
+          }).catch(() => {
+            throw new Error("Failed to add product on server");
+          });
+        }
         return res.json();
       })
       .then(() => fetch(`${API_BASE}/products`))
@@ -2851,11 +2965,16 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem('svada_custom_products', JSON.stringify(data));
       })
       .catch(err => {
-        console.error("Error adding product to backend, kept local version:", err);
+        console.error("Error adding product to backend, reverting changes:", err);
+        alert(`Failed to add product: ${err.message}`);
+        setProducts(originalProducts);
+        localStorage.setItem('svada_custom_products', JSON.stringify(originalProducts));
       });
   };
 
   const updateProduct = (productId, productData) => {
+    const originalProducts = [...products];
+
     // Optimistically update local state & localStorage
     setProducts(prev => {
       const updated = prev.map(prod => prod.id === productId ? { ...prod, ...productData } : prod);
@@ -2869,7 +2988,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify(productData)
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to update product on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to update product on server");
+          }).catch(() => {
+            throw new Error("Failed to update product on server");
+          });
+        }
         return res.json();
       })
       .then(() => fetch(`${API_BASE}/products`))
@@ -2879,11 +3004,16 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem('svada_custom_products', JSON.stringify(data));
       })
       .catch(err => {
-        console.error("Error updating product on backend, kept local version:", err);
+        console.error("Error updating product on backend, reverting changes:", err);
+        alert(`Failed to update product: ${err.message}`);
+        setProducts(originalProducts);
+        localStorage.setItem('svada_custom_products', JSON.stringify(originalProducts));
       });
   };
 
   const deleteProduct = (productId) => {
+    const originalProducts = [...products];
+
     // Optimistically update local state & localStorage
     setProducts(prev => {
       const updated = prev.filter(prod => prod.id !== productId);
@@ -2895,7 +3025,13 @@ export const ShopProvider = ({ children }) => {
       method: 'DELETE'
     })
       .then(res => {
-        if (!res.ok) throw new Error("Failed to delete product on server");
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to delete product on server");
+          }).catch(() => {
+            throw new Error("Failed to delete product on server");
+          });
+        }
         return res.json();
       })
       .then(() => fetch(`${API_BASE}/products`))
@@ -2905,7 +3041,10 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem('svada_custom_products', JSON.stringify(data));
       })
       .catch(err => {
-        console.error("Error deleting product on backend, kept local version:", err);
+        console.error("Error deleting product on backend, reverting changes:", err);
+        alert(`Failed to delete product: ${err.message}`);
+        setProducts(originalProducts);
+        localStorage.setItem('svada_custom_products', JSON.stringify(originalProducts));
       });
   };
 
@@ -2916,11 +3055,17 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(slideData)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to add hero slide on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/hero-slides`))
       .then(res => res.json())
       .then(data => setHeroSlides(data))
-      .catch(err => console.error("Error adding hero slide:", err));
+      .catch(err => {
+        console.error("Error adding hero slide:", err);
+        alert(`Failed to add hero slide: ${err.message}`);
+      });
   };
 
   const updateHeroSlide = (slideId, slideData) => {
@@ -2929,42 +3074,72 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(slideData)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to update hero slide on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/hero-slides`))
       .then(res => res.json())
       .then(data => setHeroSlides(data))
-      .catch(err => console.error("Error updating hero slide:", err));
+      .catch(err => {
+        console.error("Error updating hero slide:", err);
+        alert(`Failed to update hero slide: ${err.message}`);
+      });
   };
 
   const deleteHeroSlide = (slideId) => {
     fetch(`${API_BASE}/hero-slides/${slideId}`, {
       method: 'DELETE'
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to delete hero slide on server");
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/hero-slides`))
       .then(res => res.json())
       .then(data => setHeroSlides(data))
-      .catch(err => console.error("Error deleting hero slide:", err));
+      .catch(err => {
+        console.error("Error deleting hero slide:", err);
+        alert(`Failed to delete hero slide: ${err.message}`);
+      });
   };
 
   const updateFreeShippingThreshold = (threshold) => {
+    const originalThreshold = freeShippingThreshold;
     setFreeShippingThreshold(Number(threshold));
     fetch(`${API_BASE}/settings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ free_shipping_threshold: String(threshold) })
     })
-    .catch(err => console.error("Error saving shipping threshold:", err));
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to save shipping threshold on server");
+      return res.json();
+    })
+    .catch(err => {
+      console.error("Error saving shipping threshold:", err);
+      alert(`Failed to save shipping threshold: ${err.message}`);
+      setFreeShippingThreshold(originalThreshold);
+    });
   };
 
   const updateShippingCost = (cost) => {
+    const originalCost = shippingCost;
     setShippingCost(Number(cost));
     fetch(`${API_BASE}/settings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ shipping_cost: String(cost) })
     })
-    .catch(err => console.error("Error saving shipping cost:", err));
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to save shipping cost on server");
+      return res.json();
+    })
+    .catch(err => {
+      console.error("Error saving shipping cost:", err);
+      alert(`Failed to save shipping cost: ${err.message}`);
+      setShippingCost(originalCost);
+    });
   };
 
   return (
