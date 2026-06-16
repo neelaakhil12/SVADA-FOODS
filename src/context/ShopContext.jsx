@@ -2185,6 +2185,21 @@ export const ShopProvider = ({ children }) => {
 
   const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
 
+  const parseResponseError = async (res, defaultMsg) => {
+    try {
+      const text = await res.text();
+      try {
+        const errData = JSON.parse(text);
+        return new Error(errData.error || defaultMsg);
+      } catch (_) {
+        const cleanText = text.trim();
+        return new Error(`${defaultMsg} (Server returned ${res.status}: ${cleanText.substring(0, 120)})`);
+      }
+    } catch (_) {
+      return new Error(defaultMsg);
+    }
+  };
+
   // Fetch initial data from database on mount
   useEffect(() => {
     // 1. Fetch Products
@@ -2647,13 +2662,9 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     })
-      .then(res => {
+      .then(async (res) => {
         if (!res.ok) {
-          return res.json().then(errData => {
-            throw new Error(errData.error || "Failed to update order status");
-          }).catch(() => {
-            throw new Error("Failed to update order status");
-          });
+          throw await parseResponseError(res, "Failed to update order status");
         }
         return res.json();
       })
@@ -2676,13 +2687,9 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ trackingLink })
     })
-      .then(res => {
+      .then(async (res) => {
         if (!res.ok) {
-          return res.json().then(errData => {
-            throw new Error(errData.error || "Failed to update order tracking link");
-          }).catch(() => {
-            throw new Error("Failed to update order tracking link");
-          });
+          throw await parseResponseError(res, "Failed to update order tracking link");
         }
         return res.json();
       })
@@ -2703,13 +2710,9 @@ export const ShopProvider = ({ children }) => {
     fetch(`${API_BASE}/orders/${orderId}`, {
       method: 'DELETE'
     })
-      .then(res => {
+      .then(async (res) => {
         if (!res.ok) {
-          return res.json().then(errData => {
-            throw new Error(errData.error || "Failed to delete order on server");
-          }).catch(() => {
-            throw new Error("Failed to delete order on server");
-          });
+          throw await parseResponseError(res, "Failed to delete order on server");
         }
         return res.json();
       })
@@ -3160,13 +3163,9 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ free_shipping_threshold: String(threshold) })
     })
-    .then(res => {
+    .then(async (res) => {
       if (!res.ok) {
-        return res.json().then(errData => {
-          throw new Error(errData.error || "Failed to save shipping threshold on server");
-        }).catch(() => {
-          throw new Error("Failed to save shipping threshold on server");
-        });
+        throw await parseResponseError(res, "Failed to save shipping threshold on server");
       }
       return res.json();
     })
@@ -3185,13 +3184,9 @@ export const ShopProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ shipping_cost: String(cost) })
     })
-    .then(res => {
+    .then(async (res) => {
       if (!res.ok) {
-        return res.json().then(errData => {
-          throw new Error(errData.error || "Failed to save shipping cost on server");
-        }).catch(() => {
-          throw new Error("Failed to save shipping cost on server");
-        });
+        throw await parseResponseError(res, "Failed to save shipping cost on server");
       }
       return res.json();
     })
