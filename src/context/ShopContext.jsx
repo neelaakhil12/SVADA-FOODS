@@ -2639,40 +2639,88 @@ export const ShopProvider = ({ children }) => {
   };
 
   const updateOrderStatus = (orderId, status) => {
+    const originalOrders = [...orders];
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+
     fetch(`${API_BASE}/orders/${orderId}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to update order status");
+          }).catch(() => {
+            throw new Error("Failed to update order status");
+          });
+        }
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/orders`))
       .then(res => res.json())
       .then(data => setOrders(data))
-      .catch(err => console.error("Error updating order status:", err));
+      .catch(err => {
+        console.error("Error updating order status, reverting:", err);
+        alert(`Failed to update order status: ${err.message}`);
+        setOrders(originalOrders);
+      });
   };
 
   const updateOrderTracking = (orderId, trackingLink) => {
+    const originalOrders = [...orders];
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, trackingLink } : o));
+
     fetch(`${API_BASE}/orders/${orderId}/tracking`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ trackingLink })
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to update order tracking link");
+          }).catch(() => {
+            throw new Error("Failed to update order tracking link");
+          });
+        }
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/orders`))
       .then(res => res.json())
       .then(data => setOrders(data))
-      .catch(err => console.error("Error updating order tracking link:", err));
+      .catch(err => {
+        console.error("Error updating order tracking link, reverting:", err);
+        alert(`Failed to update tracking link: ${err.message}`);
+        setOrders(originalOrders);
+      });
   };
 
   const deleteOrder = (orderId) => {
+    const originalOrders = [...orders];
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+
     fetch(`${API_BASE}/orders/${orderId}`, {
       method: 'DELETE'
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || "Failed to delete order on server");
+          }).catch(() => {
+            throw new Error("Failed to delete order on server");
+          });
+        }
+        return res.json();
+      })
       .then(() => fetch(`${API_BASE}/orders`))
       .then(res => res.json())
       .then(data => setOrders(data))
-      .catch(err => console.error("Error deleting order:", err));
+      .catch(err => {
+        console.error("Error deleting order, reverting:", err);
+        alert(`Failed to delete order: ${err.message}`);
+        setOrders(originalOrders);
+      });
   };
 
   const addCategory = (categoryName, image = '', desc = '') => {
