@@ -3161,7 +3161,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify({ free_shipping_threshold: String(threshold) })
     })
     .then(res => {
-      if (!res.ok) throw new Error("Failed to save shipping threshold on server");
+      if (!res.ok) {
+        return res.json().then(errData => {
+          throw new Error(errData.error || "Failed to save shipping threshold on server");
+        }).catch(() => {
+          throw new Error("Failed to save shipping threshold on server");
+        });
+      }
       return res.json();
     })
     .catch(err => {
@@ -3180,7 +3186,13 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify({ shipping_cost: String(cost) })
     })
     .then(res => {
-      if (!res.ok) throw new Error("Failed to save shipping cost on server");
+      if (!res.ok) {
+        return res.json().then(errData => {
+          throw new Error(errData.error || "Failed to save shipping cost on server");
+        }).catch(() => {
+          throw new Error("Failed to save shipping cost on server");
+        });
+      }
       return res.json();
     })
     .catch(err => {
