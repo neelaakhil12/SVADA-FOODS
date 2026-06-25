@@ -42,7 +42,7 @@ const AdminUsers = () => {
     setLoading(true);
     setError('');
     try {
-      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
       const res = await fetch(`${apiBase}/users`);
       if (!res.ok) {
         throw new Error('Failed to retrieve logged-in users.');
@@ -60,7 +60,7 @@ const AdminUsers = () => {
   const handleDeleteUser = async (email) => {
     if (window.confirm(`Are you sure you want to remove user "${email}"?`)) {
       try {
-        const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+        const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
         const res = await fetch(`${apiBase}/users/${email}`, {
           method: 'DELETE'
         });

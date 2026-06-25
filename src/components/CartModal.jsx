@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { X, Trash2, ShoppingBag, Heart, Plus, Minus, ArrowRight, Phone, ArrowLeft, CreditCard, CheckCircle, AlertCircle } from 'lucide-react';
 
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+const API_BASE = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_SzAaZlXuwGRS6h';
 
 function loadRazorpayScript() {

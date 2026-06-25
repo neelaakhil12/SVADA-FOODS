@@ -19,6 +19,7 @@ import Terms from './pages/Terms';
 import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel';
 import Account from './pages/Account';
+import AdminResetPassword from './pages/AdminResetPassword';
 import PromoPopup from './components/PromoPopup';
 
 // AOS Scroll Animations
@@ -37,21 +38,29 @@ function AppContent({ showSplash }) {
 
   // URL-based routing
   useEffect(() => {
-    const path = window.location.pathname;
-    if (path === '/admin') {
-      setCurrentPage('admin');
-    } else if (path === '/admin-login') {
-      setCurrentPage('admin-login');
-    } else if (path === '/products') {
-      setCurrentPage('products');
-    } else if (path === '/about') {
-      setCurrentPage('about');
-    } else if (path === '/contact') {
-      setCurrentPage('contact');
-    } else if (path === '/login') {
-      setCurrentPage('login');
-    } else if (path === '/account') {
-      setCurrentPage('account');
+    try {
+      const path = decodeURIComponent(window.location.pathname).trim();
+      const normalizedPath = path.replace(/\s+/g, '-');
+      
+      if (normalizedPath === '/admin') {
+        setCurrentPage('admin');
+      } else if (normalizedPath === '/admin-login') {
+        setCurrentPage('admin-login');
+      } else if (normalizedPath === '/products') {
+        setCurrentPage('products');
+      } else if (normalizedPath === '/about') {
+        setCurrentPage('about');
+      } else if (normalizedPath === '/contact') {
+        setCurrentPage('contact');
+      } else if (normalizedPath === '/login') {
+        setCurrentPage('login');
+      } else if (normalizedPath === '/account') {
+        setCurrentPage('account');
+      } else if (normalizedPath === '/admin-reset-password') {
+        setCurrentPage('admin-reset-password');
+      }
+    } catch (e) {
+      console.error(e);
     }
   }, [setCurrentPage]);
 
@@ -65,6 +74,7 @@ function AppContent({ showSplash }) {
       'login': '/login',
       'account': '/account',
       'admin-login': '/admin-login',
+      'admin-reset-password': '/admin-reset-password',
       'admin': '/admin',
       'privacy': '/privacy',
       'shipping': '/shipping',
@@ -73,7 +83,7 @@ function AppContent({ showSplash }) {
     };
     
     if (urlMap[currentPage] && window.location.pathname !== urlMap[currentPage]) {
-      window.history.pushState({}, '', urlMap[currentPage]);
+      window.history.pushState({}, '', urlMap[currentPage] + window.location.search);
     }
 
     // Dynamic SEO Configuration Map
@@ -105,6 +115,10 @@ function AppContent({ showSplash }) {
       'admin-login': {
         title: 'Secure Admin Access Portal | SVADA',
         description: 'Authorized personnel login gate for the SVADA Homemade Farms administration panel.'
+      },
+      'admin-reset-password': {
+        title: 'Reset Password | SVADA Control Center',
+        description: 'Securely reset the admin panel password for SVADA Homemade Farms.'
       },
       'admin': {
         title: 'SVADA Control Center - Admin Panel',
@@ -208,6 +222,8 @@ function AppContent({ showSplash }) {
         return <Terms />;
       case 'admin-login':
         return <AdminLogin />;
+      case 'admin-reset-password':
+        return <AdminResetPassword />;
       case 'admin':
         return <AdminPanel />;
       default:
@@ -229,7 +245,7 @@ function AppContent({ showSplash }) {
     <div className="flex flex-col min-h-screen bg-svada-bg text-svada-dark antialiased">
       
       {/* Sticky Responsive Header Menu - Hide on admin pages */}
-      {currentPage !== 'admin' && currentPage !== 'admin-login' && (
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && currentPage !== 'admin-reset-password' && (
         <Navbar onOpenCart={handleOpenCart} onOpenWishlist={handleOpenWishlist} />
       )}
 
@@ -239,10 +255,10 @@ function AppContent({ showSplash }) {
       </main>
 
       {/* Multi-column Premium Footer - Hide on admin pages */}
-      {currentPage !== 'admin' && currentPage !== 'admin-login' && <Footer />}
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && currentPage !== 'admin-reset-password' && <Footer />}
 
       {/* Pop-up Modals & Drawers - Hide on admin pages */}
-      {currentPage !== 'admin' && currentPage !== 'admin-login' && (
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && currentPage !== 'admin-reset-password' && (
         <>
           {/* 1. Dynamic Quick View Popup */}
           <QuickViewModal />

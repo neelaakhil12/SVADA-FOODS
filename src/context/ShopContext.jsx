@@ -2116,7 +2116,27 @@ export const DEFAULT_VIDEOS = [
 ];
 
 export const ShopProvider = ({ children }) => {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(() => {
+    try {
+      const path = decodeURIComponent(window.location.pathname).trim();
+      const normalizedPath = path.replace(/\s+/g, '-');
+      if (normalizedPath === '/admin') return 'admin';
+      if (normalizedPath === '/admin-login') return 'admin-login';
+      if (normalizedPath === '/products') return 'products';
+      if (normalizedPath === '/about') return 'about';
+      if (normalizedPath === '/contact') return 'contact';
+      if (normalizedPath === '/login') return 'login';
+      if (normalizedPath === '/account') return 'account';
+      if (normalizedPath === '/admin-reset-password') return 'admin-reset-password';
+      if (normalizedPath === '/privacy') return 'privacy';
+      if (normalizedPath === '/shipping') return 'shipping';
+      if (normalizedPath === '/refund') return 'refund';
+      if (normalizedPath === '/terms') return 'terms';
+    } catch (e) {
+      console.error(e);
+    }
+    return 'home';
+  });
   const [cart, setCart] = useState(() => {
     const localCart = localStorage.getItem('svada_cart');
     return localCart ? JSON.parse(localCart) : [];
@@ -2183,7 +2203,7 @@ export const ShopProvider = ({ children }) => {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(3500);
   const [shippingCost, setShippingCost] = useState(90);
 
-  const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+  const API_BASE = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
 
   const parseResponseError = async (res, defaultMsg) => {
     try {
@@ -2312,7 +2332,7 @@ export const ShopProvider = ({ children }) => {
   // Sync existing logged-in user session with the backend on app start/session update
   useEffect(() => {
     if (isLoggedIn && currentUser && currentUser.email) {
-      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
       fetch(`${apiBase}/auth/record-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

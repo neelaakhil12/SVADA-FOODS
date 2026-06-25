@@ -2,26 +2,26 @@ import React from 'react';
 import { Leaf, Award, Heart, ShieldCheck, Check, Smile, Flame } from 'lucide-react';
 
 export default function About() {
-  const steps = [
+  const commitments = [
     {
-      title: 'Solar Curing & Natural Aging',
-      desc: 'Instead of chemical drying, our raw fruits like mangoes, tomatoes, and ginger are cured naturally in pure sunlight, preserving texture and aging pickles naturally.',
-      icon: '☀️'
+      title: 'Forest Grown & Tribal Farms',
+      desc: 'We source our raw ingredients directly from pristine forest areas and local tribal farms, ensuring absolute purity and supporting sustainable farming practices.',
+      icon: '🌳'
     },
     {
-      title: 'Slow Wood-Fire Dry Roasting',
-      desc: 'Whole coriander seeds, cumin, fenugreek, and mustard seeds are slowly dry-roasted on wood fires to unlock pure aromatic essential oils.',
-      icon: '🔥'
+      title: 'No Preservatives / Colors / Chemicals',
+      desc: 'Our food is 100% natural. We do not use any chemical shelf-stabilizers, artificial colorings, synthetic vinegar, or health-damaging preservatives.',
+      icon: '🍃'
     },
     {
-      title: 'Traditional Stone Grinding',
-      desc: 'Our spice powders and podis are stone-ground slowly. This prevents high frictional heat, preserving delicate nutritional fibers and locking original flavors.',
-      icon: '🪨'
+      title: 'Empowerment in Locals',
+      desc: 'By preparing our food items in local villages, we empower rural women and local artisans, providing sustainable livelihoods and keeping heritage alive.',
+      icon: '🤝'
     },
     {
-      title: 'Clarification & Cold-Pressing',
-      desc: 'We clarify our A2 cow ghee under the Vedic Bilona method (churning curd into butter). Pickles are prepared only with pure, cold-pressed gingelly or groundnut oils.',
-      icon: '🍯'
+      title: 'Pure / Traditional / Authentic',
+      desc: 'Every recipe is prepared exactly the way our ancestors did—handcrafted in small batches, slow-cooked, and bursting with rich natural flavors.',
+      icon: '✨'
     }
   ];
 
@@ -105,25 +105,25 @@ export default function About() {
         </div>
       </section>
 
-      {/* 3. STEP-BY-STEP TRADITIONAL PREPARATION PROCESS */}
+      {/* 3. OUR CORE COMMITMENTS */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           
           <div className="max-w-2xl mx-auto space-y-3 mb-16">
             <span className="text-xs font-bold text-accent tracking-widest uppercase block">
-              Culinary Artistry
+              Our Pillars
             </span>
             <h2 className="font-outfit font-black text-svada-dark text-3xl sm:text-4xl">
-              Our Traditional Preparation Process
+              Our Core Commitments
             </h2>
             <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto" />
             <p className="text-sm text-svada-light font-light leading-relaxed">
-              We reject modern commercial shortcuts. We cook in small, clean batches with grandmother's patience and ancient cooking secrets.
+              At SVADA Farms, we are dedicated to health, heritage, and community. We believe in delivering pure food crafted with traditional care.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {steps.map((st, idx) => (
+            {commitments.map((st, idx) => (
               <div
                 key={idx}
                 className="bg-svada-bg p-6 rounded-3xl border border-orange-100/50 text-left relative flex flex-col justify-between"

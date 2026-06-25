@@ -50,7 +50,7 @@ export default function Login() {
     setSuccessMsg('');
 
     try {
-      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
       const res = await fetch(`${apiBase}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,7 +87,7 @@ export default function Login() {
     setSuccessMsg('');
 
     try {
-      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
       const res = await fetch(`${apiBase}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -186,7 +186,7 @@ export default function Login() {
         }, 2500);
 
         // Fire-and-forget: record login in backend (non-blocking)
-        const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+        const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
         fetch(`${apiBase}/auth/record-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -239,7 +239,7 @@ export default function Login() {
       }, 2500);
 
       // Fire-and-forget: record login in backend (non-blocking)
-      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+      const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
       fetch(`${apiBase}/auth/record-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

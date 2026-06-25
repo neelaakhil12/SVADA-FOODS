@@ -78,4 +78,10 @@ CREATE TABLE IF NOT EXISTS settings (
   value_name VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS admin_reset_tokens (
+  email VARCHAR(255) PRIMARY KEY,
+  token VARCHAR(255) NOT NULL,
+  expiresAt DATETIME NOT NULL
+);
+
 

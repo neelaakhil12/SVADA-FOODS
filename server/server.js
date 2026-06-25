@@ -36,6 +36,7 @@ const getDbErrorMessage = (error) => {
 
 // In-Memory Fallback Stores (used if MySQL is offline)
 const memoryOtpStore = new Map();
+const memoryAdminResetTokens = new Map();
 const memoryOrders = [];
 let fallbackProducts = [];
 let fallbackCategories = [];
@@ -359,13 +360,23 @@ async function checkAndInitDatabase() {
       const [settingRows] = await db.query("SELECT COUNT(*) as count FROM settings");
       if (settingRows[0].count === 0) {
         console.log("Seeding settings table...");
-        await db.query("INSERT INTO settings (key_name, value_name) VALUES ('free_shipping_threshold', '3500'), ('shipping_cost', '90')");
+        await db.query("INSERT INTO settings (key_name, value_name) VALUES ('free_shipping_threshold', '3500'), ('shipping_cost', '90'), ('admin_email', 'svadafarms@gmail.com'), ('admin_password', 'admin123')");
         console.log("Settings seeded successfully.");
       } else {
         const [shippingRows] = await db.query("SELECT * FROM settings WHERE key_name = 'shipping_cost'");
         if (shippingRows.length === 0) {
           await db.query("INSERT INTO settings (key_name, value_name) VALUES ('shipping_cost', '90')");
           console.log("Seeded missing shipping_cost setting.");
+        }
+        const [emailRows] = await db.query("SELECT * FROM settings WHERE key_name = 'admin_email'");
+        if (emailRows.length === 0) {
+          await db.query("INSERT INTO settings (key_name, value_name) VALUES ('admin_email', 'svadafarms@gmail.com')");
+          console.log("Seeded missing admin_email setting.");
+        }
+        const [passRows] = await db.query("SELECT * FROM settings WHERE key_name = 'admin_password'");
+        if (passRows.length === 0) {
+          await db.query("INSERT INTO settings (key_name, value_name) VALUES ('admin_password', 'admin123')");
+          console.log("Seeded missing admin_password setting.");
         }
       }
     } catch (settingErr) {
@@ -1642,12 +1653,247 @@ app.post('/api/payments/verify', async (req, res) => {
 });
 
 // --- ADMIN AUTH ---
-app.post('/api/admin/login', (req, res) => {
+async function getAdminCredentials() {
+  let email = process.env.VITE_ADMIN_EMAIL || 'svadafarms@gmail.com';
+  let password = process.env.VITE_ADMIN_PASSWORD || 'admin123';
+  
+  try {
+    const [emailRows] = await db.query("SELECT value_name FROM settings WHERE key_name = 'admin_email'");
+    if (emailRows.length > 0) {
+      email = emailRows[0].value_name;
+    }
+    const [passRows] = await db.query("SELECT value_name FROM settings WHERE key_name = 'admin_password'");
+    if (passRows.length > 0) {
+      password = passRows[0].value_name;
+    }
+  } catch (err) {
+    if (fallbackSettings.admin_email) email = fallbackSettings.admin_email;
+    if (fallbackSettings.admin_password) password = fallbackSettings.admin_password;
+  }
+  return { email, password };
+}
+
+async function setAdminPassword(newPassword) {
+  try {
+    await db.query(
+      `INSERT INTO settings (key_name, value_name) 
+       VALUES ('admin_password', ?) 
+       ON DUPLICATE KEY UPDATE value_name = ?`,
+      [newPassword, newPassword]
+    );
+  } catch (err) {
+    console.warn("DB offline, updating admin password in fallback JSON");
+  }
+  fallbackSettings.admin_password = newPassword;
+  try {
+    fs.writeFileSync(settingsFallbackPath, JSON.stringify(fallbackSettings, null, 2), 'utf8');
+  } catch (fsErr) {
+    console.warn("Failed to save settings fallback:", fsErr.message);
+  }
+}
+
+app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body;
-  if (email === 'admin@svadafarms.com' && password === 'admin123') {
+  const admin = await getAdminCredentials();
+  
+  const isValidEmail = 
+    email === admin.email || 
+    email === 'admin@svadafarms.com' || 
+    email === 'admin@svadafoods.com' || 
+    email === 'svadafarms@gmail.com';
+
+  if (isValidEmail && password === admin.password) {
     res.json({ success: true, token: 'admin-session-token' });
   } else {
     res.status(401).json({ error: "Invalid credentials" });
+  }
+});
+
+app.post('/api/admin/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  const admin = await getAdminCredentials();
+  
+  const isValidEmail = 
+    email === admin.email || 
+    email === 'admin@svadafarms.com' || 
+    email === 'admin@svadafoods.com' || 
+    email === 'svadafarms@gmail.com';
+
+  if (!isValidEmail) {
+    return res.status(400).json({ error: "Provided email is not a registered admin email address." });
+  }
+
+  try {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+    const targetEmail = 'svadafarms@gmail.com';
+
+    let dbUsed = true;
+    try {
+      const expiresStr = expiresAt.toISOString().slice(0, 19).replace('T', ' ');
+      await db.query(
+        `INSERT INTO admin_reset_tokens (email, token, expiresAt) 
+         VALUES (?, ?, ?) 
+         ON DUPLICATE KEY UPDATE token = ?, expiresAt = ?`,
+        [targetEmail, token, expiresStr, token, expiresStr]
+      );
+      console.log(`Saved Admin Reset Token for ${targetEmail}`);
+    } catch (dbErr) {
+      console.warn(`Database offline. Using fallback memory store for Admin Reset Token.`);
+      dbUsed = false;
+      memoryAdminResetTokens.set(targetEmail, { token, expiresAt });
+    }
+
+    const origin = req.headers.origin || 'http://localhost:3000';
+    const resetLink = `${origin}/admin-reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || '"SVADA FARMS" <svadafarms@gmail.com>',
+      to: 'svadafarms@gmail.com',
+      subject: `SVADA FARMS Admin Panel Password Reset Link`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              width: 100% !important;
+              background-color: #faf7f2;
+              -webkit-text-size-adjust: 100%;
+              -ms-text-size-adjust: 100%;
+            }
+            @media only screen and (max-width: 600px) {
+              .email-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 10px !important;
+              }
+              .content-card {
+                padding: 24px 16px !important;
+                border-radius: 16px !important;
+              }
+            }
+          </style>
+        </head>
+        <body style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #faf7f2; margin: 0; padding: 0;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #faf7f2; padding: 20px 10px;">
+            <tr>
+              <td align="center" valign="top">
+                <table class="email-container" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px; background-color: #ffffff; border-radius: 20px; border: 1px solid #f3ebe1; box-shadow: 0 4px 10px rgba(59, 30, 10, 0.02); overflow: hidden;">
+                  <tr>
+                    <td height="6" style="background: linear-gradient(to right, #3b1e0a, #c2824b); line-height: 6px; font-size: 6px;">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class="content-card" style="padding: 35px 25px; text-align: center; color: #3b1e0a;">
+                      <div style="font-size: 24px; font-weight: 800; letter-spacing: 1px; color: #3b1e0a; margin-bottom: 20px;">
+                        SVADA <span style="color: #c2824b;">FARMS</span>
+                      </div>
+                      <div style="height: 1px; background-color: #f3ebe1; margin-bottom: 25px;"></div>
+                      
+                      <h2 style="font-size: 18px; font-weight: 700; margin: 0 0 10px 0; color: #3b1e0a;">Admin Password Reset Request</h2>
+                      <p style="font-size: 13px; line-height: 1.5; color: #736b63; margin: 0 0 25px 0;">
+                        We received a request to reset your SVADA admin account password. Click the secure button below to choose a new password. This link is valid for 15 minutes.
+                      </p>
+                      
+                      <a href="${resetLink}" target="_blank" style="background-color: #3b1e0a; color: #ffffff; text-decoration: none; padding: 14px 28px; font-size: 14px; font-weight: 700; border-radius: 10px; display: inline-block; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(59, 30, 10, 0.15);">
+                        Reset My Password
+                      </a>
+
+                      <p style="font-size: 11px; line-height: 1.5; color: #736b63; margin: 0 0 25px 0; text-align: left; word-break: break-all;">
+                        If the button doesn't work, copy and paste this URL into your browser:<br/>
+                        <span style="color: #c2824b;">${resetLink}</span>
+                      </p>
+                      
+                      <p style="font-size: 11px; line-height: 1.4; color: #b0a79f; margin: 0;">
+                        If you did not request a password reset, you can safely ignore this email.
+                      </p>
+                      
+                      <div style="height: 1px; background-color: #f3ebe1; margin-top: 30px; margin-bottom: 20px;"></div>
+                      
+                      <p style="font-size: 9px; line-height: 1.4; color: #b0a79f; margin: 0;">
+                        © ${new Date().getFullYear()} SVADA Homemade Farms. All rights reserved.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: "A secure password reset link has been sent to svadafarms@gmail.com." });
+  } catch (error) {
+    console.error("Error sending admin reset link:", error);
+    res.status(500).json({ error: "Failed to dispatch recovery email: " + error.message });
+  }
+});
+
+app.post('/api/admin/reset-password-with-token', async (req, res) => {
+  const { token, newPassword } = req.body;
+  const targetEmail = 'svadafarms@gmail.com';
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: "Token and new password are required." });
+  }
+
+  try {
+    let matchedRecord = null;
+    let dbUsed = true;
+
+    try {
+      const [rows] = await db.query(
+        `SELECT * FROM admin_reset_tokens WHERE token = ?`,
+        [token]
+      );
+      if (rows.length > 0) {
+        matchedRecord = rows[0];
+      }
+    } catch (dbErr) {
+      console.warn("Database offline. Checking Reset Token in memory fallback.");
+      dbUsed = false;
+      for (const [email, record] of memoryAdminResetTokens.entries()) {
+        if (record.token === token) {
+          matchedRecord = { email, ...record };
+          break;
+        }
+      }
+    }
+
+    if (!matchedRecord) {
+      return res.status(400).json({ error: "Invalid or expired password reset link." });
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(matchedRecord.expiresAt);
+    if (now > expiresAt) {
+      if (dbUsed) {
+        await db.query(`DELETE FROM admin_reset_tokens WHERE email = ?`, [matchedRecord.email]);
+      } else {
+        memoryAdminResetTokens.delete(matchedRecord.email);
+      }
+      return res.status(400).json({ error: "The password reset link has expired." });
+    }
+
+    if (dbUsed) {
+      await db.query(`DELETE FROM admin_reset_tokens WHERE email = ?`, [matchedRecord.email]);
+    } else {
+      memoryAdminResetTokens.delete(matchedRecord.email);
+    }
+
+    await setAdminPassword(newPassword);
+
+    res.json({ success: true, message: "Admin password updated successfully. You can now login." });
+  } catch (error) {
+    console.error("Error resetting admin password via token:", error);
+    res.status(500).json({ error: "Password reset process encountered an error: " + error.message });
   }
 });
 
