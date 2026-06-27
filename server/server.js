@@ -243,6 +243,36 @@ app.use('/uploads', express.static(uploadsDir));
 // Serve React build static files in production
 app.use(express.static(path.join(__dirname, '../dist')));
 
+// Database Keep-Alive: Ping database every 12 hours to prevent sleep mode
+setInterval(async () => {
+  try {
+    await db.query('SELECT 1');
+    console.log('Database keep-alive ping successful');
+  } catch (err) {
+    console.warn('Database keep-alive ping failed (MySQL might be offline):', err.message);
+  }
+}, 12 * 60 * 60 * 1000); // 12 hours
+
+// Health check endpoint (can be pinged by UptimeRobot / Cron-Job.org to keep server and database awake)
+app.get('/api/health', async (req, res) => {
+  try {
+    await db.query('SELECT 1');
+    res.json({ 
+      status: 'OK', 
+      database: 'connected', 
+      timestamp: new Date().toISOString() 
+    });
+  } catch (error) {
+    console.warn('Health check database query failed:', error.message);
+    res.status(500).json({ 
+      status: 'ERROR', 
+      database: 'disconnected', 
+      error: error.message,
+      timestamp: new Date().toISOString() 
+    });
+  }
+});
+
 async function saveOrUpdateUser(email, name, phone) {
   const lastLogin = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const userRecord = { email, name, phone, lastLogin };
