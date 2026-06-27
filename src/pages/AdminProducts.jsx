@@ -433,10 +433,10 @@ const AdminProducts = ({ categoryFilter: propCategoryFilter, setCategoryFilter: 
                         className="w-12 h-12 object-cover rounded-lg"
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 max-w-[280px] break-words">
                       <div className="text-sm font-medium text-gray-900">{product.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 max-w-[180px] break-words">
                       <div className="text-sm text-gray-500">{product.category}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
