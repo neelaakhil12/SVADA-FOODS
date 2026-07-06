@@ -368,7 +368,7 @@ export default function ProductDetails() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {relatedProducts.map((item, idx) => (
-              <ProductCard key={item.id} product={item} index={idx} />
+              <ProductCard key={item.id} product={item} index={idx} isRelated={true} />
             ))}
           </div>
         </div>
