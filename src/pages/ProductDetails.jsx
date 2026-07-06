@@ -369,7 +369,7 @@ export default function ProductDetails() {
           <div className="flex overflow-x-auto pb-4 gap-4 snap-x snap-mandatory scrollbar-none md:grid md:grid-cols-4 md:gap-6 md:pb-0">
             {relatedProducts.map((item, idx) => (
               <div key={item.id} className="flex-shrink-0 w-[240px] snap-start md:w-auto md:flex-shrink">
-                <ProductCard product={item} index={idx} isRelated={true} />
+                <ProductCard product={item} index={idx} />
               </div>
             ))}
           </div>

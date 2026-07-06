@@ -24,7 +24,7 @@ const getShortCategoryName = (category) => {
   return mapping[category] || 'General';
 };
 
-export default function ProductCard({ product, index = 0, isRelated = false }) {
+export default function ProductCard({ product, index = 0 }) {
   const { addToCart, wishlist, toggleWishlist, getProductPrice, setActiveQuickView, isLoggedIn, setCurrentPage } = useContext(ShopContext);
   
   // Weight Selection State: default is first weight label or 250g
@@ -204,24 +204,15 @@ export default function ProductCard({ product, index = 0, isRelated = false }) {
             <button
               onClick={product.inStock !== false ? handleAddToCart : undefined}
               disabled={product.inStock === false}
-              className={`flex items-center justify-center transition-all duration-300 ${
-                isRelated
-                  ? 'h-8 w-8 rounded-full'
-                  : 'px-4 py-2 rounded-xl text-xs font-extrabold shadow-xs hover:shadow-md'
-              } ${
+              className={`flex items-center space-x-1 px-4 py-2 rounded-xl font-extrabold text-xs shadow-xs hover:shadow-md transition-all duration-300 ${
                 product.inStock === false
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300/40'
                   : isAdded
                   ? 'bg-accent text-white scale-95'
                   : 'bg-accent hover:bg-[#9B5F2A] text-white active:scale-95'
               }`}
-              title={isRelated ? "Add to Bag" : ""}
             >
-              {isRelated ? (
-                <span className="text-sm font-black leading-none">{product.inStock === false ? '×' : isAdded ? '✓' : '＋'}</span>
-              ) : (
-                <span className="font-extrabold leading-none">{product.inStock === false ? 'No Stock' : isAdded ? 'Added ✓' : 'Add ＋'}</span>
-              )}
+              <span>{product.inStock === false ? 'No Stock' : isAdded ? 'Added ✓' : 'Add ＋'}</span>
             </button>
           </div>
         </div>
