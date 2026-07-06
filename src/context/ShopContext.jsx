@@ -2170,6 +2170,7 @@ export const ShopProvider = ({ children }) => {
     const local = localStorage.getItem('svada_categories');
     return local ? JSON.parse(local) : Object.keys(DEFAULT_CATEGORY_METADATA);
   });
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [products, setProducts] = useState(() => {
     const local = localStorage.getItem('svada_custom_products');
     return local ? JSON.parse(local) : PRODUCTS_DATA;
@@ -2250,6 +2251,9 @@ export const ShopProvider = ({ children }) => {
           local = localStorage.getItem('svada_custom_products');
         } catch (_) {}
         setProducts(local ? JSON.parse(local) : PRODUCTS_DATA);
+      })
+      .finally(() => {
+        setIsInitialLoading(false);
       });
 
     // 2. Fetch Categories
@@ -3254,6 +3258,7 @@ export const ShopProvider = ({ children }) => {
   return (
     <ShopContext.Provider
       value={{
+        isInitialLoading,
         products: products,
         filteredProducts,
         cart,

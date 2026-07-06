@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
-  const { products, setCurrentPage, setSelectedCategory, addToCart, categories, categoryMetadata, heroSlides, watchBuyVideos } = useContext(ShopContext);
+  const { products, setCurrentPage, setSelectedCategory, addToCart, categories, categoryMetadata, heroSlides, watchBuyVideos, isInitialLoading } = useContext(ShopContext);
 
   // Shoppable Video Reels State
   const [activeReel, setActiveReel] = useState(null);
@@ -312,9 +312,24 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bestsellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {isInitialLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white border border-orange-100 rounded-3xl p-4 h-80 animate-pulse flex flex-col justify-between">
+                  <div className="bg-orange-50/50 rounded-2xl h-44 w-full" />
+                  <div className="space-y-3 mt-3 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="h-4 bg-orange-100/70 rounded w-3/4" />
+                      <div className="h-3 bg-orange-100/70 rounded w-1/2" />
+                    </div>
+                    <div className="h-9 bg-orange-100/70 rounded-xl w-full" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              bestsellers.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            )}
           </div>
 
         </div>

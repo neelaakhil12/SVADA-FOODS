@@ -12,7 +12,8 @@ export default function Products() {
     setSearchQuery, 
     selectedCategory, 
     setSelectedCategory,
-    categories: dynamicCategories
+    categories: dynamicCategories,
+    isInitialLoading
   } = useContext(ShopContext);
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -174,7 +175,12 @@ export default function Products() {
           )}
 
           {/* PRODUCT CARDS GRID */}
-          {selectedCategory === 'Personal hair care' && products.filter(p => p.category === 'Personal hair care').length === 0 ? (
+          {isInitialLoading ? (
+            <div className="flex flex-col items-center justify-center py-24 bg-white/40 border border-orange-100/50 rounded-3xl p-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/20 border-t-primary"></div>
+              <p className="mt-4 text-xs font-bold text-svada-light tracking-wider uppercase animate-pulse">Syncing fresh delicacies...</p>
+            </div>
+          ) : selectedCategory === 'Personal hair care' && products.filter(p => p.category === 'Personal hair care').length === 0 ? (
             // Minimal Upcoming Products Card
             <div className="bg-white border border-orange-100 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs font-poppins">
               <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 text-primary">
