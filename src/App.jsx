@@ -85,6 +85,7 @@ function AppContent({ showSplash }) {
     const urlMap = {
       'home': '/',
       'products': '/products',
+      'product': '/product',
       'about': '/about',
       'contact': '/contact',
       'login': '/login',

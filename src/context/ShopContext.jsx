@@ -2122,6 +2122,7 @@ export const ShopProvider = ({ children }) => {
       const normalizedPath = path.replace(/\s+/g, '-');
       if (normalizedPath === '/admin') return 'admin';
       if (normalizedPath === '/admin-login') return 'admin-login';
+      if (normalizedPath === '/product') return 'product';
       if (normalizedPath === '/products') return 'products';
       if (normalizedPath === '/about') return 'about';
       if (normalizedPath === '/contact') return 'contact';
