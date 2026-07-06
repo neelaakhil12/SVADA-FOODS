@@ -2223,8 +2223,10 @@ export const ShopProvider = ({ children }) => {
 
   // Fetch initial data from database on mount
   useEffect(() => {
+    const cacheBuster = `?_=${Date.now()}`;
+
     // 1. Fetch Products
-    fetch(`${API_BASE}/products`)
+    fetch(`${API_BASE}/products${cacheBuster}`)
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
@@ -2244,7 +2246,7 @@ export const ShopProvider = ({ children }) => {
       });
 
     // 2. Fetch Categories
-    fetch(`${API_BASE}/categories`)
+    fetch(`${API_BASE}/categories${cacheBuster}`)
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
@@ -2276,7 +2278,7 @@ export const ShopProvider = ({ children }) => {
     fetchOrders();
 
     // 4. Fetch Hero Slides
-    fetch(`${API_BASE}/hero-slides`)
+    fetch(`${API_BASE}/hero-slides${cacheBuster}`)
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
@@ -2294,7 +2296,7 @@ export const ShopProvider = ({ children }) => {
       });
 
     // 5. Fetch Videos
-    fetch(`${API_BASE}/videos`)
+    fetch(`${API_BASE}/videos${cacheBuster}`)
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
@@ -2312,7 +2314,7 @@ export const ShopProvider = ({ children }) => {
       });
 
     // 6. Fetch Settings
-    fetch(`${API_BASE}/settings`)
+    fetch(`${API_BASE}/settings${cacheBuster}`)
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
@@ -2616,7 +2618,7 @@ export const ShopProvider = ({ children }) => {
   };
 
   const fetchOrders = () => {
-    return fetch(`${API_BASE}/orders`)
+    return fetch(`${API_BASE}/orders?_=${Date.now()}`)
       .then(res => {
         if (!res.ok) throw new Error("API error");
         return res.json();
