@@ -2434,8 +2434,10 @@ export const ShopProvider = ({ children }) => {
   // Toggle Wishlist
   const toggleWishlist = (productId) => {
     setWishlist((prevWishlist) => {
-      if (prevWishlist.includes(productId)) {
-        return prevWishlist.filter((id) => id !== productId);
+      const strId = String(productId);
+      const exists = prevWishlist.some((id) => String(id) === strId);
+      if (exists) {
+        return prevWishlist.filter((id) => String(id) !== strId);
       } else {
         return [...prevWishlist, productId];
       }

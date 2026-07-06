@@ -399,7 +399,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
   if (!isOpen) return null;
 
   // Filter products that are in wishlist
-  const wishlistItems = products.filter(item => wishlist.includes(item.id));
+  const wishlistItems = products.filter(item => wishlist.some(id => String(id) === String(item.id)));
 
   const handleWeightLabel = (product, weight) => {
     if (product.weightLabels) {

@@ -53,7 +53,7 @@ export default function ProductDetails() {
 
   const product = activeQuickView;
   const price = getProductPrice(product, selectedWeight);
-  const isInWishlist = wishlist.includes(product.id);
+  const isInWishlist = wishlist.some(id => String(id) === String(product.id));
 
   // Helper to generate realistic MRP and discount percentages
   const getMrpAndDiscount = (offerPrice) => {

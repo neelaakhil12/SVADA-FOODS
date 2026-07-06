@@ -57,7 +57,7 @@ export default function ProductCard({ product, index = 0 }) {
         ];
 
   const price = getProductPrice(product, selectedWeight);
-  const isInWishlist = wishlist.includes(product.id);
+  const isInWishlist = wishlist.some(id => String(id) === String(product.id));
 
   // Helper to generate realistic MRP and discount percentages matching madur.in pricing structure
   const getMrpAndDiscount = (offerPrice) => {
