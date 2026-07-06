@@ -90,7 +90,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist }) {
     setSearchQuery(product.name);
     setGlobalSearchQuery(product.name);
     setSelectedCategory('All');
-    setCurrentPage('products');
+    setCurrentPage('product');
     setIsSearchFocused(false);
     setActiveQuickView(product);
     window.scrollTo({ top: 0, behavior: 'smooth' });

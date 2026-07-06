@@ -35,6 +35,13 @@ export default function ProductCard({ product, index = 0 }) {
   );
   const [isAdded, setIsAdded] = useState(false);
 
+  const handleProductClick = (e) => {
+    if (e) e.stopPropagation();
+    setActiveQuickView(product);
+    setCurrentPage('product');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const weightLabels = product.weightLabels
     ? product.weightLabels
     : product.isEcoPiece 
@@ -96,7 +103,7 @@ export default function ProductCard({ product, index = 0 }) {
       {/* 3. PRODUCT IMAGE CONTAINER */}
       <div 
         className="relative aspect-[4/3] overflow-hidden bg-[#FAF7F2] cursor-pointer rounded-2xl border border-orange-100/40 mb-3" 
-        onClick={() => setActiveQuickView(product)}
+        onClick={handleProductClick}
       >
         {product.inStock === false && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-[1px] flex items-center justify-center z-10">
@@ -116,10 +123,7 @@ export default function ProductCard({ product, index = 0 }) {
         {/* Overlay Hover details */}
         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveQuickView(product);
-            }}
+            onClick={handleProductClick}
             className="bg-white text-accent p-2.5 rounded-full shadow-lg hover:bg-accent hover:text-white transform translate-y-4 group-hover:translate-y-0 transition duration-300"
             title="Quick View"
           >
@@ -144,14 +148,14 @@ export default function ProductCard({ product, index = 0 }) {
           {/* Title */}
           <h3 
             className="font-outfit font-black text-svada-dark text-[15px] hover:text-primary transition duration-300 cursor-pointer line-clamp-2 min-h-[40px] mb-1 leading-snug"
-            onClick={() => setActiveQuickView(product)}
+            onClick={handleProductClick}
           >
             {product.name}
           </h3>
 
           {/* View Details Link */}
           <button
-            onClick={() => setActiveQuickView(product)}
+            onClick={handleProductClick}
             className="text-[9px] font-extrabold text-accent hover:text-[#9B5F2A] uppercase tracking-widest hover:underline cursor-pointer flex items-center gap-1 mb-2"
           >
             VIEW DETAILS

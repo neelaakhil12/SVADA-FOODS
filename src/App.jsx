@@ -3,8 +3,8 @@ import { ShopProvider, ShopContext } from './context/ShopContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CartModal from './components/CartModal';
-import QuickViewModal from './components/QuickViewModal';
 import SplashScreen from './components/SplashScreen';
+import ProductDetails from './pages/ProductDetails';
 
 // Pages
 import Home from './pages/Home';
@@ -30,7 +30,7 @@ import 'aos/dist/aos.css';
 import { MessageCircle } from 'lucide-react';
 
 function AppContent({ showSplash }) {
-  const { currentPage, setCurrentPage } = useContext(ShopContext);
+  const { currentPage, setCurrentPage, activeQuickView, setActiveQuickView, products } = useContext(ShopContext);
   
   // Sidebar drawers active states
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -42,7 +42,9 @@ function AppContent({ showSplash }) {
       const path = decodeURIComponent(window.location.pathname).trim();
       const normalizedPath = path.replace(/\s+/g, '-');
       
-      if (normalizedPath === '/admin') {
+      if (normalizedPath === '/product') {
+        setCurrentPage('product');
+      } else if (normalizedPath === '/admin') {
         setCurrentPage('admin');
       } else if (normalizedPath === '/admin-login') {
         setCurrentPage('admin-login');
@@ -64,6 +66,20 @@ function AppContent({ showSplash }) {
     }
   }, [setCurrentPage]);
 
+  // Load product if activeQuickView is null and URL matches product page
+  useEffect(() => {
+    if (currentPage === 'product' && !activeQuickView && products && products.length > 0) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const productId = searchParams.get('id') || searchParams.get('product');
+      if (productId) {
+        const found = products.find(p => String(p.id) === String(productId));
+        if (found) {
+          setActiveQuickView(found);
+        }
+      }
+    }
+  }, [currentPage, products, activeQuickView, setActiveQuickView]);
+
   // Update browser URL and dynamic SEO page headers when page changes
   useEffect(() => {
     const urlMap = {
@@ -82,8 +98,15 @@ function AppContent({ showSplash }) {
       'terms': '/terms'
     };
     
-    if (urlMap[currentPage] && window.location.pathname !== urlMap[currentPage]) {
-      window.history.pushState({}, '', urlMap[currentPage] + window.location.search);
+    if (currentPage === 'product') {
+      if (activeQuickView) {
+        const newUrl = `/product?id=${activeQuickView.id}`;
+        if (window.location.pathname + window.location.search !== newUrl) {
+          window.history.pushState({}, '', newUrl);
+        }
+      }
+    } else if (urlMap[currentPage] && window.location.pathname !== urlMap[currentPage]) {
+      window.history.pushState({}, '', urlMap[currentPage]);
     }
 
     // Dynamic SEO Configuration Map
@@ -95,6 +118,10 @@ function AppContent({ showSplash }) {
       'products': {
         title: 'Authentic Telugu Foods, Pickles & Sweets Collection | SVADA Homemade Farms',
         description: 'Explore our collection of natural, wood-pressed cold pressed oils, pure forest honey, A2 cow ghee, traditional pickles, dry fruits, millets, organic rices, and home essentials.'
+      },
+      'product': {
+        title: activeQuickView ? `${activeQuickView.name} | SVADA Homemade Farms` : 'Product Details | SVADA Homemade Farms',
+        description: activeQuickView ? activeQuickView.description : 'Authentic organic products and pickles directly from village farms.'
       },
       'about': {
         title: 'Our Story - Traditional Recipes & Organic Farming | SVADA Homemade Farms',
@@ -204,6 +231,8 @@ function AppContent({ showSplash }) {
         return <Home />;
       case 'products':
         return <Products />;
+      case 'product':
+        return <ProductDetails />;
       case 'about':
         return <About />;
       case 'contact':
@@ -260,9 +289,6 @@ function AppContent({ showSplash }) {
       {/* Pop-up Modals & Drawers - Hide on admin pages */}
       {currentPage !== 'admin' && currentPage !== 'admin-login' && currentPage !== 'admin-reset-password' && (
         <>
-          {/* 1. Dynamic Quick View Popup */}
-          <QuickViewModal />
-
           {/* 2. Side-out Shopping Bag & Wishlist Drawer */}
           <CartModal 
             isOpen={isCartOpen} 

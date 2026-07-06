@@ -1,16 +1,30 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { X, ShoppingBag, Heart, Star, ShieldCheck, Check, Minus, Plus } from 'lucide-react';
-import ProductCard from './ProductCard';
+import { X, ShoppingBag, Heart, Star, ShieldCheck, Minus, Plus, ArrowLeft } from 'lucide-react';
+import ProductCard from '../components/ProductCard';
 
-export default function QuickViewModal() {
+export default function ProductDetails() {
   const { activeQuickView, setActiveQuickView, addToCart, wishlist, toggleWishlist, getProductPrice, isLoggedIn, setCurrentPage, products } = useContext(ShopContext);
   const [selectedWeight, setSelectedWeight] = useState('250g');
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
-  const modalContainerRef = useRef(null);
+  const pageContainerRef = useRef(null);
 
-  // Sync selectedWeight and quantity resets when modal target changes
+  // Parse product from URL if activeQuickView is null (e.g. direct load/reload)
+  useEffect(() => {
+    if (!activeQuickView && products && products.length > 0) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const productId = searchParams.get('id') || searchParams.get('product');
+      if (productId) {
+        const found = products.find(p => String(p.id) === String(productId));
+        if (found) {
+          setActiveQuickView(found);
+        }
+      }
+    }
+  }, [products, activeQuickView, setActiveQuickView]);
+
+  // Sync selectedWeight and quantity resets when product changes
   useEffect(() => {
     if (activeQuickView) {
       setSelectedWeight(
@@ -21,23 +35,30 @@ export default function QuickViewModal() {
       setQuantity(1);
       isAdded && setIsAdded(false);
       
-      // Scroll to top of the modal on product change
-      if (modalContainerRef.current) {
-        modalContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      // Scroll to top of the page on product change
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [activeQuickView]);
 
-  if (!activeQuickView) return null;
+  if (!activeQuickView) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-32 text-center font-poppins">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-orange-100/50 rounded-lg w-1/3 mx-auto"></div>
+          <div className="h-64 bg-orange-50/50 rounded-2xl w-full max-w-4xl mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   const product = activeQuickView;
   const price = getProductPrice(product, selectedWeight);
   const isInWishlist = wishlist.includes(product.id);
 
-  // Helper to generate realistic MRP and discount percentages matching madur.in pricing structure
+  // Helper to generate realistic MRP and discount percentages
   const getMrpAndDiscount = (offerPrice) => {
     const rawMrp = offerPrice * 1.15; // 15% markup as original price
-    const mrp = Math.ceil(rawMrp / 5) * 5 - 1; // Ends in 9 or 4 for psychological pricing
+    const mrp = Math.ceil(rawMrp / 5) * 5 - 1; // Ends in 9 or 4
     const discountPct = Math.round(((mrp - offerPrice) / mrp) * 100);
     const savings = mrp - offerPrice;
     return { mrp, discountPct, savings };
@@ -62,7 +83,6 @@ export default function QuickViewModal() {
   const handleAddToCart = () => {
     if (!isLoggedIn) {
       setCurrentPage('login');
-      setActiveQuickView(null);
       return;
     }
     addToCart(product, selectedWeight, quantity);
@@ -70,7 +90,7 @@ export default function QuickViewModal() {
     setTimeout(() => setIsAdded(false), 2000);
   };
 
-  const shareUrl = encodeURIComponent(window.location.origin + `?product=${product.id}`);
+  const shareUrl = encodeURIComponent(window.location.origin + `/product?id=${product.id}`);
   const shareText = encodeURIComponent(`Check out ${product.name} on SVADA FARMS!`);
 
   const relatedProducts = products
@@ -78,44 +98,39 @@ export default function QuickViewModal() {
     : [];
 
   return (
-    <>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Dark blur backdrop */}
-      <div 
-        onClick={() => setActiveQuickView(null)}
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
-      />
-
-      {/* Modal Box */}
-      <div 
-        ref={modalContainerRef}
-        className="bg-svada-card w-full max-w-4xl rounded-3xl shadow-2xl border border-orange-100 relative z-10 max-h-[90vh] overflow-y-auto animate-zoom-in font-poppins text-left"
-        data-aos="zoom-in"
+    <div ref={pageContainerRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-28 font-poppins text-left animate-fade-in">
+      {/* Back navigation link */}
+      <button
+        onClick={() => {
+          setCurrentPage('products');
+          setActiveQuickView(null);
+        }}
+        className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-accent hover:text-[#9B5F2A] mb-8 cursor-pointer transition"
       >
-        {/* Close Button */}
-        <button
-          onClick={() => setActiveQuickView(null)}
-          className="absolute top-5 right-5 z-20 p-2 rounded-full bg-white/90 border border-orange-100 text-svada-dark hover:text-primary transition duration-300 shadow-md"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <ArrowLeft className="h-4 w-4" />
+        <span>Back to Shop</span>
+      </button>
 
-        {/* 2-Column Grid for Image & Details */}
+      {/* Standalone Product Container */}
+      <div className="bg-svada-card w-full rounded-3xl shadow-xl border border-orange-100/60 overflow-hidden">
+        
+        {/* Main Grid: Image + Info */}
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Product Image section */}
-          <div className="relative bg-white aspect-square md:aspect-auto md:h-full min-h-[300px] flex items-center justify-center border-b md:border-b-0 md:border-r border-orange-100/50">
+          
+          {/* Product Image Section */}
+          <div className="relative bg-white aspect-square md:aspect-auto md:h-full min-h-[350px] md:min-h-[500px] flex items-center justify-center border-b md:border-b-0 md:border-r border-orange-100/50">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-full object-contain p-4"
+              className="w-full h-full max-h-[480px] object-contain p-6"
             />
           </div>
 
-          {/* Product Info section */}
-          <div className="p-6 md:p-8 flex flex-col justify-between">
+          {/* Product Info Section */}
+          <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-xs font-bold text-accent tracking-widest uppercase">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-extrabold text-accent tracking-widest uppercase">
                   {product.category}
                 </span>
                 {product.inStock === false && (
@@ -124,12 +139,13 @@ export default function QuickViewModal() {
                   </span>
                 )}
               </div>
-              <h2 className="font-outfit font-black text-svada-dark text-2xl md:text-3xl leading-tight mb-2">
+              
+              <h1 className="font-outfit font-black text-svada-dark text-3xl sm:text-4xl leading-tight mb-3">
                 {product.name}
-              </h2>
+              </h1>
 
-              {/* Ratings and Reviews */}
-              <div className="flex items-center space-x-3 mb-4">
+              {/* Rating Summary */}
+              <div className="flex items-center space-x-3 mb-6">
                 <div className="flex text-amber-500 bg-amber-50 px-2 py-1 rounded-lg">
                   {[...Array(5)].map((_, i) => (
                     <Star 
@@ -145,13 +161,13 @@ export default function QuickViewModal() {
               </div>
 
               {/* Description */}
-              <p className="text-sm text-svada-light font-light leading-relaxed mb-5">
+              <p className="text-sm text-svada-light font-light leading-relaxed mb-6">
                 {product.description}
               </p>
 
-              {/* Ingredients Disclosure */}
+              {/* Ingredients Details */}
               {product.ingredients && (
-                <div className="bg-orange-50/70 border border-orange-100/50 rounded-2xl p-4 mb-6">
+                <div className="bg-orange-50/70 border border-orange-100/50 rounded-2xl p-4.5 mb-6">
                   <span className="text-[11px] font-bold text-primary tracking-widest uppercase block mb-1">
                     🌿 100% Honest Ingredients
                   </span>
@@ -161,24 +177,24 @@ export default function QuickViewModal() {
                 </div>
               )}
 
-              {/* Trust highlights */}
-              <div className="flex items-center space-x-4 mb-6 text-xs text-svada-dark font-medium">
+              {/* Trust Badge Grid */}
+              <div className="flex items-center space-x-4 mb-8 text-xs text-svada-dark font-semibold">
                 <div className="flex items-center text-accent">
-                  <ShieldCheck className="h-4 w-4 mr-1.5" />
+                  <ShieldCheck className="h-4.5 w-4.5 mr-1.5" />
                   <span>Zero Chemicals</span>
                 </div>
                 <div className="flex items-center text-accent">
-                  <ShieldCheck className="h-4 w-4 mr-1.5" />
+                  <ShieldCheck className="h-4.5 w-4.5 mr-1.5" />
                   <span>Homemade Care</span>
                 </div>
               </div>
             </div>
 
             <div>
-              {/* Weight and Qty Controls */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* Product Configurations */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
                 <div>
-                  <label className="text-[11px] text-svada-light font-bold uppercase tracking-wider block mb-1.5">
+                  <label className="text-[11px] text-svada-light font-bold uppercase tracking-wider block mb-2">
                     Choose Pack Size
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -187,7 +203,7 @@ export default function QuickViewModal() {
                         key={opt.value}
                         onClick={() => product.inStock !== false && setSelectedWeight(opt.value)}
                         disabled={product.inStock === false}
-                        className={`flex-1 text-center py-2 px-3 rounded-xl text-xs font-bold transition duration-300 border ${
+                        className={`flex-1 text-center py-2.5 px-3 rounded-xl text-xs font-bold transition duration-300 border ${
                           product.inStock === false
                             ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                             : selectedWeight === opt.value
@@ -202,10 +218,10 @@ export default function QuickViewModal() {
                 </div>
 
                 <div>
-                  <label className="text-[11px] text-svada-light font-bold uppercase tracking-wider block mb-1.5">
+                  <label className="text-[11px] text-svada-light font-bold uppercase tracking-wider block mb-2">
                     Select Quantity
                   </label>
-                  <div className={`flex items-center bg-orange-50 border border-orange-100 rounded-xl px-2 py-1.5 w-max ${product.inStock === false ? 'opacity-50' : ''}`}>
+                  <div className={`flex items-center bg-orange-50 border border-orange-100 rounded-xl px-2 py-2 w-max ${product.inStock === false ? 'opacity-50' : ''}`}>
                     <button
                       onClick={() => product.inStock !== false && quantity > 1 && setQuantity(quantity - 1)}
                       disabled={product.inStock === false}
@@ -213,7 +229,7 @@ export default function QuickViewModal() {
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
-                    <span className="px-4 text-sm font-bold text-svada-dark min-w-[30px] text-center">
+                    <span className="px-5 text-sm font-bold text-svada-dark min-w-[32px] text-center">
                       {product.inStock === false ? 0 : quantity}
                     </span>
                     <button
@@ -227,14 +243,14 @@ export default function QuickViewModal() {
                 </div>
               </div>
 
-              {/* Bottom Actions pricing & Add-to-cart */}
-              <div className="flex items-center justify-between pt-4 border-t border-orange-100/60">
+              {/* CTA Section & Actions */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-6 border-t border-orange-100/60 gap-4">
                 <div>
-                  <span className="text-[10px] text-svada-light block font-bold uppercase leading-none mb-1">
+                  <span className="text-[10px] text-svada-light block font-bold uppercase leading-none mb-1.5">
                     Special Offer Price
                   </span>
                   <div className="flex items-baseline space-x-2">
-                    <span className="text-2xl md:text-3xl font-outfit font-black text-accent">
+                    <span className="text-3xl font-outfit font-black text-accent">
                       ₹{product.inStock === false ? 0 : price * quantity}
                     </span>
                     <span className="text-sm text-svada-light/60 line-through font-semibold">
@@ -249,7 +265,7 @@ export default function QuickViewModal() {
                 <div className="flex space-x-3">
                   <button
                     onClick={() => toggleWishlist(product.id)}
-                    className={`p-3 rounded-xl border border-orange-100 shadow-xs transition duration-300 ${
+                    className={`p-3.5 rounded-xl border border-orange-100 shadow-xs transition duration-300 ${
                       isInWishlist 
                         ? 'bg-red-50 text-red-500 hover:bg-red-100' 
                         : 'bg-white text-svada-dark hover:bg-orange-50'
@@ -262,7 +278,7 @@ export default function QuickViewModal() {
                   <button
                     onClick={product.inStock !== false ? handleAddToCart : undefined}
                     disabled={product.inStock === false}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all duration-300 ${
+                    className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-8 py-3.5 rounded-xl font-bold text-sm shadow-md transition-all duration-300 ${
                       product.inStock === false
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300/40'
                         : isAdded
@@ -276,13 +292,14 @@ export default function QuickViewModal() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
         {/* Share Button Section */}
-        <div className="flex items-center space-x-3 px-6 md:px-8 py-5 border-t border-orange-100/60 bg-[#FAF6F0] text-sm font-semibold text-svada-dark select-none">
+        <div className="flex items-center space-x-3 px-6 sm:px-10 py-5 border-t border-orange-100/60 bg-[#FAF6F0] text-sm font-semibold text-svada-dark select-none">
           <span className="text-svada-dark/70 font-outfit font-bold">Share:</span>
-          <div className="flex items-center space-x-3 text-svada-dark/80">
+          <div className="flex items-center space-x-3.5 text-svada-dark/80">
             {/* Facebook */}
             <a 
               href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`} 
@@ -295,7 +312,7 @@ export default function QuickViewModal() {
                 <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z"/>
               </svg>
             </a>
-            {/* X (formerly Twitter) */}
+            {/* X */}
             <a 
               href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareText}`} 
               target="_blank" 
@@ -346,21 +363,21 @@ export default function QuickViewModal() {
           </div>
         </div>
 
-        {/* Related Products Section */}
+        {/* Related Products Grid */}
         {relatedProducts.length > 0 && (
-          <div className="p-6 md:p-8 border-t border-orange-100 bg-white">
-            <h3 className="font-outfit font-black text-svada-dark text-lg md:text-xl mb-6 text-left">
+          <div className="p-6 sm:p-10 border-t border-orange-100/60 bg-white">
+            <h3 className="font-outfit font-black text-svada-dark text-xl mb-6">
               Related Products
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               {relatedProducts.map((item, idx) => (
                 <ProductCard key={item.id} product={item} index={idx} />
               ))}
             </div>
           </div>
         )}
+
       </div>
     </div>
-    </>
   );
 }
