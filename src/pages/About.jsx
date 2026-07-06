@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Award, Heart, ShieldCheck, Check, Smile, Flame } from 'lucide-react';
+import { Leaf, Award, Heart, Check, Smile, Flame } from 'lucide-react';
 
 export default function About() {
   const commitments = [
@@ -220,10 +220,6 @@ export default function About() {
               <p className="text-xs text-svada-light leading-relaxed font-light">
                 Our forest honey is never heated or pasteurized, retaining raw digestive enzymes. Our A2 ghee churned from curds is loaded with butyric acid for gut wellness.
               </p>
-              <div className="text-xs text-accent font-bold flex items-center space-x-1">
-                <ShieldCheck className="h-4 w-4" />
-                <span>100% Biodegradable</span>
-              </div>
             </div>
 
             <div className="bg-svada-bg p-8 rounded-3xl border border-orange-100/50 flex flex-col justify-between text-left space-y-4">
@@ -232,10 +228,6 @@ export default function About() {
               <p className="text-xs text-svada-light leading-relaxed font-light">
                 We sprout finger millet (ragi) and jowar prior to stone grinding. Sprouting neutralizes phytic acids, unlocking maximum iron, zinc, and bio-available calcium.
               </p>
-              <div className="text-xs text-accent font-bold flex items-center space-x-1">
-                <ShieldCheck className="h-4 w-4" />
-                <span>Zero Pesticide Blends</span>
-              </div>
             </div>
 
             <div className="bg-svada-bg p-8 rounded-3xl border border-orange-100/50 flex flex-col justify-between text-left space-y-4">
@@ -244,10 +236,6 @@ export default function About() {
               <p className="text-xs text-svada-light leading-relaxed font-light">
                 Healthy life extends past food. Our seasoned bamboo bottles, ridge gourd (tori) bath scrubbers, and neem wood combs reduce plastic toxicity inside your bath and home.
               </p>
-              <div className="text-xs text-accent font-bold flex items-center space-x-1">
-                <ShieldCheck className="h-4 w-4" />
-                <span>Eco-Friendly Living</span>
-              </div>
             </div>
           </div>
 

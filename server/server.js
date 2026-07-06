@@ -237,6 +237,17 @@ const upload = multer({ storage });
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use('/uploads', (req, res, next) => {
+  const filePath = path.join(uploadsDir, req.path);
+  if (fs.existsSync(filePath)) {
+    return next();
+  }
+  // Redirect to live website uploads if the image is missing locally ONLY on localhost
+  if (req.hostname === 'localhost' || req.hostname === '127.0.0.1') {
+    return res.redirect(`https://svadafarms.com/uploads${req.path}`);
+  }
+  next();
+});
 app.use('/uploads', express.static(uploadsDir));
 
 
