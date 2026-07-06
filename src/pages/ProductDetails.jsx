@@ -8,7 +8,43 @@ export default function ProductDetails() {
   const [selectedWeight, setSelectedWeight] = useState('250g');
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const pageContainerRef = useRef(null);
+
+  const handleShare = async () => {
+    if (!activeQuickView) return;
+    const rawUrl = window.location.origin + `/product?id=${activeQuickView.id}`;
+    const textStr = `Check out ${activeQuickView.name} on SVADA Homemade Farms!`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: activeQuickView.name,
+          text: textStr,
+          url: rawUrl,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      // Fallback for desktop: Redirect to WhatsApp
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textStr + '\n' + rawUrl)}`;
+      window.open(waUrl, '_blank');
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!activeQuickView) return;
+    const rawUrl = window.location.origin + `/product?id=${activeQuickView.id}`;
+    navigator.clipboard.writeText(rawUrl)
+      .then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy link:", err);
+      });
+  };
 
   // Parse product from URL if activeQuickView is null (e.g. direct load/reload)
   useEffect(() => {
@@ -294,69 +330,30 @@ export default function ProductDetails() {
       </div>
 
       {/* Share Button Section */}
-      <div className="flex items-center space-x-3 px-6 py-5 rounded-2xl border border-orange-100/60 bg-[#FAF6F0] text-sm font-semibold text-svada-dark select-none my-12">
-        <span className="text-svada-dark/70 font-outfit font-bold">Share:</span>
-        <div className="flex items-center space-x-3.5 text-svada-dark/80">
-          {/* Facebook */}
-          <a 
-            href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="hover:text-primary transition duration-200 cursor-pointer"
-            title="Share on Facebook"
+      <div className="flex flex-wrap items-center gap-4 px-6 py-4.5 rounded-2xl border border-orange-100/60 bg-[#FAF6F0] select-none my-12 font-poppins text-xs font-bold">
+        <span className="text-svada-dark/70 font-outfit text-sm font-black">Share Product:</span>
+        <div className="flex items-center gap-3">
+          {/* Share Button */}
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-primary hover:bg-[#8B4F1A] text-white shadow-xs cursor-pointer transition active:scale-95 uppercase tracking-wider text-[11px] font-black"
           >
-            <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-              <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z"/>
-            </svg>
-          </a>
-          {/* X */}
-          <a 
-            href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareText}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="hover:text-primary transition duration-200 cursor-pointer"
-            title="Share on X"
+            <span>🔗</span>
+            <span>Share</span>
+          </button>
+          
+          {/* Copy Link Button */}
+          <button
+            onClick={handleCopyLink}
+            className={`flex items-center gap-2 px-4.5 py-2.5 rounded-xl border ${
+              isCopied 
+                ? 'bg-emerald-55 border-emerald-250 text-emerald-800' 
+                : 'bg-white border-orange-100 text-svada-dark hover:bg-orange-50/50'
+            } shadow-xs cursor-pointer transition active:scale-95 uppercase tracking-wider text-[11px] font-black`}
           >
-            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-          </a>
-          {/* Pinterest */}
-          <a 
-            href={`https://pinterest.com/pin/create/button/?url=${shareUrl}&media=${encodeURIComponent(product.image)}&description=${shareText}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="hover:text-primary transition duration-200 cursor-pointer"
-            title="Share on Pinterest"
-          >
-            <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.27 2.68 7.91 6.48 9.39-.08-.8-.16-2.02.03-2.9.18-.79 1.17-5.06 1.17-5.06s-.3-.6-.3-1.48c0-1.39.8-2.43 1.81-2.43.85 0 1.27.64 1.27 1.41 0 .86-.55 2.14-.83 3.33-.24 1.01.5 1.83 1.5 1.83 1.8 0 3.18-1.9 3.18-4.65 0-2.43-1.75-4.13-4.24-4.13-2.89 0-4.59 2.17-4.59 4.41 0 .88.34 1.81.76 2.31.08.1.1.17.07.28l-.29 1.19c-.05.18-.16.22-.36.13-1.3-.61-2.11-2.53-2.11-4.07 0-3.3 2.4-6.33 6.92-6.33 3.63 0 6.45 2.59 6.45 6.04 0 3.61-2.27 6.52-5.43 6.52-1.06 0-2.06-.55-2.4-.1.19.72.69 2.06.69 2.76 0 .55-.2 1.22-.35 1.5C10.74 21.6 11.36 21.7 12 21.7c5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
-            </svg>
-          </a>
-          {/* LinkedIn */}
-          <a 
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="hover:text-primary transition duration-200 cursor-pointer"
-            title="Share on LinkedIn"
-          >
-            <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-            </svg>
-          </a>
-          {/* Telegram */}
-          <a 
-            href={`https://t.me/share/url?url=${shareUrl}&text=${shareText}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="hover:text-primary transition duration-200 cursor-pointer"
-            title="Share on Telegram"
-          >
-            <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.94-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.37.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/>
-            </svg>
-          </a>
+            <span>{isCopied ? '✓' : '📋'}</span>
+            <span>{isCopied ? 'Copied!' : 'Copy Link'}</span>
+          </button>
         </div>
       </div>
 
