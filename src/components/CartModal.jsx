@@ -51,6 +51,8 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
     city: '',
     state: '',
     pincode: '',
+    alternatePhone: '',
+    courierService: '',
     googleMapsLink: ''
   });
   const [errors, setErrors] = useState({});
@@ -110,6 +112,8 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
         city: '',
         state: '',
         pincode: '',
+        alternatePhone: '',
+        courierService: '',
         googleMapsLink: ''
       });
       setErrors({});
@@ -220,12 +224,22 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
       newErrors.pincode = 'Please enter a valid 6-digit pincode';
     }
 
+    if (formData.alternatePhone.trim() && !/^[0-9]{10,12}$/.test(formData.alternatePhone.trim().replace(/\D/g, ''))) {
+      newErrors.alternatePhone = 'Please enter a valid alternate phone number';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const getCustomerDetails = () => {
     let customerAddress = `${formData.address.trim()}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.pincode.trim()}`;
+    if (formData.alternatePhone.trim()) {
+      customerAddress += `\n📞 Alternate Phone: ${formData.alternatePhone.trim()}`;
+    }
+    if (formData.courierService.trim()) {
+      customerAddress += `\n🚚 Courier: ${formData.courierService.trim()}`;
+    }
     if (formData.googleMapsLink) {
       customerAddress += `\n📍 Map Link: ${formData.googleMapsLink}`;
     }
@@ -462,6 +476,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                     </button>
                     
                     <div className="space-y-3">
+                      {/* Name */}
                       <div>
                         <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Full Name *</label>
                         <input
@@ -474,18 +489,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                         {errors.name && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.name}</p>}
                       </div>
 
-                      <div>
-                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Phone Number *</label>
-                        <input
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className={`w-full bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
-                          placeholder="10-digit mobile number"
-                        />
-                        {errors.phone && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.phone}</p>}
-                      </div>
-
+                      {/* Address with Location fetch */}
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
                           <label className="block text-[11px] font-bold text-svada-dark/80 uppercase tracking-wider mb-0">Street Address *</label>
@@ -538,6 +542,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                         )}
                       </div>
 
+                      {/* City and State side by side */}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">City *</label>
@@ -563,6 +568,7 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                         </div>
                       </div>
 
+                      {/* Pincode */}
                       <div>
                         <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Pincode *</label>
                         <input
@@ -573,6 +579,44 @@ export default function CartModal({ isOpen, onClose, activeTab = 'cart', setActi
                           placeholder="6-digit Pincode"
                         />
                         {errors.pincode && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.pincode}</p>}
+                      </div>
+
+                      {/* Phone Number */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Phone Number *</label>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className={`w-full bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                          placeholder="10-digit mobile number"
+                        />
+                        {errors.phone && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.phone}</p>}
+                      </div>
+
+                      {/* Alternate Number */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Alternate Number</label>
+                        <input
+                          type="tel"
+                          value={formData.alternatePhone}
+                          onChange={(e) => setFormData({ ...formData, alternatePhone: e.target.value })}
+                          className={`w-full bg-white border ${errors.alternatePhone ? 'border-red-400 focus:ring-red-200' : 'border-orange-100 focus:ring-orange-200'} rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all`}
+                          placeholder="Optional alternate mobile number"
+                        />
+                        {errors.alternatePhone && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.alternatePhone}</p>}
+                      </div>
+
+                      {/* Courier Service Available in your area */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-svada-dark/80 mb-1 uppercase tracking-wider">Courier Service Available in your area</label>
+                        <input
+                          type="text"
+                          value={formData.courierService}
+                          onChange={(e) => setFormData({ ...formData, courierService: e.target.value })}
+                          className="w-full bg-white border border-orange-100 focus:ring-orange-200 rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 transition-all"
+                          placeholder="e.g. DTDC, Professional, Post Office, BlueDart"
+                        />
                       </div>
                     </div>
                   </div>
