@@ -1983,6 +1983,62 @@ app.post('/api/settings', async (req, res) => {
   }
 });
 
+// Dynamic meta tag injection for Product Details page sharing (link previews)
+app.get('/product', async (req, res) => {
+  const productId = req.query.id || req.query.product;
+  let product = null;
+
+  if (productId) {
+    try {
+      const [rows] = await db.query("SELECT * FROM products WHERE id = ?", [productId]);
+      if (rows.length > 0) {
+        product = rows[0];
+      }
+    } catch (err) {
+      console.warn("Database offline. Attempting fallback JSON lookup for preview.");
+    }
+
+    if (!product && fallbackProducts && fallbackProducts.length > 0) {
+      product = fallbackProducts.find(p => String(p.id) === String(productId));
+    }
+  }
+
+  const filePath = path.join(__dirname, '../dist/index.html');
+  if (!fs.existsSync(filePath)) {
+    return res.sendFile(path.join(__dirname, '../dist/index.html'));
+  }
+
+  try {
+    let htmlContent = fs.readFileSync(filePath, 'utf8');
+
+    if (product) {
+      const titleText = `${product.name} | SVADA Homemade Farms`;
+      const descText = product.description || 'Authentic organic products and pickles directly from village farms.';
+      
+      let imageUrl = product.image || '';
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        const host = req.get('host');
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        imageUrl = `${protocol}://${host}${imageUrl}`;
+      }
+
+      htmlContent = htmlContent
+        .replace(/<title>.*?<\/title>/g, `<title>${titleText}</title>`)
+        .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${descText}" />`)
+        .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${titleText}" />`)
+        .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${descText}" />`)
+        .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${imageUrl}" />`)
+        .replace(/<meta name="twitter:title" content=".*?" \/>/g, `<meta name="twitter:title" content="${titleText}" />`)
+        .replace(/<meta name="twitter:description" content=".*?" \/>/g, `<meta name="twitter:description" content="${descText}" />`)
+        .replace(/<meta name="twitter:image" content=".*?" \/>/g, `<meta name="twitter:image" content="${imageUrl}" />`);
+    }
+
+    res.send(htmlContent);
+  } catch (err) {
+    res.sendFile(filePath);
+  }
+});
+
 // Fallback non-API client requests to index.html (React Router)
 app.get(/^(?!\/api\/).*$/, (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
