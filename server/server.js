@@ -2021,6 +2021,7 @@ app.get('/product', async (req, res) => {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
         imageUrl = `${protocol}://${host}${imageUrl}`;
       }
+      imageUrl = encodeURI(imageUrl);
 
       htmlContent = htmlContent
         .replace(/<title>.*?<\/title>/g, `<title>${titleText}</title>`)
