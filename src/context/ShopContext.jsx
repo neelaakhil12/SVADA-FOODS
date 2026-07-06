@@ -2234,15 +2234,21 @@ export const ShopProvider = ({ children }) => {
       .then(data => {
         if (data && data.length > 0) {
           setProducts(data);
-          localStorage.setItem('svada_custom_products', JSON.stringify(data));
+          try {
+            localStorage.setItem('svada_custom_products', JSON.stringify(data));
+          } catch (e) {
+            console.warn("Storage write failed for products:", e.message);
+          }
         } else {
           setProducts(PRODUCTS_DATA);
         }
       })
       .catch(err => {
-        alert("DEBUG Product Fetch Error: " + err.message + " | " + err.toString());
         console.warn("Using fallback products data due to API error:", err);
-        const local = localStorage.getItem('svada_custom_products');
+        let local = null;
+        try {
+          local = localStorage.getItem('svada_custom_products');
+        } catch (_) {}
         setProducts(local ? JSON.parse(local) : PRODUCTS_DATA);
       });
 
@@ -2260,8 +2266,12 @@ export const ShopProvider = ({ children }) => {
             meta[c.name] = { image: c.image, desc: c.description };
           });
           setCategoryMetadata(meta);
-          localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
-          localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
+          try {
+            localStorage.setItem('svada_categories', JSON.stringify(data.map(c => c.name)));
+            localStorage.setItem('svada_category_metadata', JSON.stringify(meta));
+          } catch (e) {
+            console.warn("Storage write failed for categories:", e.message);
+          }
         } else {
           setCategories(Object.keys(DEFAULT_CATEGORY_METADATA));
           setCategoryMetadata(DEFAULT_CATEGORY_METADATA);
@@ -2269,8 +2279,12 @@ export const ShopProvider = ({ children }) => {
       })
       .catch(err => {
         console.warn("Using fallback categories due to API error:", err);
-        const localCats = localStorage.getItem('svada_categories');
-        const localMeta = localStorage.getItem('svada_category_metadata');
+        let localCats = null;
+        let localMeta = null;
+        try {
+          localCats = localStorage.getItem('svada_categories');
+          localMeta = localStorage.getItem('svada_category_metadata');
+        } catch (_) {}
         setCategories(localCats ? JSON.parse(localCats) : Object.keys(DEFAULT_CATEGORY_METADATA));
         setCategoryMetadata(localMeta ? JSON.parse(localMeta) : DEFAULT_CATEGORY_METADATA);
       });
@@ -2287,12 +2301,19 @@ export const ShopProvider = ({ children }) => {
       .then(data => {
         if (data && data.length > 0) {
           setHeroSlides(data);
-          localStorage.setItem('svada_hero_slides', JSON.stringify(data));
+          try {
+            localStorage.setItem('svada_hero_slides', JSON.stringify(data));
+          } catch (e) {
+            console.warn("Storage write failed for hero slides:", e.message);
+          }
         }
       })
       .catch(err => {
         console.error("Error fetching hero slides:", err);
-        const local = localStorage.getItem('svada_hero_slides');
+        let local = null;
+        try {
+          local = localStorage.getItem('svada_hero_slides');
+        } catch (_) {}
         if (local) setHeroSlides(JSON.parse(local));
       });
 
@@ -2626,12 +2647,19 @@ export const ShopProvider = ({ children }) => {
       })
       .then(data => {
         setOrders(data);
-        localStorage.setItem('svada_orders', JSON.stringify(data));
+        try {
+          localStorage.setItem('svada_orders', JSON.stringify(data));
+        } catch (e) {
+          console.warn("Storage write failed for orders:", e.message);
+        }
         return data;
       })
       .catch(err => {
         console.error("Error fetching orders:", err);
-        const local = localStorage.getItem('svada_orders');
+        let local = null;
+        try {
+          local = localStorage.getItem('svada_orders');
+        } catch (_) {}
         if (local) {
           const parsed = JSON.parse(local);
           setOrders(parsed);
