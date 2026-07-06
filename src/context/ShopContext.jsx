@@ -2240,6 +2240,7 @@ export const ShopProvider = ({ children }) => {
         }
       })
       .catch(err => {
+        alert("DEBUG Product Fetch Error: " + err.message + " | " + err.toString());
         console.warn("Using fallback products data due to API error:", err);
         const local = localStorage.getItem('svada_custom_products');
         setProducts(local ? JSON.parse(local) : PRODUCTS_DATA);
