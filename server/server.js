@@ -989,7 +989,22 @@ app.put('/api/orders/:id/tracking', async (req, res) => {
   const { id } = req.params;
   const { trackingLink, trackingId } = req.body;
   try {
-    await db.query("UPDATE orders SET trackingLink = ?, trackingId = ? WHERE id = ?", [trackingLink || null, trackingId || null, id]);
+    try {
+      await db.query("UPDATE orders SET trackingLink = ?, trackingId = ? WHERE id = ?", [trackingLink || null, trackingId || null, id]);
+    } catch (queryErr) {
+      // If trackingId column is missing in existing production table, auto-add column and retry
+      if (queryErr.message && (queryErr.message.includes('trackingId') || queryErr.errno === 1054 || queryErr.code === 'ER_BAD_FIELD_ERROR')) {
+        try {
+          await db.query("ALTER TABLE orders ADD COLUMN trackingId VARCHAR(255) DEFAULT NULL");
+          await db.query("UPDATE orders SET trackingLink = ?, trackingId = ? WHERE id = ?", [trackingLink || null, trackingId || null, id]);
+        } catch (retryErr) {
+          // Fallback if column addition fails: update trackingLink only
+          await db.query("UPDATE orders SET trackingLink = ? WHERE id = ?", [trackingLink || null, id]);
+        }
+      } else {
+        throw queryErr;
+      }
+    }
     let updated = false;
     memoryOrders.forEach(o => {
       if (o.id === id) {
