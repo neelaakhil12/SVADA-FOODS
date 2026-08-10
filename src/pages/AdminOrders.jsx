@@ -3,7 +3,7 @@ import { ShopContext } from '../context/ShopContext';
 import { 
   CheckCircle, XCircle, Trash2, Search, Calendar, 
   Phone, MapPin, ClipboardCheck, ArrowRight, ExternalLink,
-  Truck, ShieldCheck, Eye, AlertCircle, ShoppingCart, Hash, Link as LinkIcon
+  Truck, ShieldCheck, Eye, AlertCircle, ShoppingCart, Hash, Link as LinkIcon, RotateCcw
 } from 'lucide-react';
 
 export default function AdminOrders() {
@@ -362,11 +362,23 @@ export default function AdminOrders() {
                         </>
                       )}
 
+                      {order.status === 'completed' && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'pending')}
+                          className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                          title="Revert accidentally completed order back to Pending list"
+                        >
+                          <RotateCcw size={14} />
+                          Revert to Pending
+                        </button>
+                      )}
+
                       {order.status === 'cancelled' && (
                         <button
                           onClick={() => handleStatusChange(order.id, 'pending')}
                           className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
                         >
+                          <RotateCcw size={14} />
                           Restore to Pending
                         </button>
                       )}
