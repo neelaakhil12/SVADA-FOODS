@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { User, Package, LogOut, ChevronRight, Clock, CheckCircle, Truck, XCircle, AlertCircle, FileText, ShoppingBag } from 'lucide-react';
+import { User, Package, LogOut, ChevronRight, Clock, CheckCircle, Truck, XCircle, AlertCircle, FileText, ShoppingBag, Copy, Check, Hash } from 'lucide-react';
 import InvoiceModal from '../components/InvoiceModal';
 import TrackingModal from '../components/TrackingModal';
 
@@ -10,7 +10,16 @@ export default function Account() {
   const [invoiceOrder, setInvoiceOrder] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [trackingLink, setTrackingLink] = useState('');
+  const [trackingId, setTrackingId] = useState('');
   const [showTracking, setShowTracking] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopyTrackingId = (id) => {
+    if (!id) return;
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   // Filter orders matching user's phone number
   const userOrders = orders ? orders.filter(
@@ -237,6 +246,46 @@ export default function Account() {
                           )}
                         </div>
 
+                        {/* Tracking Details Banner */}
+                        {(order.trackingId || order.trackingLink) && (
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50/50 border-t border-b border-blue-100 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-blue-900 flex items-center gap-1.5">
+                                <Truck className="h-4 w-4 text-blue-600" />
+                                Courier Tracking:
+                              </span>
+                              {order.trackingId && (
+                                <div className="flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-lg shadow-2xs font-mono">
+                                  <Hash className="h-3 w-3 text-blue-500" />
+                                  <span className="font-bold text-gray-800 text-xs">{order.trackingId}</span>
+                                  <button
+                                    onClick={() => handleCopyTrackingId(order.trackingId)}
+                                    className="ml-1 text-blue-600 hover:text-blue-800 p-0.5 transition cursor-pointer"
+                                    title="Copy Tracking ID"
+                                  >
+                                    {copiedId === order.trackingId ? (
+                                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                    ) : (
+                                      <Copy className="h-3.5 w-3.5" />
+                                    )}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => {
+                                setTrackingLink(order.trackingLink || '');
+                                setTrackingId(order.trackingId || '');
+                                setShowTracking(true);
+                              }}
+                              className="flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl transition cursor-pointer shadow-xs"
+                            >
+                              <Truck className="h-3.5 w-3.5" />
+                              Track Order
+                            </button>
+                          </div>
+                        )}
+
                         {/* Order Footer */}
                         <div className="bg-orange-50/40 px-4 py-3 flex items-center justify-between border-t border-orange-100">
                           <div>
@@ -246,10 +295,11 @@ export default function Account() {
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            {order.trackingLink && (
+                            {(order.trackingLink || order.trackingId) && (
                               <button
                                 onClick={() => {
-                                  setTrackingLink(order.trackingLink);
+                                  setTrackingLink(order.trackingLink || '');
+                                  setTrackingId(order.trackingId || '');
                                   setShowTracking(true);
                                 }}
                                 className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-2 rounded-xl hover:bg-blue-100 transition cursor-pointer"
@@ -362,6 +412,7 @@ export default function Account() {
         isOpen={showTracking}
         onClose={() => setShowTracking(false)}
         trackingLink={trackingLink}
+        trackingId={trackingId}
       />
     </div>
   );

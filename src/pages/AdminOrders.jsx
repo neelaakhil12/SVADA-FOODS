@@ -3,7 +3,7 @@ import { ShopContext } from '../context/ShopContext';
 import { 
   CheckCircle, XCircle, Trash2, Search, Calendar, 
   Phone, MapPin, ClipboardCheck, ArrowRight, ExternalLink,
-  Truck, ShieldCheck, Eye, AlertCircle, ShoppingCart
+  Truck, ShieldCheck, Eye, AlertCircle, ShoppingCart, Hash, Link as LinkIcon
 } from 'lucide-react';
 
 export default function AdminOrders() {
@@ -412,35 +412,67 @@ export default function AdminOrders() {
 
                     {/* Ordered Items & Tracking Link Input */}
                     <div className="lg:col-span-8 space-y-4">
-                      {/* Courier Tracking Link Form */}
-                      <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-2xs space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                          <Truck size={14} className="text-[#3B1E0A]" />
-                          <span>Delivery Courier Tracking Link (DTDC)</span>
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            defaultValue={order.trackingLink || ''}
-                            placeholder="e.g. https://www.dtdc.in/tracking/..."
-                            className="flex-1 text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#3B1E0A] focus:bg-white"
-                            onBlur={(e) => {
-                              const newLink = e.target.value.trim();
-                              if (newLink !== (order.trackingLink || '')) {
-                                updateOrderTracking(order.id, newLink);
-                              }
-                            }}
-                          />
+                      {/* Courier Tracking Details Form */}
+                      <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-2xs space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <Truck size={14} className="text-[#3B1E0A]" />
+                            <span>Courier Shipping & Tracking Details</span>
+                          </label>
+                          {(order.trackingId || order.trackingLink) && (
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                              Tracking Saved ✓
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {/* Tracking ID Field */}
+                          <div>
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-1 flex items-center gap-1">
+                              <Hash size={11} className="text-gray-400" />
+                              Tracking ID / Waybill No
+                            </label>
+                            <input
+                              type="text"
+                              id={`tracking-id-${order.id}`}
+                              defaultValue={order.trackingId || ''}
+                              placeholder="e.g. DTDC12345678"
+                              className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#3B1E0A] focus:bg-white font-mono"
+                            />
+                          </div>
+
+                          {/* Tracking Link Field */}
+                          <div>
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-1 flex items-center gap-1">
+                              <LinkIcon size={11} className="text-gray-400" />
+                              Courier Website Link (URL)
+                            </label>
+                            <input
+                              type="text"
+                              id={`tracking-link-${order.id}`}
+                              defaultValue={order.trackingLink || ''}
+                              placeholder="e.g. https://www.dtdc.in/tracking/..."
+                              className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#3B1E0A] focus:bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-1">
                           <button
                             type="button"
-                            onClick={(e) => {
-                              const input = e.currentTarget.previousElementSibling;
-                              updateOrderTracking(order.id, input.value.trim());
-                              alert('Tracking link saved successfully!');
+                            onClick={() => {
+                              const idInput = document.getElementById(`tracking-id-${order.id}`);
+                              const linkInput = document.getElementById(`tracking-link-${order.id}`);
+                              const trkId = idInput ? idInput.value.trim() : '';
+                              const trkLink = linkInput ? linkInput.value.trim() : '';
+                              updateOrderTracking(order.id, trkLink, trkId);
+                              alert('Tracking information saved successfully!');
                             }}
-                            className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-xs font-bold px-4 py-2 rounded-lg transition"
+                            className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-xs cursor-pointer flex items-center gap-1.5"
                           >
-                            Save Link
+                            <Truck size={13} />
+                            Save Tracking Info
                           </button>
                         </div>
                       </div>

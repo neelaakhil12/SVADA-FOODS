@@ -441,9 +441,18 @@ async function checkAndInitDatabase() {
       await db.query("ALTER TABLE orders ADD COLUMN trackingLink VARCHAR(512) DEFAULT NULL");
       console.log("Migration: Added trackingLink column to orders table.");
     } catch (err) {
-      // Ignore if the column already exists (Error Code 1060 or ER_DUP_FIELDNAME)
       if (err.errno !== 1060 && err.code !== 'ER_DUP_FIELDNAME') {
         console.warn("Failed to automatically add trackingLink column:", err.message);
+      }
+    }
+
+    // Auto-migrate: Add trackingId column to orders table if it doesn't exist
+    try {
+      await db.query("ALTER TABLE orders ADD COLUMN trackingId VARCHAR(255) DEFAULT NULL");
+      console.log("Migration: Added trackingId column to orders table.");
+    } catch (err) {
+      if (err.errno !== 1060 && err.code !== 'ER_DUP_FIELDNAME') {
+        console.warn("Failed to automatically add trackingId column:", err.message);
       }
     }
 
@@ -978,37 +987,39 @@ app.put('/api/orders/:id/status', async (req, res) => {
 
 app.put('/api/orders/:id/tracking', async (req, res) => {
   const { id } = req.params;
-  const { trackingLink } = req.body;
+  const { trackingLink, trackingId } = req.body;
   try {
-    await db.query("UPDATE orders SET trackingLink = ? WHERE id = ?", [trackingLink, id]);
+    await db.query("UPDATE orders SET trackingLink = ?, trackingId = ? WHERE id = ?", [trackingLink || null, trackingId || null, id]);
     let updated = false;
     memoryOrders.forEach(o => {
       if (o.id === id) {
-        o.trackingLink = trackingLink;
+        o.trackingLink = trackingLink || '';
+        o.trackingId = trackingId || '';
         updated = true;
       }
     });
     if (updated) {
       try { fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8'); } catch (fsErr) {}
     }
-    res.json({ message: "Order tracking link updated" });
+    res.json({ message: "Order tracking info updated" });
   } catch (error) {
     if (isDbConfigured) {
       console.error("Database error in PUT /api/orders/:id/tracking:", error);
       return res.status(500).json({ error: "Database operation failed: " + getDbErrorMessage(error) });
     }
-    console.warn("Database offline. Updating order tracking link in fallback JSON.");
+    console.warn("Database offline. Updating order tracking info in fallback JSON.");
     let updated = false;
     memoryOrders.forEach(o => {
       if (o.id === id) {
-        o.trackingLink = trackingLink;
+        o.trackingLink = trackingLink || '';
+        o.trackingId = trackingId || '';
         updated = true;
       }
     });
     if (updated) {
       try {
         fs.writeFileSync(ordersFallbackPath, JSON.stringify(memoryOrders, null, 2), 'utf8');
-        res.json({ message: "Order tracking link updated (Fallback JSON)" });
+        res.json({ message: "Order tracking info updated (Fallback JSON)" });
       } catch (fsErr) {
         res.status(500).json({ error: "Failed to persist fallback order tracking update: " + fsErr.message });
       }

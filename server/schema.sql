@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS orders (
   status VARCHAR(20) DEFAULT 'pending',
   createdAt DATETIME NOT NULL,
   total INT DEFAULT 0,
-  trackingLink VARCHAR(512) DEFAULT NULL
+  trackingLink VARCHAR(512) DEFAULT NULL,
+  trackingId VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS order_items (

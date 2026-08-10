@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { Mail, User, ShieldCheck, ArrowRight, Sparkles, CheckCircle, ShoppingBag, Phone } from 'lucide-react';
+import { Mail, User, ShieldCheck, ArrowRight, Sparkles, CheckCircle, ShoppingBag, Phone, Copy, Check, Hash, Truck } from 'lucide-react';
 import TrackingModal from '../components/TrackingModal';
 
 export default function Login() {
@@ -9,6 +9,7 @@ export default function Login() {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [trackingLink, setTrackingLink] = useState('');
+  const [trackingId, setTrackingId] = useState('');
   const [showTracking, setShowTracking] = useState(false);
   
   const [linkingPhone, setLinkingPhone] = useState('');
@@ -643,20 +644,29 @@ export default function Login() {
                             ))}
                           </div>
 
-                          {/* Tracking Link display */}
-                          {order.trackingLink && (
+                          {/* Tracking Link & ID display */}
+                          {(order.trackingLink || order.trackingId) && (
                             <div className="bg-blue-50/60 border border-blue-100 p-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs mt-1">
-                              <div className="text-blue-800">
-                                <span className="font-bold">🚚 Delivery Courier Tracking:</span>
-                                <p className="text-[10px] text-blue-700/80 mt-0.5">Handed to courier partner (DTDC / delivery service).</p>
+                              <div className="text-blue-800 space-y-1">
+                                <span className="font-bold flex items-center gap-1.5">
+                                  <Truck className="h-4 w-4 text-blue-600" />
+                                  Delivery Courier Tracking:
+                                </span>
+                                {order.trackingId && (
+                                  <div className="text-[11px] font-mono text-blue-900 bg-white border border-blue-200 px-2 py-0.5 rounded-md inline-block">
+                                    ID: <span className="font-bold">{order.trackingId}</span>
+                                  </div>
+                                )}
                               </div>
                               <button
                                 onClick={() => {
-                                  setTrackingLink(order.trackingLink);
+                                  setTrackingLink(order.trackingLink || '');
+                                  setTrackingId(order.trackingId || '');
                                   setShowTracking(true);
                                 }}
-                                className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-[11px] font-bold px-4.5 py-2 rounded-xl text-center transition flex-shrink-0 cursor-pointer"
+                                className="bg-[#3B1E0A] hover:bg-[#5a2e11] text-white text-[11px] font-bold px-4.5 py-2 rounded-xl text-center transition flex-shrink-0 cursor-pointer flex items-center justify-center gap-1"
                               >
+                                <Truck className="h-3.5 w-3.5" />
                                 Track Package
                               </button>
                             </div>
@@ -941,6 +951,7 @@ export default function Login() {
             isOpen={showTracking}
             onClose={() => setShowTracking(false)}
             trackingLink={trackingLink}
+            trackingId={trackingId}
           />
         </div>
 

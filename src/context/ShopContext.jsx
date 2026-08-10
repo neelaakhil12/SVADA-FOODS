@@ -2736,18 +2736,24 @@ export const ShopProvider = ({ children }) => {
       });
   };
 
-  const updateOrderTracking = (orderId, trackingLink) => {
+  const updateOrderTracking = (orderId, trackingLink, trackingId = '') => {
+    let link = trackingLink;
+    let trkId = trackingId;
+    if (typeof trackingLink === 'object' && trackingLink !== null) {
+      link = trackingLink.trackingLink;
+      trkId = trackingLink.trackingId;
+    }
     const originalOrders = [...orders];
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, trackingLink } : o));
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, trackingLink: link, trackingId: trkId } : o));
 
     fetch(`${API_BASE}/orders/${orderId}/tracking`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ trackingLink })
+      body: JSON.stringify({ trackingLink: link, trackingId: trkId })
     })
       .then(async (res) => {
         if (!res.ok) {
-          throw await parseResponseError(res, "Failed to update order tracking link");
+          throw await parseResponseError(res, "Failed to update order tracking info");
         }
         return res.json();
       })
@@ -2755,8 +2761,8 @@ export const ShopProvider = ({ children }) => {
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(err => {
-        console.error("Error updating order tracking link, reverting:", err);
-        alert(`Failed to update tracking link: ${err.message}`);
+        console.error("Error updating order tracking info, reverting:", err);
+        alert(`Failed to update tracking info: ${err.message}`);
         setOrders(originalOrders);
       });
   };
