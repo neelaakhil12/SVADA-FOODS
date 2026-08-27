@@ -251,11 +251,10 @@ function AppContent({ showSplash }) {
       case 'terms':
         return <Terms />;
       case 'admin-login':
-        return <AdminLogin />;
-      case 'admin-reset-password':
-        return <AdminResetPassword />;
       case 'admin':
         return <AdminPanel />;
+      case 'admin-reset-password':
+        return <AdminResetPassword />;
       default:
         return <Home />;
     }

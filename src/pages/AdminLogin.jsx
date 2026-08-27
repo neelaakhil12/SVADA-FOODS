@@ -8,7 +8,7 @@ const ADMIN_CREDENTIALS = {
 };
 
 export default function AdminLogin() {
-  const { isAdmin, setIsAdmin, setCurrentPage } = useContext(ShopContext);
+  const { isAdmin, setIsAdmin, currentPage, setCurrentPage } = useContext(ShopContext);
   
   // Views: 'login' | 'forgot'
   const [view, setView] = useState('login');
@@ -23,11 +23,11 @@ export default function AdminLogin() {
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // If already logged in as admin, redirect to admin panel
-  if (isAdmin) {
-    setCurrentPage('admin');
-    return null;
-  }
+  useEffect(() => {
+    if (isAdmin && currentPage === 'admin-login') {
+      setCurrentPage('admin');
+    }
+  }, [isAdmin, currentPage, setCurrentPage]);
 
   const apiBase = (import.meta.env.DEV && window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : '/api';
 

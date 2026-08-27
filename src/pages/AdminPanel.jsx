@@ -11,24 +11,19 @@ import AdminUsers from './AdminUsers';
 import AdminSettings from './AdminSettings';
 
 
+import AdminLogin from './AdminLogin';
+
 const AdminPanel = () => {
-  const { isAdmin, setIsAdmin, setCurrentPage } = useContext(ShopContext);
+  const { isAdmin, setIsAdmin } = useContext(ShopContext);
   const [activePage, setActivePage] = useState('dashboard');
   const [adminCategoryFilter, setAdminCategoryFilter] = useState('');
 
   const handleLogout = () => {
     setIsAdmin(false);
-    setCurrentPage('admin-login');
   };
 
-  useEffect(() => {
-    if (!isAdmin) {
-      setCurrentPage('admin-login');
-    }
-  }, [isAdmin, setCurrentPage]);
-
   if (!isAdmin) {
-    return null;
+    return <AdminLogin />;
   }
 
   const renderActivePage = () => {
