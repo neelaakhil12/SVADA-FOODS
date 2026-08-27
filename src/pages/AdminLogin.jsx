@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Mail, Lock, ShieldCheck, ArrowRight, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle } from 'lucide-react';
 
